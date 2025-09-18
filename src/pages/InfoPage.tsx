@@ -18,9 +18,9 @@ type InfoPageContent = {
 
 const infoContent: Record<string, InfoPageContent> = {
   about: {
-    title: "About AdventureRent",
+    title: "About CiKr",
     intro:
-      "AdventureRent connects renters with trusted owners and partners so outdoor experiences are as easy to book as a city stay. Our marketplace is designed around transparent pricing, responsible stewardship, and Canadian-ready compliance from day one.",
+      "CiKr connects renters with trusted owners and partners so outdoor experiences are as easy to book as a city stay. Our marketplace is designed around transparent pricing, responsible stewardship, and Canadian-ready compliance from day one.",
     sections: [
       {
         heading: "What we believe",
@@ -37,7 +37,7 @@ const infoContent: Record<string, InfoPageContent> = {
     ],
   },
   safety: {
-    title: "Safety at AdventureRent",
+    title: "Safety at CiKr",
     intro:
       "Every trip runs on layered trust controls spanning verification, insurance, messaging safeguards, and immutable audit logs.",
     sections: [
@@ -94,7 +94,7 @@ const infoContent: Record<string, InfoPageContent> = {
       {
         heading: "How to connect",
         body: [
-          "Email our team at careers@adventurerent.ca with a short note about the problems you love solving and the outdoor adventures that inspire you.",
+          "Email our team at careers@cikr.ca with a short note about the problems you love solving and the outdoor adventures that inspire you.",
         ],
       },
     ],
@@ -113,7 +113,7 @@ const infoContent: Record<string, InfoPageContent> = {
           "Submitting insurance claims and providing evidence",
         ],
         body: [
-          "Still stuck? Reach out at support@adventurerent.ca and our Ops team will respond within one business day.",
+          "Still stuck? Reach out at support@cikr.ca and our Ops team will respond within one business day.",
         ],
       },
     ],
@@ -132,7 +132,7 @@ const infoContent: Record<string, InfoPageContent> = {
       {
         heading: "Report a concern",
         body: [
-          "Email trust@adventurerent.ca or flag content directly in messaging threads. Critical incidents trigger break-glass workflows with full audit trails.",
+          "Email trust@cikr.ca or flag content directly in messaging threads. Critical incidents trigger break-glass workflows with full audit trails.",
         ],
       },
     ],
@@ -140,7 +140,7 @@ const infoContent: Record<string, InfoPageContent> = {
   terms: {
     title: "Terms of Service",
     intro:
-      "By using AdventureRent you agree to these marketplace terms. We keep them concise so you understand your responsibilities before listing or booking gear.",
+      "By using CiKr you agree to these marketplace terms. We keep them concise so you understand your responsibilities before listing or booking gear.",
     lastUpdated: "Updated February 2025",
     sections: [
       {
@@ -175,7 +175,7 @@ const infoContent: Record<string, InfoPageContent> = {
         bullets: [
           "Request data access, updates, or deletion in line with PIPEDA and BC PIPA",
           "Opt out of marketing emails through the preferences center",
-          "Reach our privacy team at privacy@adventurerent.ca",
+          "Reach our privacy team at privacy@cikr.ca",
         ],
         body: [],
       },
@@ -215,7 +215,7 @@ const InfoPage = () => {
       <main className="py-16">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
           <header className="space-y-3 text-left">
-            <p className="text-sm uppercase tracking-wide text-primary/80">AdventureRent</p>
+            <p className="text-sm uppercase tracking-wide text-primary/80">CiKr</p>
             <h1 className="text-4xl font-bold text-foreground">{content.title}</h1>
             {content.lastUpdated ? (
               <p className="text-sm text-muted-foreground">{content.lastUpdated}</p>

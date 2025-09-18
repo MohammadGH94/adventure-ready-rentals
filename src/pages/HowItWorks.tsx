@@ -64,7 +64,7 @@ const HowItWorks = () => {
         <section className="py-16 bg-gradient-to-br from-primary/5 to-accent/10">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-              How AdventureRent Works
+              How CiKr Works
             </h1>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
               Rent amazing adventure gear in 4 simple steps. Join thousands of adventurers sharing gear in your local community.
@@ -106,7 +106,7 @@ const HowItWorks = () => {
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-                Why Choose AdventureRent?
+                Why Choose CiKr?
               </h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
                 Join the sharing economy and discover the benefits of gear rental.
