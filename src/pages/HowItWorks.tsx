@@ -6,48 +6,48 @@ import colors from "../theme/colors";
 
 const steps = [
   {
-    title: "Explore premium listings",
+    title: "Explore local listings",
     summary:
-      "Use the browse and filter tools to pinpoint the perfect equipment for your next outing.",
+      "Use filters to find gear lovingly maintained by nearby adventurers.",
     details: [
-      "Rich imagery, ratings, and pricing information render consistently across platforms.",
-      "React Query powers fast, cached data fetching for responsive list updates.",
+      "Compare daily rates, deposits, and insurance coverage at a glance.",
+      "Read friendly tips from owners about sizing, fit, and trail-ready accessories.",
     ],
   },
   {
-    title: "Reserve with confidence",
+    title: "Reserve with clarity",
     summary:
-      "Tap into a listing to view availability, insurance options, and owner requirements.",
+      "Lock in your dates knowing exactly how fees, deposits, and insurance support your trip.",
     details: [
-      "Interactive flows stay responsive thanks to shared React Native form logic.",
-      "Secure checkout integrates with the Payments service described in the architecture view.",
+      "Verification keeps the community safe while staying quick with reusable profile details.",
+      "Secure checkout confirms totals before you pay and emails every policy detail for easy reference.",
     ],
   },
   {
-    title: "Pick up and adventure",
-    summary: "Coordinated messaging ensures smooth hand-offs and dependable return experiences.",
+    title: "Pick up and go further",
+    summary: "Chat through pickup plans, snap a few photos, and start exploring with confidence.",
     details: [
-      "Owners manage bookings from the same React Native experience as renters.",
-      "Real-time updates keep both parties aligned on timing and condition reports.",
+      "Friendly reminders keep everyone aligned on pickup, return timing, and cleaning expectations.",
+      "If something happens, just upload photos within 48 hours—we’ll handle the rest.",
     ],
   },
 ];
 
 const highlights = [
   {
-    title: "Unified design system",
+    title: "Transparent from the first tap",
     description:
-      "Typography, spacing, and color tokens are shared between native and web builds, delivering a cohesive brand across every touchpoint.",
+      "Upfront totals outline service fees, deposits, and optional insurance so there are no surprises—just clear choices.",
   },
   {
-    title: "Offline ready",
+    title: "Built for friends planning trips",
     description:
-      "Critical screens cache data locally, allowing users to review details and prepare trips even when the signal drops in remote areas.",
+      "Guided checklists, reminders, and messaging keep renters and owners in sync without corporate jargon.",
   },
   {
-    title: "Accessibility first",
+    title: "Reuse over replace",
     description:
-      "Semantic roles, high contrast palettes, and large tap targets ensure the experience works for all explorers.",
+      "Sharing gear through CiKr keeps quality equipment in play longer, supports locals, and trims your footprint.",
   },
 ];
 
@@ -57,11 +57,10 @@ const HowItWorks = () => (
     <ScrollView contentContainerStyle={styles.content}>
       <View style={styles.hero}>
         <Text style={styles.overline}>How it works</Text>
-        <Text style={styles.title}>Plan adventures without swapping codebases</Text>
+        <Text style={styles.title}>Borrow gear safely in three easy steps</Text>
         <Text style={styles.subtitle}>
-          Adventure Ready Rentals now runs on a unified React Native foundation that renders beautifully on both
-          native and web platforms, helping teams iterate faster while customers enjoy a polished experience
-          everywhere.
+          CiKr combines a single React Native experience with friendly guidance so you can discover new trails,
+          understand every fee, and feel good about reusing gear that might otherwise sit idle.
         </Text>
       </View>
 
