@@ -19,7 +19,7 @@ const SignIn = () => {
         <div className="max-w-md mx-auto px-4 sm:px-6 lg:px-8">
           <Card>
             <CardHeader className="text-center">
-              <CardTitle className="text-2xl">Welcome to AdventureRent</CardTitle>
+              <CardTitle className="text-2xl">Welcome to CiKr</CardTitle>
               <p className="text-muted-foreground">
                 Sign in to your account or create a new one
               </p>
