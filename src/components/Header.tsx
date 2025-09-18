@@ -1,215 +1,66 @@
-import { useState, useCallback } from "react";
-import {
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-  useWindowDimensions,
-} from "react-native";
-import { useLocation, useNavigate } from "react-router";
-
-import colors from "../theme/colors";
-
-const navigationItems = [
-  { label: "Home", path: "/" },
-  { label: "Browse", path: "/browse" },
-  { label: "How it works", path: "/how-it-works" },
-  { label: "List your gear", path: "/list-gear" },
-  { label: "Architecture", path: "/architecture" },
-];
+import { Search, User, Heart, ShoppingBag } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Link } from "react-router-dom";
 
 const Header = () => {
-  const { width } = useWindowDimensions();
-  const [isMenuOpen, setMenuOpen] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  const isCompact = width < 900;
-
-  const handleNavigate = useCallback(
-    (path: string) => {
-      setMenuOpen(false);
-      if (location.pathname !== path) {
-        navigate(path);
-      }
-    },
-    [location.pathname, navigate],
-  );
-
-  const renderNavItems = () => (
-    <View style={[styles.linksContainer, isCompact && styles.linksContainerCompact]}>
-      {navigationItems.map((item) => {
-        const isActive = location.pathname === item.path;
-        return (
-          <Pressable
-            key={item.path}
-            accessibilityRole="link"
-            onPress={() => handleNavigate(item.path)}
-            style={({ pressed }) => [
-              styles.link,
-              isActive && styles.linkActive,
-              pressed && styles.linkPressed,
-            ]}
-          >
-            <Text style={[styles.linkText, isActive && styles.linkTextActive]}>
-              {item.label}
-            </Text>
-          </Pressable>
-        );
-      })}
-    </View>
-  );
-
   return (
-    <View style={styles.wrapper}>
-      <View style={styles.inner}>
-        <Pressable
-          onPress={() => handleNavigate("/")}
-          accessibilityRole="link"
-          style={({ pressed }) => [styles.brandWrapper, pressed && styles.linkPressed]}
-        >
-          <Text style={styles.brand}>CiKr</Text>
-          <Text style={styles.subtitle}>Borrow local gear safely and lighten your pack</Text>
-        </Pressable>
+    <header className="bg-card border-b border-border shadow-soft sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <div className="flex-shrink-0">
+            <Link to="/" className="text-2xl font-bold bg-gradient-hero bg-clip-text text-transparent">
+              AdventureRent
+            </Link>
+          </div>
 
-        {isCompact ? (
-          <View style={styles.menuContainer}>
-            <Pressable
-              accessibilityRole="button"
-              onPress={() => setMenuOpen((value) => !value)}
-              style={({ pressed }) => [styles.menuButton, pressed && styles.menuButtonPressed]}
-            >
-              <Text style={styles.menuButtonText}>{isMenuOpen ? "Close" : "Menu"}</Text>
-            </Pressable>
-            {isMenuOpen && <View style={styles.dropdown}>{renderNavItems()}</View>}
-          </View>
-        ) : (
-          renderNavItems()
-        )}
+          {/* Search Bar */}
+          <div className="hidden md:flex flex-1 max-w-md mx-8">
+            <div className="relative w-full">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input
+                placeholder="Search gear..."
+                className="pl-10 search-bar border-0 h-10"
+              />
+            </div>
+          </div>
 
-        <Pressable
-          onPress={() => handleNavigate("/signin")}
-          accessibilityRole="link"
-          style={({ pressed }) => [styles.cta, pressed && styles.ctaPressed]}
-        >
-          <Text style={styles.ctaText}>Sign in</Text>
-        </Pressable>
-      </View>
-    </View>
+          {/* Navigation */}
+          <nav className="hidden md:flex items-center space-x-8">
+            <Link to="/browse" className="text-foreground hover:text-primary transition-adventure">
+              Browse
+            </Link>
+            <Link to="/how-it-works" className="text-foreground hover:text-primary transition-adventure">
+              How it works
+            </Link>
+            <Link to="/architecture" className="text-foreground hover:text-primary transition-adventure">
+              Architecture
+            </Link>
+            <Link to="/list-gear" className="text-foreground hover:text-primary transition-adventure">
+              List your gear
+            </Link>
+          </nav>
+
+          {/* User Actions */}
+          <div className="flex items-center space-x-4">
+            <Button variant="ghost" size="icon" className="hidden sm:flex">
+              <Heart className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="hidden sm:flex">
+              <ShoppingBag className="h-4 w-4" />
+            </Button>
+            <Button asChild variant="outline" size="sm">
+              <Link to="/signin">
+                <User className="h-4 w-4 mr-2" />
+                Sign In
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+    </header>
   );
 };
-
-const styles = StyleSheet.create({
-  wrapper: {
-    backgroundColor: colors.surface,
-    paddingHorizontal: 24,
-    paddingVertical: 20,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
-    shadowColor: colors.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 4,
-  },
-  inner: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 24,
-  },
-  brandWrapper: {
-    flexShrink: 1,
-  },
-  brand: {
-    fontSize: 22,
-    fontWeight: "700",
-    color: colors.primary,
-  },
-  subtitle: {
-    marginTop: 4,
-    color: colors.textMuted,
-    fontSize: 13,
-  },
-  linksContainer: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 18,
-  },
-  linksContainerCompact: {
-    flexDirection: "column",
-    alignItems: "flex-start",
-    justifyContent: "flex-start",
-  },
-  link: {
-    borderRadius: 999,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-  },
-  linkActive: {
-    backgroundColor: colors.surfaceMuted,
-  },
-  linkPressed: {
-    opacity: 0.6,
-  },
-  linkText: {
-    color: colors.textSecondary,
-    fontSize: 15,
-    fontWeight: "500",
-  },
-  linkTextActive: {
-    color: colors.primary,
-    fontWeight: "600",
-  },
-  menuContainer: {
-    position: "relative",
-  },
-  menuButton: {
-    borderRadius: 999,
-    paddingHorizontal: 18,
-    paddingVertical: 10,
-    backgroundColor: colors.surfaceMuted,
-  },
-  menuButtonPressed: {
-    opacity: 0.7,
-  },
-  menuButtonText: {
-    color: colors.textPrimary,
-    fontWeight: "600",
-  },
-  dropdown: {
-    position: "absolute",
-    top: 48,
-    right: 0,
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
-    shadowColor: colors.shadow,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.18,
-    shadowRadius: 12,
-    elevation: 6,
-    gap: 8,
-  },
-  cta: {
-    backgroundColor: colors.action,
-    borderRadius: 999,
-    paddingHorizontal: 22,
-    paddingVertical: 12,
-  },
-  ctaPressed: {
-    backgroundColor: colors.actionDark,
-  },
-  ctaText: {
-    color: colors.primaryContrast,
-    fontWeight: "700",
-    letterSpacing: 0.5,
-  },
-});
 
 export default Header;

@@ -1,192 +1,181 @@
-import { ScrollView, StyleSheet, Text, View } from "react-native";
-
-import Footer from "../components/Footer";
-import Header from "../components/Header";
-import colors from "../theme/colors";
+import { Search, Calendar, Shield, Star } from "lucide-react";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const steps = [
   {
-    title: "Explore local listings",
-    summary:
-      "Use filters to find gear lovingly maintained by nearby adventurers.",
-    details: [
-      "Compare daily rates, deposits, and insurance coverage at a glance.",
-      "Read friendly tips from owners about sizing, fit, and trail-ready accessories.",
-    ],
+    icon: Search,
+    title: "1. Search & Browse",
+    description: "Find the perfect gear for your adventure. Filter by location, dates, and gear type to discover amazing equipment from local owners."
   },
   {
-    title: "Reserve with clarity",
-    summary:
-      "Lock in your dates knowing exactly how fees, deposits, and insurance support your trip.",
-    details: [
-      "Verification keeps the community safe while staying quick with reusable profile details.",
-      "Secure checkout confirms totals before you pay and emails every policy detail for easy reference.",
-    ],
+    icon: Calendar,
+    title: "2. Book & Pay",
+    description: "Select your dates and book instantly. Secure payment processing and instant confirmation. Message owners directly for any questions."
   },
   {
-    title: "Pick up and go further",
-    summary: "Chat through pickup plans, snap a few photos, and start exploring with confidence.",
-    details: [
-      "Friendly reminders keep everyone aligned on pickup, return timing, and cleaning expectations.",
-      "If something happens, just upload photos within 48 hours—we’ll handle the rest.",
-    ],
+    icon: Shield,
+    title: "3. Pick Up & Adventure",
+    description: "Meet your gear owner or arrange delivery. All rentals include damage protection and 24/7 support during your adventure."
   },
+  {
+    icon: Star,
+    title: "4. Return & Review",
+    description: "Return the gear and share your experience. Rate your rental and help build our trusted community of adventurers."
+  }
 ];
 
-const highlights = [
+const benefits = [
   {
-    title: "Transparent from the first tap",
-    description:
-      "Upfront totals outline service fees, deposits, and optional insurance so there are no surprises—just clear choices.",
+    title: "Save Money",
+    description: "Rent gear for a fraction of buying new. Try before you buy expensive equipment."
   },
   {
-    title: "Built for friends planning trips",
-    description:
-      "Guided checklists, reminders, and messaging keep renters and owners in sync without corporate jargon.",
+    title: "Local Community",
+    description: "Connect with fellow adventurers in your area. Get local tips and recommendations."
   },
   {
-    title: "Reuse over replace",
-    description:
-      "Sharing gear through CiKr keeps quality equipment in play longer, supports locals, and trims your footprint.",
+    title: "Quality Gear",
+    description: "Access high-end equipment that would be too expensive to own. All gear is verified and maintained."
   },
+  {
+    title: "Insurance Coverage",
+    description: "Every rental includes comprehensive damage protection for peace of mind."
+  },
+  {
+    title: "Expert Support",
+    description: "Get help from gear experts and experienced adventurers. 24/7 customer support."
+  },
+  {
+    title: "Eco-Friendly",
+    description: "Reduce waste by sharing resources. Make a positive environmental impact."
+  }
 ];
 
-const HowItWorks = () => (
-  <View style={styles.wrapper}>
-    <Header />
-    <ScrollView contentContainerStyle={styles.content}>
-      <View style={styles.hero}>
-        <Text style={styles.overline}>How it works</Text>
-        <Text style={styles.title}>Borrow gear safely in three easy steps</Text>
-        <Text style={styles.subtitle}>
-          CiKr combines a single React Native experience with friendly guidance so you can discover new trails,
-          understand every fee, and feel good about reusing gear that might otherwise sit idle.
-        </Text>
-      </View>
+const HowItWorks = () => {
+  return (
+    <div className="min-h-screen bg-background">
+      <Header />
+      
+      <main>
+        {/* Hero Section */}
+        <section className="py-16 bg-gradient-to-br from-primary/5 to-accent/10">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
+              How AdventureRent Works
+            </h1>
+            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+              Rent amazing adventure gear in 4 simple steps. Join thousands of adventurers sharing gear in your local community.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button asChild variant="action" size="lg">
+                <Link to="/browse">Start Browsing Gear</Link>
+              </Button>
+              <Button asChild variant="outline" size="lg">
+                <Link to="/list-gear">List Your Gear</Link>
+              </Button>
+            </div>
+          </div>
+        </section>
 
-      <View style={styles.stepGrid}>
-        {steps.map((step) => (
-          <View key={step.title} style={styles.stepCard}>
-            <Text style={styles.stepTitle}>{step.title}</Text>
-            <Text style={styles.stepSummary}>{step.summary}</Text>
-            <View style={styles.stepDetails}>
-              {step.details.map((detail) => (
-                <Text key={detail} style={styles.stepDetailText}>
-                  • {detail}
-                </Text>
+        {/* Steps Section */}
+        <section className="py-16">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {steps.map((step, index) => (
+                <div key={index} className="text-center">
+                  <div className="bg-primary/10 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                    <step.icon className="h-8 w-8 text-primary" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-foreground mb-2">
+                    {step.title}
+                  </h3>
+                  <p className="text-muted-foreground">
+                    {step.description}
+                  </p>
+                </div>
               ))}
-            </View>
-          </View>
-        ))}
-      </View>
+            </div>
+          </div>
+        </section>
 
-      <View style={styles.highlights}> 
-        {highlights.map((highlight) => (
-          <View key={highlight.title} style={styles.highlightCard}>
-            <Text style={styles.highlightTitle}>{highlight.title}</Text>
-            <Text style={styles.highlightDescription}>{highlight.description}</Text>
-          </View>
-        ))}
-      </View>
+        {/* Benefits Section */}
+        <section className="py-16 bg-muted/30">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+                Why Choose AdventureRent?
+              </h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Join the sharing economy and discover the benefits of gear rental.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {benefits.map((benefit, index) => (
+                <div key={index} className="bg-card rounded-xl p-6 shadow-soft">
+                  <h3 className="text-xl font-semibold text-foreground mb-3">
+                    {benefit.title}
+                  </h3>
+                  <p className="text-muted-foreground">
+                    {benefit.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Safety Section */}
+        <section className="py-16">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div className="bg-accent/10 rounded-2xl p-8">
+              <Shield className="h-16 w-16 text-primary mx-auto mb-6" />
+              <h2 className="text-3xl font-bold text-foreground mb-4">
+                Safety & Trust First
+              </h2>
+              <p className="text-lg text-muted-foreground mb-6">
+                Every rental includes comprehensive damage protection, verified gear owners, and 24/7 support. Your adventure is our priority.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
+                <div>
+                  <strong className="text-foreground block mb-1">Damage Protection</strong>
+                  <span className="text-muted-foreground">Up to $2,000 coverage included</span>
+                </div>
+                <div>
+                  <strong className="text-foreground block mb-1">Verified Owners</strong>
+                  <span className="text-muted-foreground">ID verification & background checks</span>
+                </div>
+                <div>
+                  <strong className="text-foreground block mb-1">24/7 Support</strong>
+                  <span className="text-muted-foreground">Help when you need it most</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        <section className="py-16 bg-gradient-hero">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              Ready for Your Next Adventure?
+            </h2>
+            <p className="text-xl text-white/90 mb-8">
+              Join thousands of adventurers renting gear in your local community.
+            </p>
+            <Button asChild variant="action" size="lg">
+              <Link to="/browse">Start Exploring Gear</Link>
+            </Button>
+          </div>
+        </section>
+      </main>
 
       <Footer />
-    </ScrollView>
-  </View>
-);
-
-const styles = StyleSheet.create({
-  wrapper: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  content: {
-    paddingBottom: 40,
-    gap: 32,
-  },
-  hero: {
-    paddingHorizontal: 24,
-    paddingTop: 32,
-    gap: 12,
-  },
-  overline: {
-    color: colors.accent,
-    letterSpacing: 1.5,
-    textTransform: "uppercase",
-    fontWeight: "700",
-    fontSize: 13,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "800",
-    color: colors.textPrimary,
-  },
-  subtitle: {
-    color: colors.textSecondary,
-    fontSize: 15,
-    lineHeight: 22,
-  },
-  stepGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 16,
-    paddingHorizontal: 24,
-  },
-  stepCard: {
-    flexBasis: "48%",
-    minWidth: 260,
-    backgroundColor: colors.surface,
-    borderRadius: 20,
-    padding: 24,
-    gap: 10,
-    borderWidth: 1,
-    borderColor: colors.border,
-    shadowColor: colors.shadow,
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.08,
-    shadowRadius: 14,
-    elevation: 4,
-  },
-  stepTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: colors.textPrimary,
-  },
-  stepSummary: {
-    color: colors.textSecondary,
-    lineHeight: 20,
-  },
-  stepDetails: {
-    gap: 6,
-  },
-  stepDetailText: {
-    color: colors.textMuted,
-    fontSize: 13,
-    lineHeight: 18,
-  },
-  highlights: {
-    paddingHorizontal: 24,
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 16,
-  },
-  highlightCard: {
-    flexBasis: "30%",
-    minWidth: 220,
-    backgroundColor: colors.surface,
-    padding: 20,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: colors.border,
-    gap: 8,
-  },
-  highlightTitle: {
-    fontWeight: "700",
-    color: colors.primary,
-  },
-  highlightDescription: {
-    color: colors.textSecondary,
-    lineHeight: 20,
-  },
-});
+    </div>
+  );
+};
 
 export default HowItWorks;

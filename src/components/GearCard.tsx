@@ -1,90 +1,70 @@
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Star, Heart } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-import colors from "../theme/colors";
-
-type Props = {
+interface GearCardProps {
   title: string;
   description: string;
-  pricePerDay: number;
+  image: string;
+  price: number;
   rating: number;
   reviewCount: number;
   location: string;
-  imageUri: string;
+}
+
+const GearCard = ({ title, description, image, price, rating, reviewCount, location }: GearCardProps) => {
+  return (
+    <div className="gear-card group cursor-pointer overflow-hidden">
+      <div className="relative aspect-[4/3] overflow-hidden">
+        <img
+          src={image}
+          alt={title}
+          className="w-full h-full object-cover group-hover:scale-105 transition-adventure"
+        />
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute top-3 right-3 bg-white/80 hover:bg-white/90 backdrop-blur-sm"
+        >
+          <Heart className="h-4 w-4" />
+        </Button>
+      </div>
+      
+      <div className="p-4">
+        <div className="flex items-start justify-between mb-2">
+          <h3 className="text-lg font-semibold text-card-foreground line-clamp-1">
+            {title}
+          </h3>
+          <div className="flex items-center gap-1 text-sm">
+            <Star className="h-3 w-3 fill-action text-action" />
+            <span className="text-foreground font-medium">{rating}</span>
+            <span className="text-muted-foreground">({reviewCount})</span>
+          </div>
+        </div>
+        
+        <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
+          {description}
+        </p>
+        
+        <div className="text-xs text-muted-foreground mb-3">
+          📍 {location}
+        </div>
+        
+        <div className="flex items-center justify-between">
+          <div>
+            <span className="text-xl font-bold text-foreground">
+              ${price}
+            </span>
+            <span className="text-muted-foreground text-sm ml-1">
+              /day
+            </span>
+          </div>
+          <Button variant="action" size="sm">
+            Rent Now
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
 };
-
-const GearCard = ({ title, description, pricePerDay, rating, reviewCount, location, imageUri }: Props) => (
-  <Pressable style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}>
-    <Image source={{ uri: imageUri }} style={styles.image} resizeMode="cover" />
-    <View style={styles.content}>
-      <View style={styles.headerRow}>
-        <Text style={styles.title}>{title}</Text>
-        <Text style={styles.price}>${pricePerDay}/day</Text>
-      </View>
-      <Text style={styles.description}>{description}</Text>
-      <View style={styles.metaRow}>
-        <Text style={styles.metaText}>{location}</Text>
-        <Text style={styles.metaText}>
-          {rating.toFixed(1)} · {reviewCount} reviews
-        </Text>
-      </View>
-    </View>
-  </Pressable>
-);
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: 20,
-    overflow: "hidden",
-    shadowColor: colors.shadow,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.12,
-    shadowRadius: 10,
-    elevation: 3,
-  },
-  cardPressed: {
-    transform: [{ translateY: 2 }],
-  },
-  image: {
-    width: "100%",
-    height: 180,
-  },
-  content: {
-    paddingHorizontal: 18,
-    paddingVertical: 16,
-    gap: 8,
-  },
-  headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  title: {
-    flex: 1,
-    fontSize: 18,
-    fontWeight: "700",
-    color: colors.textPrimary,
-  },
-  price: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: colors.action,
-  },
-  description: {
-    color: colors.textSecondary,
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  metaRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  metaText: {
-    color: colors.textMuted,
-    fontSize: 12,
-    fontWeight: "600",
-  },
-});
 
 export default GearCard;

@@ -1,13 +1,5 @@
-import { AppRegistry } from "react-native";
-import App from "./App";
+import { createRoot } from "react-dom/client";
+import App from "./App.tsx";
+import "./index.css";
 
-const APP_NAME = "CiKr";
-
-AppRegistry.registerComponent(APP_NAME, () => App);
-
-if (typeof document !== "undefined") {
-  AppRegistry.runApplication(APP_NAME, {
-    initialProps: {},
-    rootTag: document.getElementById("root"),
-  });
-}
+createRoot(document.getElementById("root")!).render(<App />);
