@@ -68,8 +68,8 @@ const Header = () => {
           accessibilityRole="link"
           style={({ pressed }) => [styles.brandWrapper, pressed && styles.linkPressed]}
         >
-          <Text style={styles.brand}>Adventure Ready Rentals</Text>
-          <Text style={styles.subtitle}>Gear up for unforgettable outdoor experiences</Text>
+          <Text style={styles.brand}>CiKr</Text>
+          <Text style={styles.subtitle}>Borrow local gear safely and lighten your pack</Text>
         </Pressable>
 
         {isCompact ? (

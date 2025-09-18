@@ -27,12 +27,12 @@ const SignIn = () => {
           <Text style={styles.overline}>{isSignIn ? "Welcome back" : "Join the community"}</Text>
           <Text style={styles.title}>
             {isSignIn
-              ? "Access your adventure hub"
-              : "Create an account in minutes"}
+              ? "Sign in to keep exploring safely"
+              : "Create your CiKr account in minutes"}
           </Text>
           <Text style={styles.subtitle}>
-            The authentication flow shares a single React Native implementation across mobile and web, including
-            validation states and secure text entry.
+            We keep things friendly and secure—let’s get you verified so you can start renting safely, review
+            deposits, and choose insurance with confidence.
           </Text>
         </View>
 
@@ -117,8 +117,8 @@ const SignIn = () => {
             <Text style={styles.submitText}>{isSignIn ? "Sign in" : "Create account"}</Text>
           </Pressable>
           <Text style={styles.legal}>
-            By continuing you agree to our Terms of Service and confirm the privacy-first practices outlined in
-            the architecture documentation.
+            By continuing you agree to our Terms of Service and acknowledge our privacy-first practices that
+            protect your personal information.
           </Text>
         </View>
 

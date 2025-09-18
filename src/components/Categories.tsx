@@ -8,25 +8,26 @@ const categories = [
   {
     id: "climbing",
     title: "Climbing",
-    description: "Harnesses, ropes, and protection curated for alpine legends and boulder newcomers alike.",
+    description:
+      "Harnesses, ropes, and protection maintained by local climbers so first-timers and pros feel secure.",
     imageUri: "https://images.unsplash.com/photo-1509644851220-51ebdcca412f?auto=format&fit=crop&w=1200&q=80",
   },
   {
     id: "camping",
     title: "Camping",
-    description: "From ultralight shelters to luxe family glamping setups ready for every trailhead.",
+    description: "From ultralight shelters to cozy family tents shared by neighbours who love seeing gear reused.",
     imageUri: "https://images.unsplash.com/photo-1525104698733-6d46d76471e6?auto=format&fit=crop&w=1200&q=80",
   },
   {
     id: "water",
     title: "Water sports",
-    description: "Kayaks, SUPs, and wetsuits designed for lakeside dawn patrols and coastal escapes.",
+    description: "Kayaks, SUPs, and wetsuits paired with safety gear from paddlers who know the local waters best.",
     imageUri: "https://images.unsplash.com/photo-1525182008055-f88b95ff7980?auto=format&fit=crop&w=1200&q=80",
   },
   {
     id: "winter",
     title: "Winter pursuits",
-    description: "Skis, boards, and avalanche safety kits to chase powder days across every summit.",
+    description: "Skis, boards, and avalanche kits tuned by mountain regulars to keep every glide confident and low impact.",
     imageUri: "https://images.unsplash.com/photo-1454433720423-8246b00b557d?auto=format&fit=crop&w=1200&q=80",
   },
 ];
@@ -38,10 +39,10 @@ const Categories = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.overline}>Categories</Text>
-        <Text style={styles.title}>Find the right gear faster</Text>
+        <Text style={styles.title}>Choose a path and borrow with confidence</Text>
         <Text style={styles.subtitle}>
-          Browse expertly curated collections that highlight our most popular adventures, all optimized for
-          touch-friendly mobile and responsive web layouts.
+          These collections highlight community favourites so you can plan with transparent pricing, trusted
+          safety gear, and a lighter footprint.
         </Text>
       </View>
       <ScrollView

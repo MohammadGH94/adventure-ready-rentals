@@ -12,12 +12,12 @@ const Hero = () => {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.subtitle}>One codebase. Every adventure.</Text>
-        <Text style={styles.title}>Rent premium outdoor gear, anywhere you roam.</Text>
+        <Text style={styles.subtitle}>One community. Endless adventures.</Text>
+        <Text style={styles.title}>Discover your next trail with trusted local gear.</Text>
         <Text style={styles.description}>
-          Built with React Native, Adventure Ready Rentals delivers a seamless browsing experience across
-          native mobile apps and the web. Discover curated collections, explore rich gear details, and book
-          with confidence on any device.
+          CiKr brings friendly owners and renters together so you can explore more while buying less. Every
+          listing clearly outlines daily rates, deposits, and insurance options, making it simple to choose
+          the right fit, protect your trip, and reduce waste along the way.
         </Text>
 
         <View style={styles.actions}>
@@ -26,14 +26,14 @@ const Hero = () => {
             onPress={() => navigate("/browse")}
             style={({ pressed }) => [styles.primaryAction, pressed && styles.primaryActionPressed]}
           >
-            <Text style={styles.primaryActionText}>Browse gear</Text>
+            <Text style={styles.primaryActionText}>Discover your next trail</Text>
           </Pressable>
           <Pressable
             accessibilityRole="button"
             onPress={() => navigate("/how-it-works")}
             style={({ pressed }) => [styles.secondaryAction, pressed && styles.secondaryActionPressed]}
           >
-            <Text style={styles.secondaryActionText}>See how it works</Text>
+            <Text style={styles.secondaryActionText}>See how CiKr works</Text>
           </Pressable>
         </View>
       </View>

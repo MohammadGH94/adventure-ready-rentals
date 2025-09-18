@@ -142,10 +142,10 @@ const Browse = () => {
       <Header />
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.pageHeader}>
-          <Text style={styles.title}>Browse adventure gear</Text>
+          <Text style={styles.title}>Browse community gear near you</Text>
           <Text style={styles.subtitle}>
-            Seamlessly explore listings with components tuned for both tap-friendly native apps and responsive
-            web layouts.
+            Filter by location, dates, and categories to find trusted local gear with upfront fees, deposit
+            holds, and insurance details before you book.
           </Text>
         </View>
 
@@ -210,15 +210,17 @@ const Browse = () => {
         {showMap && (
           <View style={styles.mapPlaceholder}>
             <Text style={styles.mapPlaceholderText}>
-              Map preview coming soon. React Native keeps this component ready for both native and web
-              implementations.
+              Map preview coming soon. We’ll highlight nearby pickup points while keeping the experience
+              accessible on web and native.
             </Text>
           </View>
         )}
 
         <View style={styles.resultsHeader}>
           <Text style={styles.resultsCount}>{filteredGear.length} listings</Text>
-          <Text style={styles.resultsHint}>Tap a card to learn more and reserve through the native detail view.</Text>
+          <Text style={styles.resultsHint}>
+            Tap a card for transparent pricing, insurance choices, and pickup tips from the owner community.
+          </Text>
         </View>
 
         <View style={styles.grid}>
