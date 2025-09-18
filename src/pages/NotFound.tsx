@@ -1,86 +1,24 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { useNavigate } from "react-router";
-
-import Footer from "../components/Footer";
-import Header from "../components/Header";
-import colors from "../theme/colors";
+import { useLocation } from "react-router-dom";
+import { useEffect } from "react";
 
 const NotFound = () => {
-  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    console.error("404 Error: User attempted to access non-existent route:", location.pathname);
+  }, [location.pathname]);
 
   return (
-    <View style={styles.wrapper}>
-      <Header />
-      <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.messageBlock}>
-          <Text style={styles.code}>404</Text>
-          <Text style={styles.title}>Looks like this trail isn’t marked yet</Text>
-          <Text style={styles.subtitle}>
-            The page you’re seeking is still being charted. Head back home to discover gear, safety tips, and
-            locals ready to help plan your next outing.
-          </Text>
-          <Pressable
-            accessibilityRole="button"
-            onPress={() => navigate("/")}
-            style={({ pressed }) => [styles.cta, pressed && styles.ctaPressed]}
-          >
-            <Text style={styles.ctaText}>Back to home</Text>
-          </Pressable>
-        </View>
-        <Footer />
-      </ScrollView>
-    </View>
+    <div className="flex min-h-screen items-center justify-center bg-gray-100">
+      <div className="text-center">
+        <h1 className="mb-4 text-4xl font-bold">404</h1>
+        <p className="mb-4 text-xl text-gray-600">Oops! Page not found</p>
+        <a href="/" className="text-blue-500 underline hover:text-blue-700">
+          Return to Home
+        </a>
+      </div>
+    </div>
   );
 };
-
-const styles = StyleSheet.create({
-  wrapper: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  content: {
-    paddingBottom: 40,
-    gap: 24,
-  },
-  messageBlock: {
-    paddingHorizontal: 24,
-    paddingTop: 48,
-    gap: 12,
-    alignItems: "center",
-  },
-  code: {
-    fontSize: 64,
-    fontWeight: "800",
-    color: colors.primary,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: colors.textPrimary,
-    textAlign: "center",
-  },
-  subtitle: {
-    color: colors.textSecondary,
-    fontSize: 14,
-    lineHeight: 20,
-    textAlign: "center",
-    maxWidth: 480,
-  },
-  cta: {
-    marginTop: 16,
-    backgroundColor: colors.primary,
-    borderRadius: 999,
-    paddingHorizontal: 24,
-    paddingVertical: 14,
-  },
-  ctaPressed: {
-    backgroundColor: colors.primaryLight,
-  },
-  ctaText: {
-    color: colors.primaryContrast,
-    fontWeight: "700",
-    letterSpacing: 0.5,
-  },
-});
 
 export default NotFound;

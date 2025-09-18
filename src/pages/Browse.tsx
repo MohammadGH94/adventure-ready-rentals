@@ -1,366 +1,242 @@
-import { useMemo, useState } from "react";
-import {
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  TextInput,
-  View,
-  Pressable,
-} from "react-native";
+import { useState } from "react";
+import { Search, Filter, MapPin, Calendar, Map } from "lucide-react";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import GearCard from "@/components/GearCard";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import climbingGear from "@/assets/climbing-gear.jpg";
+import campingGear from "@/assets/camping-gear.jpg";
+import waterSportsGear from "@/assets/water-sports-gear.jpg";
+import winterSportsGear from "@/assets/winter-sports-gear.jpg";
 
-import Footer from "../components/Footer";
-import GearCard from "../components/GearCard";
-import Header from "../components/Header";
-import colors from "../theme/colors";
-
-type GearRecord = {
-  title: string;
-  description: string;
-  pricePerDay: number;
-  rating: number;
-  reviewCount: number;
-  location: string;
-  category: string;
-  imageUri: string;
-};
-
-const gear: GearRecord[] = [
+const allGear = [
   {
     title: "Professional Climbing Rope Set",
-    description: "Dynamic rope with locking carabiners and belay device for high-alpine missions.",
-    pricePerDay: 45,
+    description: "Complete dynamic climbing rope with carabiners and safety gear included",
+    image: climbingGear,
+    price: 45,
     rating: 4.9,
     reviewCount: 127,
-    location: "Boulder, Colorado",
-    category: "climbing",
-    imageUri: "https://images.unsplash.com/photo-1525104698733-6d46d76471e6?auto=format&fit=crop&w=1200&q=80",
+    location: "Boulder, CO",
+    category: "climbing"
   },
   {
     title: "4-Person Family Camping Kit",
-    description: "Tent, sleeping systems, camp furniture, and lantern bundle for comfortable weekends.",
-    pricePerDay: 85,
+    description: "Everything you need for family camping: tent, sleeping bags, camp chairs",
+    image: campingGear,
+    price: 85,
     rating: 4.8,
     reviewCount: 89,
-    location: "Portland, Oregon",
-    category: "camping",
-    imageUri: "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?auto=format&fit=crop&w=1200&q=80",
+    location: "Portland, OR",
+    category: "camping"
   },
   {
     title: "Inflatable Kayak with Paddle",
-    description: "Stable tandem kayak with pump, paddles, and PFDs for lake adventures.",
-    pricePerDay: 65,
+    description: "2-person inflatable kayak perfect for lakes and calm rivers",
+    image: waterSportsGear,
+    price: 65,
     rating: 4.7,
     reviewCount: 156,
-    location: "Lake Tahoe, California",
-    category: "water",
-    imageUri: "https://images.unsplash.com/photo-1470246973918-29a93221c455?auto=format&fit=crop&w=1200&q=80",
+    location: "Lake Tahoe, CA",
+    category: "water-sports"
   },
   {
     title: "Premium Ski Equipment Set",
-    description: "High-performance skis, boots, and poles tuned for fresh powder days.",
-    pricePerDay: 120,
+    description: "High-performance skis, boots, and poles for advanced skiers",
+    image: winterSportsGear,
+    price: 120,
     rating: 4.9,
     reviewCount: 94,
-    location: "Aspen, Colorado",
-    category: "winter",
-    imageUri: "https://images.unsplash.com/photo-1464219222984-216ebffaaf85?auto=format&fit=crop&w=1200&q=80",
+    location: "Aspen, CO",
+    category: "winter-sports"
   },
   {
     title: "Rock Climbing Starter Kit",
-    description: "Harness, helmet, shoes, and chalk bag sized for first send sessions.",
-    pricePerDay: 35,
+    description: "Perfect for beginners: harness, helmet, shoes, and chalk bag",
+    image: climbingGear,
+    price: 35,
     rating: 4.6,
     reviewCount: 203,
-    location: "Joshua Tree, California",
-    category: "climbing",
-    imageUri: "https://images.unsplash.com/photo-1523419409543-0c1df022bdd1?auto=format&fit=crop&w=1200&q=80",
+    location: "Joshua Tree, CA",
+    category: "climbing"
   },
   {
     title: "Backpacking Essentials",
-    description: "Ultralight tent, sleeping quilt, and bear canister for multi-day treks.",
-    pricePerDay: 95,
+    description: "Lightweight tent, sleeping system, and cooking gear for multi-day hikes",
+    image: campingGear,
+    price: 95,
     rating: 4.8,
     reviewCount: 167,
-    location: "Yosemite, California",
-    category: "camping",
-    imageUri: "https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=1200&q=80",
+    location: "Yosemite, CA",
+    category: "camping"
   },
   {
     title: "Surfboard & Wetsuit Combo",
-    description: "Performance shortboard paired with 4/3 wetsuit for chilled Pacific sessions.",
-    pricePerDay: 55,
+    description: "Complete surfing setup with board, wetsuit, and accessories",
+    image: waterSportsGear,
+    price: 55,
     rating: 4.7,
     reviewCount: 89,
-    location: "Santa Cruz, California",
-    category: "water",
-    imageUri: "https://images.unsplash.com/photo-1545145617-96ef14041ca3?auto=format&fit=crop&w=1200&q=80",
+    location: "Santa Cruz, CA",
+    category: "water-sports"
   },
   {
     title: "Snowboard Complete Package",
-    description: "Directional board, bindings, boots, and helmet dialed for freeride terrain.",
-    pricePerDay: 75,
+    description: "Board, boots, bindings, and helmet for the perfect snow day",
+    image: winterSportsGear,
+    price: 75,
     rating: 4.8,
     reviewCount: 112,
-    location: "Whistler, British Columbia",
-    category: "winter",
-    imageUri: "https://images.unsplash.com/photo-1453743327117-664e2bf4e951?auto=format&fit=crop&w=1200&q=80",
-  },
-];
-
-const categoryFilters = [
-  { id: "all", label: "All" },
-  { id: "climbing", label: "Climbing" },
-  { id: "camping", label: "Camping" },
-  { id: "water", label: "Water" },
-  { id: "winter", label: "Winter" },
+    location: "Whistler, BC",
+    category: "winter-sports"
+  }
 ];
 
 const Browse = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [showMap, setShowMap] = useState(false);
-  const [location, setLocation] = useState("");
-  const [dates, setDates] = useState("");
 
-  const filteredGear = useMemo(() => {
-    const normalizedSearch = searchTerm.trim().toLowerCase();
-    return gear.filter((item) => {
-      const matchesCategory =
-        selectedCategory === "all" || item.category === selectedCategory;
-      const matchesSearch =
-        !normalizedSearch ||
-        item.title.toLowerCase().includes(normalizedSearch) ||
-        item.description.toLowerCase().includes(normalizedSearch) ||
-        item.location.toLowerCase().includes(normalizedSearch);
-      return matchesCategory && matchesSearch;
-    });
-  }, [searchTerm, selectedCategory]);
+  const filteredGear = allGear.filter(gear => {
+    const matchesSearch = gear.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         gear.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === "all" || gear.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  const categories = [
+    { id: "all", name: "All Categories" },
+    { id: "climbing", name: "Climbing" },
+    { id: "camping", name: "Camping" },
+    { id: "water-sports", name: "Water Sports" },
+    { id: "winter-sports", name: "Winter Sports" }
+  ];
 
   return (
-    <View style={styles.wrapper}>
+    <div className="min-h-screen bg-background">
       <Header />
-      <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.pageHeader}>
-          <Text style={styles.title}>Browse community gear near you</Text>
-          <Text style={styles.subtitle}>
-            Filter by location, dates, and categories to find trusted local gear with upfront fees, deposit
-            holds, and insurance details before you book.
-          </Text>
-        </View>
+      
+      <main className="py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Browse Adventure Gear
+            </h1>
+            <p className="text-lg text-muted-foreground">
+              Discover amazing gear from local owners near you
+            </p>
+          </div>
 
-        <View style={styles.filters}>
-          <View style={styles.inputRow}>
-            <TextInput
-              value={searchTerm}
-              onChangeText={setSearchTerm}
-              placeholder="Search gear"
-              placeholderTextColor={colors.textMuted}
-              style={styles.input}
-            />
-            <TextInput
-              value={location}
-              onChangeText={setLocation}
-              placeholder="Location"
-              placeholderTextColor={colors.textMuted}
-              style={styles.input}
-            />
-            <TextInput
-              value={dates}
-              onChangeText={setDates}
-              placeholder="Dates"
-              placeholderTextColor={colors.textMuted}
-              style={styles.input}
-            />
-          </View>
+          {/* Search and Filters */}
+          <div className="bg-card rounded-xl shadow-soft p-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+              <div className="md:col-span-2">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                  <Input
+                    placeholder="Search gear..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 h-11"
+                  />
+                </div>
+              </div>
+              <div>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                  <Input
+                    placeholder="Location"
+                    className="pl-10 h-11"
+                  />
+                </div>
+              </div>
+              <div>
+                <div className="relative">
+                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                  <Input
+                    placeholder="Dates"
+                    className="pl-10 h-11"
+                  />
+                </div>
+              </div>
+            </div>
 
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.categoryRow}
-          >
-            {categoryFilters.map((category) => {
-              const isActive = selectedCategory === category.id;
-              return (
-                <Pressable
-                  key={category.id}
-                  onPress={() => setSelectedCategory(category.id)}
-                  style={({ pressed }) => [
-                    styles.categoryPill,
-                    isActive && styles.categoryPillActive,
-                    pressed && styles.categoryPillPressed,
-                  ]}
-                >
-                  <Text
-                    style={[styles.categoryText, isActive && styles.categoryTextActive]}
+            {/* Category Filter */}
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="flex flex-wrap gap-2">
+                {categories.map((category) => (
+                  <Button
+                    key={category.id}
+                    variant={selectedCategory === category.id ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setSelectedCategory(category.id)}
                   >
-                    {category.label}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </ScrollView>
+                    {category.name}
+                  </Button>
+                ))}
+                <Button variant="ghost" size="sm">
+                  <Filter className="h-4 w-4 mr-2" />
+                  More Filters
+                </Button>
+              </div>
+              <div className="flex items-center gap-3">
+                <Switch
+                  id="map-toggle"
+                  checked={showMap}
+                  onCheckedChange={setShowMap}
+                  aria-label="Toggle map view"
+                />
+                <label htmlFor="map-toggle" className="text-sm font-medium text-foreground">
+                  Map view
+                </label>
+              </div>
+            </div>
+          </div>
 
-          <View style={styles.mapToggleRow}>
-            <Text style={styles.mapToggleLabel}>Map view</Text>
-            <Switch value={showMap} onValueChange={setShowMap} trackColor={{ false: colors.border, true: colors.primary }} />
-          </View>
-        </View>
+          {/* Results */}
+          <div className="mb-6">
+            <p className="text-muted-foreground">
+              {showMap
+                ? `Viewing ${filteredGear.length} matching gear on the map`
+                : `${filteredGear.length} gear items available`}
+            </p>
+          </div>
 
-        {showMap && (
-          <View style={styles.mapPlaceholder}>
-            <Text style={styles.mapPlaceholderText}>
-              Map preview coming soon. We’ll highlight nearby pickup points while keeping the experience
-              accessible on web and native.
-            </Text>
-          </View>
-        )}
+          {/* Gear Grid / Map View */}
+          {showMap ? (
+            <div className="flex h-96 flex-col items-center justify-center rounded-xl border border-border bg-muted/40 text-center">
+              <Map className="mb-3 h-10 w-10 text-muted-foreground" />
+              <h3 className="text-lg font-semibold text-foreground">Map view coming soon</h3>
+              <p className="max-w-md text-sm text-muted-foreground">
+                Use the filters to find the perfect gear near you. Map results will appear here with locations and
+                availability details.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {filteredGear.map((gear, index) => (
+                <GearCard
+                  key={index}
+                  title={gear.title}
+                  description={gear.description}
+                  image={gear.image}
+                  price={gear.price}
+                  rating={gear.rating}
+                  reviewCount={gear.reviewCount}
+                  location={gear.location}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </main>
 
-        <View style={styles.resultsHeader}>
-          <Text style={styles.resultsCount}>{filteredGear.length} listings</Text>
-          <Text style={styles.resultsHint}>
-            Tap a card for transparent pricing, insurance choices, and pickup tips from the owner community.
-          </Text>
-        </View>
-
-        <View style={styles.grid}>
-          {filteredGear.map((item) => (
-            <View key={item.title} style={styles.cardWrapper}>
-              <GearCard {...item} />
-            </View>
-          ))}
-        </View>
-
-        <Footer />
-      </ScrollView>
-    </View>
+      <Footer />
+    </div>
   );
 };
-
-const styles = StyleSheet.create({
-  wrapper: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  content: {
-    paddingBottom: 40,
-    gap: 24,
-  },
-  pageHeader: {
-    paddingHorizontal: 24,
-    paddingTop: 24,
-    gap: 8,
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: "800",
-    color: colors.textPrimary,
-  },
-  subtitle: {
-    color: colors.textSecondary,
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  filters: {
-    backgroundColor: colors.surface,
-    marginHorizontal: 24,
-    padding: 20,
-    borderRadius: 20,
-    gap: 16,
-    shadowColor: colors.shadow,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 4,
-  },
-  inputRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 12,
-  },
-  input: {
-    flexGrow: 1,
-    flexBasis: "30%",
-    minWidth: 160,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 14,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: colors.surface,
-    color: colors.textPrimary,
-  },
-  categoryRow: {
-    flexDirection: "row",
-    gap: 10,
-  },
-  categoryPill: {
-    borderRadius: 999,
-    paddingHorizontal: 18,
-    paddingVertical: 10,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-  },
-  categoryPillActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  categoryPillPressed: {
-    opacity: 0.7,
-  },
-  categoryText: {
-    color: colors.textSecondary,
-    fontWeight: "600",
-  },
-  categoryTextActive: {
-    color: colors.primaryContrast,
-  },
-  mapToggleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  mapToggleLabel: {
-    color: colors.textSecondary,
-    fontWeight: "600",
-  },
-  mapPlaceholder: {
-    marginHorizontal: 24,
-    backgroundColor: colors.surface,
-    borderRadius: 20,
-    padding: 24,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  mapPlaceholderText: {
-    color: colors.textSecondary,
-    lineHeight: 20,
-  },
-  resultsHeader: {
-    paddingHorizontal: 24,
-    gap: 6,
-  },
-  resultsCount: {
-    fontWeight: "700",
-    color: colors.textPrimary,
-  },
-  resultsHint: {
-    color: colors.textMuted,
-    fontSize: 12,
-  },
-  grid: {
-    paddingHorizontal: 24,
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 18,
-    justifyContent: "center",
-  },
-  cardWrapper: {
-    flexBasis: "48%",
-    minWidth: 280,
-    maxWidth: 360,
-  },
-});
 
 export default Browse;

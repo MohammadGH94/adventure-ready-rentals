@@ -1,121 +1,95 @@
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
-import { useNavigate } from "react-router";
-
-import colors from "../theme/colors";
-
-const heroImageUri =
-  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80";
+import { Search, MapPin, Calendar } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Link } from "react-router-dom";
+import heroImage from "@/assets/hero-adventure-gear.jpg";
 
 const Hero = () => {
-  const navigate = useNavigate();
-
   return (
-    <View style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.subtitle}>One community. Endless adventures.</Text>
-        <Text style={styles.title}>Discover your next trail with trusted local gear.</Text>
-        <Text style={styles.description}>
-          CiKr brings friendly owners and renters together so you can explore more while buying less. Every
-          listing clearly outlines daily rates, deposits, and insurance options, making it simple to choose
-          the right fit, protect your trip, and reduce waste along the way.
-        </Text>
+    <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden">
+      {/* Background Image */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${heroImage})` }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-black/60" />
+      </div>
 
-        <View style={styles.actions}>
-          <Pressable
-            accessibilityRole="button"
-            onPress={() => navigate("/browse")}
-            style={({ pressed }) => [styles.primaryAction, pressed && styles.primaryActionPressed]}
-          >
-            <Text style={styles.primaryActionText}>Discover your next trail</Text>
-          </Pressable>
-          <Pressable
-            accessibilityRole="button"
-            onPress={() => navigate("/how-it-works")}
-            style={({ pressed }) => [styles.secondaryAction, pressed && styles.secondaryActionPressed]}
-          >
-            <Text style={styles.secondaryActionText}>See how CiKr works</Text>
-          </Pressable>
-        </View>
-      </View>
-      <Image source={{ uri: heroImageUri }} style={styles.image} resizeMode="cover" />
-    </View>
+      {/* Content */}
+      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 tracking-tight">
+          Rent Amazing
+          <span className="block bg-gradient-sunset bg-clip-text text-transparent">
+            Adventure Gear
+          </span>
+        </h1>
+        
+        <p className="text-xl md:text-2xl text-white/90 mb-12 max-w-2xl mx-auto leading-relaxed">
+          From climbing gear to camping equipment. Discover, rent, and explore with confidence.
+        </p>
+
+        {/* Search Interface */}
+        <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 md:p-8 shadow-adventure max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="md:col-span-1">
+              <label className="block text-sm font-medium text-foreground mb-2">
+                What gear?
+              </label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Input
+                  placeholder="Climbing, camping..."
+                  className="pl-10 h-12"
+                />
+              </div>
+            </div>
+            
+            <div className="md:col-span-1">
+              <label className="block text-sm font-medium text-foreground mb-2">
+                Location
+              </label>
+              <div className="relative">
+                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Input
+                  placeholder="San Francisco, CA"
+                  className="pl-10 h-12"
+                />
+              </div>
+            </div>
+            
+            <div className="md:col-span-1">
+              <label className="block text-sm font-medium text-foreground mb-2">
+                Dates
+              </label>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Input
+                  placeholder="Select dates"
+                  className="pl-10 h-12"
+                />
+              </div>
+            </div>
+            
+            <div className="md:col-span-1 flex items-end">
+              <Button asChild variant="action" size="lg" className="w-full h-12">
+                <Link to="/browse">Search Gear</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="flex flex-wrap justify-center gap-4 mt-8">
+          <Button asChild variant="hero" size="sm">
+            <Link to="/browse">Browse All Categories</Link>
+          </Button>
+          <Button asChild variant="outline" size="sm" className="bg-white/10 border-white/30 text-white hover:bg-white/20">
+            <Link to="/list-gear">List Your Gear</Link>
+          </Button>
+        </div>
+      </div>
+    </section>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: colors.surface,
-    marginHorizontal: 24,
-    marginTop: 24,
-    borderRadius: 28,
-    overflow: "hidden",
-    flexDirection: "column",
-    shadowColor: colors.shadow,
-    shadowOffset: { width: 0, height: 14 },
-    shadowOpacity: 0.16,
-    shadowRadius: 24,
-    elevation: 6,
-  },
-  content: {
-    paddingHorizontal: 24,
-    paddingVertical: 30,
-    gap: 16,
-  },
-  subtitle: {
-    color: colors.accent,
-    fontSize: 14,
-    fontWeight: "700",
-    letterSpacing: 1.2,
-    textTransform: "uppercase",
-  },
-  title: {
-    fontSize: 30,
-    fontWeight: "800",
-    color: colors.textPrimary,
-    lineHeight: 36,
-  },
-  description: {
-    color: colors.textSecondary,
-    fontSize: 15,
-    lineHeight: 22,
-  },
-  actions: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 12,
-  },
-  primaryAction: {
-    backgroundColor: colors.primary,
-    borderRadius: 999,
-    paddingHorizontal: 26,
-    paddingVertical: 14,
-  },
-  primaryActionPressed: {
-    backgroundColor: colors.primaryLight,
-  },
-  primaryActionText: {
-    color: colors.primaryContrast,
-    fontWeight: "700",
-    letterSpacing: 0.5,
-  },
-  secondaryAction: {
-    borderRadius: 999,
-    paddingHorizontal: 26,
-    paddingVertical: 14,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  secondaryActionPressed: {
-    backgroundColor: colors.surfaceMuted,
-  },
-  secondaryActionText: {
-    color: colors.textPrimary,
-    fontWeight: "700",
-  },
-  image: {
-    width: "100%",
-    height: 240,
-  },
-});
 
 export default Hero;
