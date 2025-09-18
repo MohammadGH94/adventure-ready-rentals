@@ -23,10 +23,10 @@ const ListGear = () => {
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.hero}>
           <Text style={styles.overline}>List your gear</Text>
-          <Text style={styles.title}>Share trusted equipment with the community</Text>
+          <Text style={styles.title}>Share your trusted gear with the CiKr community</Text>
           <Text style={styles.subtitle}>
-            Our React Native-powered onboarding guides you through compliant, high-converting listings that
-            look fantastic on every screen.
+            Our guided steps make it simple to outline pricing, deposits, insurance, and care expectations so
+            every renter feels welcome and informed.
           </Text>
         </View>
 
@@ -81,32 +81,32 @@ const ListGear = () => {
             <Text style={styles.submitText}>Preview listing</Text>
           </Pressable>
           <Text style={styles.formHint}>
-            Publishing connects your listing to pricing, insurance, and payout workflows orchestrated by the
-            services outlined in our architecture overview.
+            Publishing shares your listing with renters alongside transparent fees, insurance coverage, and
+            payout timelines handled by CiKr’s services.
           </Text>
         </View>
 
         <View style={styles.tipsSection}>
           <Text style={styles.sectionTitle}>Owner success tips</Text>
           <View style={styles.tipCard}>
-            <Text style={styles.tipTitle}>Capture stunning photography</Text>
+            <Text style={styles.tipTitle}>Show the gear in action</Text>
             <Text style={styles.tipDescription}>
-              High-resolution images increase conversion across mobile and desktop. Showcase condition, key
-              accessories, and the gear in action.
+              Bright, inclusive photos help friends picture themselves using your gear and highlight any
+              safety add-ons that are included.
             </Text>
           </View>
           <View style={styles.tipCard}>
-            <Text style={styles.tipTitle}>Set transparent expectations</Text>
+            <Text style={styles.tipTitle}>Be upfront about fees and care</Text>
             <Text style={styles.tipDescription}>
-              Outline pickup windows, return requirements, and cleaning standards so renters feel confident before
-              they book.
+              Share deposit amounts, cleaning expectations, and eco-friendly care tips so renters return items
+              in great shape.
             </Text>
           </View>
           <View style={styles.tipCard}>
             <Text style={styles.tipTitle}>Keep availability current</Text>
             <Text style={styles.tipDescription}>
-              Sync calendars frequently—our React Native experience makes managing schedules quick wherever you
-              are.
+              Update your calendar often—CiKr sends friendly nudges and syncs across devices to keep bookings
+              smooth.
             </Text>
           </View>
         </View>

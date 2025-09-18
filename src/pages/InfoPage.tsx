@@ -21,40 +21,40 @@ type InfoPageContent = {
 
 const infoContent: Record<string, InfoPageContent> = {
   about: {
-    title: "About AdventureRent",
+    title: "About CiKr",
     intro:
-      "AdventureRent connects renters with trusted owners and partners so outdoor experiences are as easy to book as a city stay. Our marketplace is designed around transparent pricing, responsible stewardship, and Canadian-ready compliance from day one.",
+      "CiKr connects travellers with trusted local owners so you can borrow gear responsibly, support your community, and understand every fee before you book.",
     sections: [
       {
         heading: "What we believe",
         body: [
-          "We help people explore more while owning less. Listings, insurance, payments, and support are coordinated across the platform so every booking feels confident and fair for renters and owners alike.",
+          "We help friends explore more while buying less. Transparent pricing, optional insurance, and thoughtful messaging keep every booking fair, inclusive, and stress-free for renters and owners alike.",
         ],
       },
       {
         heading: "How we operate",
         body: [
-          "Our product spans modern web, mobile, and admin experiences backed by clearly scoped services—Identity, Listings, Search & Pricing, Booking, Payments & Payouts, Insurance, Messaging, Reviews, Admin/Ops, and Analytics. Each service enforces the right privacy and tax rules for Canada, including GST/PST handling and BC age-of-majority checks.",
+          "CiKr spans web, mobile, and admin tools backed by focused services—Identity, Listings, Search & Pricing, Booking, Payments & Payouts, Insurance, Messaging, Reviews, Admin/Ops, and Analytics. Each service honours Canadian privacy and tax rules, including GST/PST handling and BC age-of-majority checks.",
         ],
       },
     ],
   },
   safety: {
-    title: "Safety at AdventureRent",
+    title: "Safety at CiKr",
     intro:
-      "Every trip runs on layered trust controls spanning verification, insurance, messaging safeguards, and immutable audit logs.",
+      "Every trip runs on layered trust controls that combine verification, insurance, and easy reporting so you always know what to expect.",
     sections: [
       {
         heading: "What renters and owners can expect",
         body: [
-          "We verify users through OIDC with MFA options, age-of-majority checks, and KYC for payout eligibility. Bookings run through a refund policy engine with deposit pre-authorizations coordinated through Payments & Payouts.",
-          "An Insurance Gateway coordinates quotes, bindings, and claim evidence using signed URLs. Messaging threads and reviews feed light moderation signals routed to Admin/Ops for quick follow-up.",
+          "We verify users with secure sign-in, MFA options, age-of-majority checks, and KYC for payout eligibility. Booking requests clearly show deposit holds, refund windows, and insurance choices before you confirm.",
+          "Our Insurance Gateway coordinates quotes, binds coverage, and stores claim evidence through signed URLs. Messaging threads and reviews feed moderation signals routed to the CiKr team for fast follow-up.",
         ],
       },
       {
         heading: "Compliance",
         body: [
-          "We align with PIPEDA and BC PIPA, isolate personal information in a dedicated PII datastore, and maintain an append-only audit log for sensitive actions.",
+          "We align with PIPEDA and BC PIPA, isolate personal information in a dedicated datastore, and maintain an append-only audit log for sensitive actions.",
         ],
       },
     ],
@@ -62,18 +62,18 @@ const infoContent: Record<string, InfoPageContent> = {
   insurance: {
     title: "Insurance Overview",
     intro:
-      "We coordinate per-booking coverage so that approved trips include transparent protection and a clear claim path.",
+      "We coordinate per-booking coverage so approved trips include clear protection, optional add-ons, and a friendly claim path if something goes off-plan.",
     sections: [
       {
         heading: "Quotes & binding",
         body: [
-          "Insurance quotes surface alongside booking confirmations. Once confirmed, policies are bound through our Insurance Gateway using signed webhooks to keep status synchronized.",
+          "Insurance quotes appear alongside your booking confirmation. Once you accept, policies bind through our Insurance Gateway using signed webhooks so coverage status stays in sync.",
         ],
       },
       {
         heading: "Claims",
         body: [
-          "Claim intake supports structured evidence uploads to object storage with short-lived signed URLs. Status updates flow back through the gateway and notify the renter, owner, and Admin/Ops teams.",
+          "Claim intake supports structured evidence uploads with short-lived signed URLs. Status updates flow back through the gateway and notify the renter, owner, and CiKr support team.",
         ],
       },
     ],
@@ -81,12 +81,12 @@ const infoContent: Record<string, InfoPageContent> = {
   careers: {
     title: "Careers",
     intro:
-      "We are assembling a team passionate about outdoor access, reliability, and equitable marketplaces.",
+      "We’re building a team that believes outdoor access, transparency, and community care belong together.",
     sections: [
       {
         heading: "What we value",
         body: [
-          "Customer trust, clear ownership of services, privacy-first design, and resilience in every flow from booking to payout.",
+          "Customer trust, responsible reuse, privacy-first design, and resilience in every flow from booking to payout.",
         ],
         bullets: [
           "Product & Design focused on renter and owner journeys",
@@ -97,7 +97,7 @@ const infoContent: Record<string, InfoPageContent> = {
       {
         heading: "How to connect",
         body: [
-          "Email our team at careers@adventurerent.ca with a short note about the problems you love solving and the outdoor adventures that inspire you.",
+          "Email our team at careers@cikr.ca with a short note about the problems you love solving and the outdoor adventures that inspire you.",
         ],
       },
     ],
@@ -105,7 +105,7 @@ const infoContent: Record<string, InfoPageContent> = {
   "help-center": {
     title: "Help Center",
     intro:
-      "Need assistance? We publish how-to guides, policy explainers, and troubleshooting steps across the renter and owner lifecycle.",
+      "Need a hand? We publish step-by-step guides, policy explainers, and troubleshooting tips for every stage of the renter and owner journey.",
     sections: [
       {
         heading: "Popular topics",
@@ -116,7 +116,7 @@ const infoContent: Record<string, InfoPageContent> = {
           "Submitting insurance claims and providing evidence",
         ],
         body: [
-          "Still stuck? Reach out at support@adventurerent.ca and our Ops team will respond within one business day.",
+          "Still stuck? Reach out at support@cikr.ca and our friendly ops team will respond within one business day.",
         ],
       },
     ],
@@ -124,18 +124,18 @@ const infoContent: Record<string, InfoPageContent> = {
   "trust-and-safety": {
     title: "Trust & Safety",
     intro:
-      "We monitor the marketplace to keep experiences respectful, insured, and compliant with regional law.",
+      "We monitor the marketplace to keep every experience respectful, insured, and in line with regional laws.",
     sections: [
       {
         heading: "Our approach",
         body: [
-          "We run automated checks for suspicious behaviour, provide in-app reporting, and triage escalations through Admin/Ops. Messaging content adheres to retention limits and can be exported or erased per PIPEDA guidelines.",
+          "Automated checks flag suspicious behaviour, in-app reporting makes it easy to speak up, and our team triages escalations quickly. Messaging content follows retention limits and can be exported or erased under PIPEDA guidelines.",
         ],
       },
       {
         heading: "Report a concern",
         body: [
-          "Email trust@adventurerent.ca or flag content directly in messaging threads. Critical incidents trigger break-glass workflows with full audit trails.",
+          "Email trust@cikr.ca or flag content directly in messaging threads. Critical incidents trigger break-glass workflows with full audit trails.",
         ],
       },
     ],
@@ -143,19 +143,19 @@ const infoContent: Record<string, InfoPageContent> = {
   terms: {
     title: "Terms of Service",
     intro:
-      "By using AdventureRent you agree to these marketplace terms. We keep them concise so you understand your responsibilities before listing or booking gear.",
+      "By using CiKr you agree to these marketplace terms. We keep them clear so you understand responsibilities before listing or booking gear.",
     lastUpdated: "Updated February 2025",
     sections: [
       {
         heading: "Key points",
         bullets: [
           "Renters must be at least 19 years old in BC and maintain valid payment methods for deposit holds.",
-          "Owners and partners confirm they have rights to list gear and will keep listings accurate and safe.",
+          "Owners and partners confirm they have rights to list gear and will keep listings accurate, safe, and ready for reuse.",
           "Fees, GST, and PST are disclosed before checkout; payment captures and refunds run through our Payments & Payouts service.",
           "Insurance claims must follow evidence and timelines shared during claim intake.",
         ],
         body: [
-          "Breaking these terms may result in suspension or withheld payouts per our trust and compliance policies.",
+          "Breaking these terms may result in suspension or withheld payouts under our trust and compliance policies.",
         ],
       },
     ],
@@ -163,12 +163,12 @@ const infoContent: Record<string, InfoPageContent> = {
   privacy: {
     title: "Privacy Policy",
     intro:
-      "We take privacy seriously by isolating personal data, limiting retention, and providing full export and deletion workflows.",
+      "We take privacy seriously by isolating personal data, limiting retention, and offering simple ways to review or remove your information.",
     sections: [
       {
         heading: "Data handling",
         body: [
-          "Identity and PII data are stored in dedicated services with column-level encryption. Operational data that references PII uses scoped identifiers only.",
+          "Identity and PII data live in dedicated services with column-level encryption. Operational data that references PII uses scoped identifiers only.",
         ],
       },
       {

@@ -1,6 +1,6 @@
-# Adventure Ready Rentals
+# CiKr
 
-Adventure Ready Rentals is a React application that mimics a React Native project so the same component layer can serve web and future native targets.  The UI has been rebuilt using React Native primitives such as `View`, `Text`, and `ScrollView`, all powered by a lightweight custom implementation that renders to the DOM.
+CiKr is a React application that mimics a React Native project so the same component layer can serve web and future native targets. The UI has been rebuilt using React Native primitives such as `View`, `Text`, and `ScrollView`, all powered by a lightweight custom implementation that renders to the DOM.
 
 ## Getting Started
 
