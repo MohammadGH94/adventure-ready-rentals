@@ -1,11 +1,14 @@
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { useParams } from "react-router";
+
+import Footer from "../components/Footer";
+import Header from "../components/Header";
+import colors from "../theme/colors";
 import NotFound from "./NotFound";
-import { useParams } from "react-router-dom";
 
 type InfoSection = {
   heading: string;
-  body: string[];
+  body?: string[];
   bullets?: string[];
 };
 
@@ -158,43 +161,22 @@ const infoContent: Record<string, InfoPageContent> = {
     ],
   },
   privacy: {
-    title: "Privacy Notice",
+    title: "Privacy Policy",
     intro:
-      "We collect only the personal information required to operate the marketplace responsibly and comply with Canadian law.",
-    lastUpdated: "Updated February 2025",
+      "We take privacy seriously by isolating personal data, limiting retention, and providing full export and deletion workflows.",
     sections: [
       {
         heading: "Data handling",
         body: [
-          "Identity and payment details live inside a dedicated PII boundary accessible only to the Identity and Payments services. Operational data for bookings, listings, and messaging is stored separately with encryption at rest.",
-          "We retain data only as long as necessary for legal obligations, dispute resolution, and analytics that exclude direct PII.",
+          "Identity and PII data are stored in dedicated services with column-level encryption. Operational data that references PII uses scoped identifiers only.",
         ],
       },
       {
         heading: "Your choices",
         bullets: [
-          "Request data access, updates, or deletion in line with PIPEDA and BC PIPA",
-          "Opt out of marketing emails through the preferences center",
-          "Reach our privacy team at privacy@adventurerent.ca",
-        ],
-        body: [],
-      },
-    ],
-  },
-  cookies: {
-    title: "Cookie Policy",
-    intro:
-      "Cookies help us personalize experiences, protect accounts, and understand product performance.",
-    sections: [
-      {
-        heading: "Types of cookies we use",
-        bullets: [
-          "Essential cookies for authentication and security",
-          "Preference cookies to remember search filters and locale",
-          "Analytics cookies to measure feature adoption (aggregated and de-identified)",
-        ],
-        body: [
-          "You can adjust preferences in your browser settings. Disabling essential cookies may limit functionality.",
+          "Download your data via our privacy portal",
+          "Request deletion of personal data subject to booking retention requirements",
+          "Opt in to marketing communications separately from transaction notifications",
         ],
       },
     ],
@@ -202,49 +184,120 @@ const infoContent: Record<string, InfoPageContent> = {
 };
 
 const InfoPage = () => {
-  const { slug = "" } = useParams<{ slug: string }>();
-  const content = infoContent[slug];
+  const { slug } = useParams();
+  if (!slug) {
+    return <NotFound />;
+  }
 
-  if (!content) {
+  const page = infoContent[slug];
+
+  if (!page) {
     return <NotFound />;
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <View style={styles.wrapper}>
       <Header />
-      <main className="py-16">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
-          <header className="space-y-3 text-left">
-            <p className="text-sm uppercase tracking-wide text-primary/80">AdventureRent</p>
-            <h1 className="text-4xl font-bold text-foreground">{content.title}</h1>
-            {content.lastUpdated ? (
-              <p className="text-sm text-muted-foreground">{content.lastUpdated}</p>
-            ) : null}
-            <p className="text-lg text-muted-foreground">{content.intro}</p>
-          </header>
+      <ScrollView contentContainerStyle={styles.content}>
+        <View style={styles.hero}>
+          <Text style={styles.overline}>Knowledge base</Text>
+          <Text style={styles.title}>{page.title}</Text>
+          <Text style={styles.subtitle}>{page.intro}</Text>
+          {page.lastUpdated && <Text style={styles.updated}>{page.lastUpdated}</Text>}
+        </View>
 
-          {content.sections?.map((section) => (
-            <section key={section.heading} className="space-y-4">
-              <h2 className="text-2xl font-semibold text-foreground">{section.heading}</h2>
-              {section.body.map((paragraph, index) => (
-                <p key={index} className="text-muted-foreground leading-relaxed">
-                  {paragraph}
-                </p>
-              ))}
-              {section.bullets ? (
-                <ul className="list-disc space-y-2 pl-6 text-muted-foreground">
-                  {section.bullets.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              ) : null}
-            </section>
-          ))}
-        </div>
-      </main>
-      <Footer />
-    </div>
+        {page.sections?.map((section) => (
+          <View key={section.heading} style={styles.section}>
+            <Text style={styles.sectionTitle}>{section.heading}</Text>
+            {section.body?.map((paragraph) => (
+              <Text key={paragraph} style={styles.paragraph}>
+                {paragraph}
+              </Text>
+            ))}
+            {section.bullets && (
+              <View style={styles.bulletList}>
+                {section.bullets.map((bullet) => (
+                  <Text key={bullet} style={styles.bulletItem}>
+                    • {bullet}
+                  </Text>
+                ))}
+              </View>
+            )}
+          </View>
+        ))}
+
+        <Footer />
+      </ScrollView>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  wrapper: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  content: {
+    paddingBottom: 40,
+    gap: 28,
+  },
+  hero: {
+    paddingHorizontal: 24,
+    paddingTop: 32,
+    gap: 12,
+  },
+  overline: {
+    color: colors.accent,
+    letterSpacing: 1.5,
+    textTransform: "uppercase",
+    fontSize: 13,
+    fontWeight: "700",
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "800",
+    color: colors.textPrimary,
+  },
+  subtitle: {
+    color: colors.textSecondary,
+    fontSize: 15,
+    lineHeight: 22,
+  },
+  updated: {
+    color: colors.textMuted,
+    fontSize: 12,
+    fontStyle: "italic",
+  },
+  section: {
+    marginHorizontal: 24,
+    backgroundColor: colors.surface,
+    borderRadius: 20,
+    padding: 24,
+    gap: 10,
+    borderWidth: 1,
+    borderColor: colors.border,
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.08,
+    shadowRadius: 14,
+    elevation: 4,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: colors.primary,
+  },
+  paragraph: {
+    color: colors.textSecondary,
+    lineHeight: 20,
+  },
+  bulletList: {
+    gap: 6,
+  },
+  bulletItem: {
+    color: colors.textMuted,
+    fontSize: 13,
+  },
+});
 
 export default InfoPage;
