@@ -1,73 +1,61 @@
-# Welcome to your Lovable project
+# Adventure Ready Rentals
 
-## Project info
+Adventure Ready Rentals is a React application that mimics a React Native project so the same component layer can serve web and future native targets.  The UI has been rebuilt using React Native primitives such as `View`, `Text`, and `ScrollView`, all powered by a lightweight custom implementation that renders to the DOM.
 
-**URL**: https://lovable.dev/projects/f09c0c91-44e5-45a0-be00-548b1251920a
+## Getting Started
 
-## How can I edit this code?
+### Prerequisites
 
-There are several ways of editing your application.
+- Node.js 18+
+- npm 9+
 
-**Use Lovable**
+### Installation
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/f09c0c91-44e5-45a0-be00-548b1251920a) and start prompting.
+```bash
+npm install
+```
 
-Changes made via Lovable will be committed automatically to this repo.
+### Development server
 
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The dev server runs on [http://localhost:8080](http://localhost:8080/) by default.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Linting and build
 
-**Use GitHub Codespaces**
+```bash
+npm run lint
+npm run build
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+`npm run lint` must pass without warnings before creating a build.
 
-## What technologies are used for this project?
+## Project Structure
 
-This project is built with:
+- `src/native/` – Custom React Native runtime for the web.  Components live in `components.tsx`, platform utilities in `primitives.ts`, and styling helpers in `styles.ts`.  The directory is aliased to `react-native` in `vite.config.ts` so application code can `import { View, StyleSheet } from "react-native"`.
+- `types/react-native.d.ts` – Ambient module declarations describing the API exposed by `src/native`.
+- `src/components/` – Shared UI building blocks composed with React Native primitives.
+- `src/pages/` – Route-level screens rendered by the React Router configuration in `src/navigation`.
+- `src/main.tsx` – Entry point that registers the app with the custom `AppRegistry` and boots React Query and routing providers.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Styling Notes
 
-## How can I deploy this project?
+- Use `StyleSheet.create` to organise style objects; styles accept standard React Native style keys and fall back to DOM equivalents.
+- `TextInput` supports `placeholderTextColor`; the component injects the appropriate CSS so placeholder colours render in the browser.
+- The shim implements `Pressable`, `ScrollView`, `Switch`, `Image`, and layout primitives with web-friendly behaviour.  When writing new components rely on these abstractions instead of HTML tags to keep the codebase portable.
 
-Simply open [Lovable](https://lovable.dev/projects/f09c0c91-44e5-45a0-be00-548b1251920a) and click on Share -> Publish.
+## Testing and Platform Behaviour
 
-## Can I connect a custom domain to my Lovable project?
+Automated tests are not included.  When adding features pay attention to:
 
-Yes, you can!
+- Pressable `style` functions and disabled state handling.
+- Horizontal `ScrollView` behaviour in both desktop and mobile layouts.
+- `Switch` transitions and keyboard interaction.
+- `TextInput` support for `multiline` and `keyboardType`.
+- Routing fallbacks supplied by the memory router (for non-web platforms) inside `src/navigation/AppRouter.tsx`.
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## Documentation Updates
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+If you extend the React Native layer or add new primitives, update both `src/native` and the type stubs in `types/react-native.d.ts` to keep the runtime and typing experience in sync.
