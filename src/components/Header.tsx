@@ -1,6 +1,7 @@
 import { Search, User, Heart, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Link } from "react-router-dom";
 
 const Header = () => {
   return (
@@ -9,9 +10,9 @@ const Header = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <h1 className="text-2xl font-bold bg-gradient-hero bg-clip-text text-transparent">
+            <Link to="/" className="text-2xl font-bold bg-gradient-hero bg-clip-text text-transparent">
               AdventureRent
-            </h1>
+            </Link>
           </div>
 
           {/* Search Bar */}
@@ -27,15 +28,15 @@ const Header = () => {
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <a href="#" className="text-foreground hover:text-primary transition-adventure">
+            <Link to="/browse" className="text-foreground hover:text-primary transition-adventure">
               Browse
-            </a>
-            <a href="#" className="text-foreground hover:text-primary transition-adventure">
+            </Link>
+            <Link to="/how-it-works" className="text-foreground hover:text-primary transition-adventure">
               How it works
-            </a>
-            <a href="#" className="text-foreground hover:text-primary transition-adventure">
+            </Link>
+            <Link to="/list-gear" className="text-foreground hover:text-primary transition-adventure">
               List your gear
-            </a>
+            </Link>
           </nav>
 
           {/* User Actions */}
@@ -46,9 +47,11 @@ const Header = () => {
             <Button variant="ghost" size="icon" className="hidden sm:flex">
               <ShoppingBag className="h-4 w-4" />
             </Button>
-            <Button variant="outline" size="sm">
-              <User className="h-4 w-4 mr-2" />
-              Sign In
+            <Button asChild variant="outline" size="sm">
+              <Link to="/signin">
+                <User className="h-4 w-4 mr-2" />
+                Sign In
+              </Link>
             </Button>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import { Search, MapPin, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Link } from "react-router-dom";
 import heroImage from "@/assets/hero-adventure-gear.jpg";
 
 const Hero = () => {
@@ -70,8 +71,8 @@ const Hero = () => {
             </div>
             
             <div className="md:col-span-1 flex items-end">
-              <Button variant="action" size="lg" className="w-full h-12">
-                Search Gear
+              <Button asChild variant="action" size="lg" className="w-full h-12">
+                <Link to="/browse">Search Gear</Link>
               </Button>
             </div>
           </div>
@@ -79,11 +80,11 @@ const Hero = () => {
 
         {/* Quick Actions */}
         <div className="flex flex-wrap justify-center gap-4 mt-8">
-          <Button variant="hero" size="sm">
-            Browse All Categories
+          <Button asChild variant="hero" size="sm">
+            <Link to="/browse">Browse All Categories</Link>
           </Button>
-          <Button variant="outline" size="sm" className="bg-white/10 border-white/30 text-white hover:bg-white/20">
-            List Your Gear
+          <Button asChild variant="outline" size="sm" className="bg-white/10 border-white/30 text-white hover:bg-white/20">
+            <Link to="/list-gear">List Your Gear</Link>
           </Button>
         </div>
       </div>
