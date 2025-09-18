@@ -7,7 +7,8 @@ import GearCard from "./GearCard";
 const featuredGear = [
   {
     title: "Summit Series Mountaineering Kit",
-    description: "Technical outerwear, crampons, and glacier travel essentials ready for expedition season.",
+    description:
+      "Technical layers, crampons, and glacier essentials with clear insurance options for your next ascent.",
     pricePerDay: 128,
     rating: 4.9,
     reviewCount: 184,
@@ -16,7 +17,8 @@ const featuredGear = [
   },
   {
     title: "Family Basecamp Bundle",
-    description: "Spacious 6-person tent, cozy sleep system, and camp kitchen built for week-long escapes.",
+    description:
+      "Spacious tent, cozy sleep systems, and a camp kitchen shared by neighbours who love helping families explore.",
     pricePerDay: 92,
     rating: 4.8,
     reviewCount: 136,
@@ -25,7 +27,8 @@ const featuredGear = [
   },
   {
     title: "Coastal Paddle Adventure Pack",
-    description: "Premium touring kayak, dry storage, and navigation tools to explore rugged shorelines.",
+    description:
+      "Premium touring kayak, dry storage, and safety gear guided by locals who know every tide chart.",
     pricePerDay: 78,
     rating: 4.7,
     reviewCount: 98,
@@ -34,7 +37,8 @@ const featuredGear = [
   },
   {
     title: "Backcountry Powder Setup",
-    description: "Carbon touring skis, avalanche kit, and beacon for safe dawn patrol missions.",
+    description:
+      "Carbon touring skis, avalanche tools, and beacon checks so dawn patrols stay thrilling and responsible.",
     pricePerDay: 110,
     rating: 4.9,
     reviewCount: 153,
@@ -51,10 +55,10 @@ const FeaturedGear = () => {
       <View style={styles.header}>
         <View style={styles.headerText}>
           <Text style={styles.overline}>Featured gear</Text>
-          <Text style={styles.title}>Outdoor essentials loved by our community</Text>
+          <Text style={styles.title}>Outdoor essentials shared by our community</Text>
           <Text style={styles.subtitle}>
-            Curated listings highlight how the new React Native experience balances immersive visuals with
-            performant cross-platform rendering.
+            Every highlight spells out daily rates, deposit holds, and optional insurance so you can plan an
+            eco-friendly escape with confidence.
           </Text>
         </View>
         <Pressable
@@ -62,7 +66,7 @@ const FeaturedGear = () => {
           onPress={() => navigate("/browse")}
           style={({ pressed }) => [styles.viewAll, pressed && styles.viewAllPressed]}
         >
-          <Text style={styles.viewAllText}>View all gear</Text>
+          <Text style={styles.viewAllText}>Explore all gear</Text>
         </Pressable>
       </View>
       <View style={styles.grid}>

@@ -9,10 +9,10 @@ const Footer = () => {
   return (
     <View style={styles.container}>
       <View style={styles.brandBlock}>
-        <Text style={styles.brand}>Adventure Ready Rentals</Text>
+        <Text style={styles.brand}>CiKr</Text>
         <Text style={styles.summary}>
-          A single React Native codebase delivering immersive outdoor gear browsing experiences
-          across web and mobile.
+          CiKr connects friendly locals and responsible travelers with clear pricing, optional
+          insurance, and reuse-first adventures across web and mobile.
         </Text>
       </View>
 
@@ -24,7 +24,7 @@ const Footer = () => {
       </View>
 
       <Text style={styles.copyright}>
-        © {new Date().getFullYear()} Adventure Ready Rentals. Built with React Native for every platform.
+        © {new Date().getFullYear()} CiKr. Built with React Native for every platform.
       </Text>
     </View>
   );

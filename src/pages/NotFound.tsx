@@ -14,9 +14,10 @@ const NotFound = () => {
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.messageBlock}>
           <Text style={styles.code}>404</Text>
-          <Text style={styles.title}>This trail seems to be unmarked</Text>
+          <Text style={styles.title}>Looks like this trail isn’t marked yet</Text>
           <Text style={styles.subtitle}>
-            The page you requested doesn’t exist. Use the controls below to return to familiar terrain.
+            The page you’re seeking is still being charted. Head back home to discover gear, safety tips, and
+            locals ready to help plan your next outing.
           </Text>
           <Pressable
             accessibilityRole="button"
