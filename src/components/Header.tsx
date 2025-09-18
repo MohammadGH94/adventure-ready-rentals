@@ -11,7 +11,7 @@ const Header = () => {
           {/* Logo */}
           <div className="flex-shrink-0">
             <Link to="/" className="text-2xl font-bold bg-gradient-hero bg-clip-text text-transparent">
-              AdventureRent
+              CiKr
             </Link>
           </div>
 

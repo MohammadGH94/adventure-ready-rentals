@@ -10,7 +10,7 @@ const Footer = () => {
           {/* Brand */}
           <div className="md:col-span-1">
             <h3 className="text-2xl font-bold bg-gradient-hero bg-clip-text text-transparent mb-4">
-              AdventureRent
+              CiKr
             </h3>
             <p className="text-muted-foreground mb-4">
               Rent amazing adventure gear from local owners. Explore more, own less.
@@ -18,36 +18,36 @@ const Footer = () => {
             <div className="flex space-x-3">
               <Button variant="ghost" size="icon" asChild>
                 <a
-                  href="https://www.facebook.com/AdventureRent"
+                  href="https://www.facebook.com/CiKr"
                   target="_blank"
                   rel="noreferrer"
-                  aria-label="AdventureRent on Facebook"
+                  aria-label="CiKr on Facebook"
                 >
                   <Facebook className="h-4 w-4" />
                 </a>
               </Button>
               <Button variant="ghost" size="icon" asChild>
                 <a
-                  href="https://www.twitter.com/AdventureRent"
+                  href="https://www.twitter.com/CiKr"
                   target="_blank"
                   rel="noreferrer"
-                  aria-label="AdventureRent on X"
+                  aria-label="CiKr on X"
                 >
                   <Twitter className="h-4 w-4" />
                 </a>
               </Button>
               <Button variant="ghost" size="icon" asChild>
                 <a
-                  href="https://www.instagram.com/AdventureRent"
+                  href="https://www.instagram.com/CiKr"
                   target="_blank"
                   rel="noreferrer"
-                  aria-label="AdventureRent on Instagram"
+                  aria-label="CiKr on Instagram"
                 >
                   <Instagram className="h-4 w-4" />
                 </a>
               </Button>
               <Button variant="ghost" size="icon" asChild>
-                <a href="mailto:hello@adventurerent.ca" aria-label="Email AdventureRent">
+                <a href="mailto:hello@cikr.ca" aria-label="Email CiKr">
                   <Mail className="h-4 w-4" />
                 </a>
               </Button>
@@ -133,7 +133,7 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <a href="mailto:support@adventurerent.ca" className="text-muted-foreground hover:text-primary transition-adventure">
+                <a href="mailto:support@cikr.ca" className="text-muted-foreground hover:text-primary transition-adventure">
                   Contact Us
                 </a>
               </li>
@@ -158,7 +158,7 @@ const Footer = () => {
 
         <div className="border-t border-border mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-muted-foreground text-sm">
-            © 2024 AdventureRent. All rights reserved.
+            © 2024 CiKr. All rights reserved.
           </p>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <Link to="/info/terms" className="text-muted-foreground hover:text-primary text-sm transition-adventure">

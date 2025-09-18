@@ -1868,7 +1868,7 @@ const Architecture = () => {
               </CardHeader>
               <CardContent className="space-y-6 text-muted-foreground">
                 <p>
-                  A system diagram visualizes AdventureRent end-to-end: who uses the platform, the services that power
+                  A system diagram visualizes CiKr end-to-end: who uses the platform, the services that power
                   it, the trusted boundaries, and how data flows between first- and third-party systems.
                 </p>
                 <div className="grid gap-6 md:grid-cols-2">
