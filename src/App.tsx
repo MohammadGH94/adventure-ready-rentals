@@ -9,6 +9,8 @@ import HowItWorks from "./pages/HowItWorks";
 import ListGear from "./pages/ListGear";
 import SignIn from "./pages/SignIn";
 import NotFound from "./pages/NotFound";
+import InfoPage from "./pages/InfoPage";
+import Architecture from "./pages/Architecture";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +26,8 @@ const App = () => (
           <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/list-gear" element={<ListGear />} />
           <Route path="/signin" element={<SignIn />} />
+          <Route path="/architecture" element={<Architecture />} />
+          <Route path="/info/:slug" element={<InfoPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
