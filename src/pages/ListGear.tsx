@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState, type ChangeEvent } from "react";
 import { Camera, DollarSign, MapPin, Calendar, Shield, Users } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -14,6 +15,21 @@ const earnings = [
 ];
 
 const ListGear = () => {
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+
+  const previewUrls = useMemo(() => selectedFiles.map((file) => ({ file, url: URL.createObjectURL(file) })), [selectedFiles]);
+
+  useEffect(() => {
+    return () => {
+      previewUrls.forEach((preview) => URL.revokeObjectURL(preview.url));
+    };
+  }, [previewUrls]);
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files ? Array.from(event.target.files) : [];
+    setSelectedFiles(files);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -171,9 +187,48 @@ const ListGear = () => {
                     <div className="text-sm text-muted-foreground mb-4">
                       Add at least 3 high-quality photos showing different angles
                     </div>
-                    <Button variant="outline">
-                      Choose Files
+                    <input
+                      id="gear-photos"
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="sr-only"
+                      onChange={handleFileChange}
+                    />
+                    <Button variant="outline" asChild>
+                      <label htmlFor="gear-photos" className="cursor-pointer">
+                        Choose Files
+                      </label>
                     </Button>
+                    {selectedFiles.length > 0 && (
+                      <div className="mt-6 text-left">
+                        <p className="text-sm font-medium text-foreground">
+                          {selectedFiles.length} file{selectedFiles.length === 1 ? "" : "s"} selected
+                        </p>
+                        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                          {previewUrls.map(({ file, url }) => (
+                            <div
+                              key={`${file.name}-${file.lastModified}`}
+                              className="flex items-center gap-3 rounded-lg border border-border bg-background/60 p-3"
+                            >
+                              <img
+                                src={url}
+                                alt={file.name}
+                                className="h-14 w-14 flex-none rounded-md object-cover"
+                              />
+                              <div>
+                                <p className="text-sm font-medium text-foreground truncate" title={file.name}>
+                                  {file.name}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  {(file.size / 1024 / 1024).toFixed(2)} MB
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 

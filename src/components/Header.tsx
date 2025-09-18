@@ -34,6 +34,9 @@ const Header = () => {
             <Link to="/how-it-works" className="text-foreground hover:text-primary transition-adventure">
               How it works
             </Link>
+            <Link to="/architecture" className="text-foreground hover:text-primary transition-adventure">
+              Architecture
+            </Link>
             <Link to="/list-gear" className="text-foreground hover:text-primary transition-adventure">
               List your gear
             </Link>
