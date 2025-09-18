@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Search, Filter, MapPin, Calendar } from "lucide-react";
+import { Search, Filter, MapPin, Calendar, Map } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import GearCard from "@/components/GearCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import climbingGear from "@/assets/climbing-gear.jpg";
 import campingGear from "@/assets/camping-gear.jpg";
 import waterSportsGear from "@/assets/water-sports-gear.jpg";
@@ -96,6 +97,7 @@ const allGear = [
 const Browse = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [showMap, setShowMap] = useState(false);
 
   const filteredGear = allGear.filter(gear => {
     const matchesSearch = gear.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -163,46 +165,72 @@ const Browse = () => {
             </div>
 
             {/* Category Filter */}
-            <div className="flex flex-wrap gap-2">
-              {categories.map((category) => (
-                <Button
-                  key={category.id}
-                  variant={selectedCategory === category.id ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedCategory(category.id)}
-                >
-                  {category.name}
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="flex flex-wrap gap-2">
+                {categories.map((category) => (
+                  <Button
+                    key={category.id}
+                    variant={selectedCategory === category.id ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setSelectedCategory(category.id)}
+                  >
+                    {category.name}
+                  </Button>
+                ))}
+                <Button variant="ghost" size="sm">
+                  <Filter className="h-4 w-4 mr-2" />
+                  More Filters
                 </Button>
-              ))}
-              <Button variant="ghost" size="sm">
-                <Filter className="h-4 w-4 mr-2" />
-                More Filters
-              </Button>
+              </div>
+              <div className="flex items-center gap-3">
+                <Switch
+                  id="map-toggle"
+                  checked={showMap}
+                  onCheckedChange={setShowMap}
+                  aria-label="Toggle map view"
+                />
+                <label htmlFor="map-toggle" className="text-sm font-medium text-foreground">
+                  Map view
+                </label>
+              </div>
             </div>
           </div>
 
           {/* Results */}
           <div className="mb-6">
             <p className="text-muted-foreground">
-              {filteredGear.length} gear items available
+              {showMap
+                ? `Viewing ${filteredGear.length} matching gear on the map`
+                : `${filteredGear.length} gear items available`}
             </p>
           </div>
 
-          {/* Gear Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredGear.map((gear, index) => (
-              <GearCard
-                key={index}
-                title={gear.title}
-                description={gear.description}
-                image={gear.image}
-                price={gear.price}
-                rating={gear.rating}
-                reviewCount={gear.reviewCount}
-                location={gear.location}
-              />
-            ))}
-          </div>
+          {/* Gear Grid / Map View */}
+          {showMap ? (
+            <div className="flex h-96 flex-col items-center justify-center rounded-xl border border-border bg-muted/40 text-center">
+              <Map className="mb-3 h-10 w-10 text-muted-foreground" />
+              <h3 className="text-lg font-semibold text-foreground">Map view coming soon</h3>
+              <p className="max-w-md text-sm text-muted-foreground">
+                Use the filters to find the perfect gear near you. Map results will appear here with locations and
+                availability details.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {filteredGear.map((gear, index) => (
+                <GearCard
+                  key={index}
+                  title={gear.title}
+                  description={gear.description}
+                  image={gear.image}
+                  price={gear.price}
+                  rating={gear.rating}
+                  reviewCount={gear.reviewCount}
+                  location={gear.location}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </main>
 
