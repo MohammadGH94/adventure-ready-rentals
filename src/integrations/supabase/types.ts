@@ -14,7 +14,450 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      analytics_events: {
+        Row: {
+          created_at: string | null
+          event_name: string
+          id: string
+          properties: Json | null
+          session_id: string | null
+          timestamp: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_name: string
+          id?: string
+          properties?: Json | null
+          session_id?: string | null
+          timestamp?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event_name?: string
+          id?: string
+          properties?: Json | null
+          session_id?: string | null
+          timestamp?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analytics_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      availability: {
+        Row: {
+          booking_ids: string[] | null
+          created_at: string | null
+          id: string
+          listing_id: string
+          unavailable_dates: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          booking_ids?: string[] | null
+          created_at?: string | null
+          id?: string
+          listing_id: string
+          unavailable_dates?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          booking_ids?: string[] | null
+          created_at?: string | null
+          id?: string
+          listing_id?: string
+          unavailable_dates?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "availability_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bookings: {
+        Row: {
+          confirmed_at: string | null
+          created_at: string | null
+          id: string
+          item_status: Database["public"]["Enums"]["item_status"] | null
+          listing_id: string
+          owner_id: string
+          price_per_day: number
+          rental_end_date: string
+          rental_start_date: string
+          renter_id: string
+          requested_at: string | null
+          service_fee: number
+          status: Database["public"]["Enums"]["booking_status"] | null
+          subtotal: number
+          taxes: number
+          total_days: number
+          total_price: number
+          updated_at: string | null
+        }
+        Insert: {
+          confirmed_at?: string | null
+          created_at?: string | null
+          id?: string
+          item_status?: Database["public"]["Enums"]["item_status"] | null
+          listing_id: string
+          owner_id: string
+          price_per_day: number
+          rental_end_date: string
+          rental_start_date: string
+          renter_id: string
+          requested_at?: string | null
+          service_fee: number
+          status?: Database["public"]["Enums"]["booking_status"] | null
+          subtotal: number
+          taxes: number
+          total_days: number
+          total_price: number
+          updated_at?: string | null
+        }
+        Update: {
+          confirmed_at?: string | null
+          created_at?: string | null
+          id?: string
+          item_status?: Database["public"]["Enums"]["item_status"] | null
+          listing_id?: string
+          owner_id?: string
+          price_per_day?: number
+          rental_end_date?: string
+          rental_start_date?: string
+          renter_id?: string
+          requested_at?: string | null
+          service_fee?: number
+          status?: Database["public"]["Enums"]["booking_status"] | null
+          subtotal?: number
+          taxes?: number
+          total_days?: number
+          total_price?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_renter_id_fkey"
+            columns: ["renter_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kits: {
+        Row: {
+          created_at: string | null
+          id: string
+          listing_id: string
+          owner_id: string
+          renter_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          listing_id: string
+          owner_id: string
+          renter_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          listing_id?: string
+          owner_id?: string
+          renter_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kits_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kits_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kits_renter_id_fkey"
+            columns: ["renter_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listings: {
+        Row: {
+          block_out_times: Json | null
+          categories: Database["public"]["Enums"]["listing_category"][]
+          created_at: string | null
+          description: string | null
+          discount_rate_month: number | null
+          discount_rate_week: number | null
+          id: string
+          is_available: boolean | null
+          location_lat: number | null
+          location_lng: number | null
+          multiplier: number | null
+          owner_id: string
+          photos: string[] | null
+          pickup_addresses: string[] | null
+          pickup_instructions: string | null
+          price_per_day: number
+          rented_as_kit: boolean | null
+          rules_and_requirements: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          block_out_times?: Json | null
+          categories: Database["public"]["Enums"]["listing_category"][]
+          created_at?: string | null
+          description?: string | null
+          discount_rate_month?: number | null
+          discount_rate_week?: number | null
+          id?: string
+          is_available?: boolean | null
+          location_lat?: number | null
+          location_lng?: number | null
+          multiplier?: number | null
+          owner_id: string
+          photos?: string[] | null
+          pickup_addresses?: string[] | null
+          pickup_instructions?: string | null
+          price_per_day: number
+          rented_as_kit?: boolean | null
+          rules_and_requirements?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          block_out_times?: Json | null
+          categories?: Database["public"]["Enums"]["listing_category"][]
+          created_at?: string | null
+          description?: string | null
+          discount_rate_month?: number | null
+          discount_rate_week?: number | null
+          id?: string
+          is_available?: boolean | null
+          location_lat?: number | null
+          location_lng?: number | null
+          multiplier?: number | null
+          owner_id?: string
+          photos?: string[] | null
+          pickup_addresses?: string[] | null
+          pickup_instructions?: string | null
+          price_per_day?: number
+          rented_as_kit?: boolean | null
+          rules_and_requirements?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listings_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reviews: {
+        Row: {
+          booking_id: string
+          comment_listing: string | null
+          comment_owner: string | null
+          comment_renter: string | null
+          created_at: string | null
+          id: string
+          listing_id: string | null
+          listing_rating: number | null
+          owner_rating: number | null
+          renter_rating: number | null
+          submitted_at: string | null
+          user_id: string
+        }
+        Insert: {
+          booking_id: string
+          comment_listing?: string | null
+          comment_owner?: string | null
+          comment_renter?: string | null
+          created_at?: string | null
+          id?: string
+          listing_id?: string | null
+          listing_rating?: number | null
+          owner_rating?: number | null
+          renter_rating?: number | null
+          submitted_at?: string | null
+          user_id: string
+        }
+        Update: {
+          booking_id?: string
+          comment_listing?: string | null
+          comment_owner?: string | null
+          comment_renter?: string | null
+          created_at?: string | null
+          id?: string
+          listing_id?: string | null
+          listing_rating?: number | null
+          owner_rating?: number | null
+          renter_rating?: number | null
+          submitted_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users: {
+        Row: {
+          account_number: string | null
+          auth_user_id: string | null
+          business_license: string | null
+          business_name: string | null
+          city: string | null
+          country: string | null
+          created_at: string | null
+          date_of_birth: string | null
+          email: string
+          first_name: string
+          government_id_image: string | null
+          id: string
+          institution_number: string | null
+          is_verified: boolean | null
+          last_name: string
+          location_address: string | null
+          password_hash: string
+          payment_method_ids: string[] | null
+          payout_method_id: string | null
+          phone_number: string | null
+          postal_code: string | null
+          profile_bio: string | null
+          profile_image_url: string | null
+          state_province: string | null
+          tax_id: string | null
+          transit_number: string | null
+          updated_at: string | null
+          user_type: Database["public"]["Enums"]["user_type"]
+          void_cheque: string | null
+        }
+        Insert: {
+          account_number?: string | null
+          auth_user_id?: string | null
+          business_license?: string | null
+          business_name?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string | null
+          date_of_birth?: string | null
+          email: string
+          first_name: string
+          government_id_image?: string | null
+          id?: string
+          institution_number?: string | null
+          is_verified?: boolean | null
+          last_name: string
+          location_address?: string | null
+          password_hash: string
+          payment_method_ids?: string[] | null
+          payout_method_id?: string | null
+          phone_number?: string | null
+          postal_code?: string | null
+          profile_bio?: string | null
+          profile_image_url?: string | null
+          state_province?: string | null
+          tax_id?: string | null
+          transit_number?: string | null
+          updated_at?: string | null
+          user_type?: Database["public"]["Enums"]["user_type"]
+          void_cheque?: string | null
+        }
+        Update: {
+          account_number?: string | null
+          auth_user_id?: string | null
+          business_license?: string | null
+          business_name?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string | null
+          date_of_birth?: string | null
+          email?: string
+          first_name?: string
+          government_id_image?: string | null
+          id?: string
+          institution_number?: string | null
+          is_verified?: boolean | null
+          last_name?: string
+          location_address?: string | null
+          password_hash?: string
+          payment_method_ids?: string[] | null
+          payout_method_id?: string | null
+          phone_number?: string | null
+          postal_code?: string | null
+          profile_bio?: string | null
+          profile_image_url?: string | null
+          state_province?: string | null
+          tax_id?: string | null
+          transit_number?: string | null
+          updated_at?: string | null
+          user_type?: Database["public"]["Enums"]["user_type"]
+          void_cheque?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +466,24 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      booking_status:
+        | "pending_approval"
+        | "confirmed"
+        | "active"
+        | "completed"
+        | "cancelled_by_renter"
+        | "cancelled_by_owner"
+        | "disputed"
+      item_status: "available" | "unavailable"
+      listing_category:
+        | "camping"
+        | "water_sports"
+        | "climbing"
+        | "vehicles"
+        | "winter_sports"
+        | "hiking"
+        | "cycling"
+      user_type: "individual" | "business"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +610,27 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      booking_status: [
+        "pending_approval",
+        "confirmed",
+        "active",
+        "completed",
+        "cancelled_by_renter",
+        "cancelled_by_owner",
+        "disputed",
+      ],
+      item_status: ["available", "unavailable"],
+      listing_category: [
+        "camping",
+        "water_sports",
+        "climbing",
+        "vehicles",
+        "winter_sports",
+        "hiking",
+        "cycling",
+      ],
+      user_type: ["individual", "business"],
+    },
   },
 } as const
