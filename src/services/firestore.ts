@@ -1,4 +1,5 @@
 import {
+  addDoc,
   collection,
   doc,
   getDoc,
@@ -11,8 +12,9 @@ import {
   type DocumentData,
   type QueryDocumentSnapshot,
 } from "firebase/firestore";
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 
-import { db } from "@/lib/firebase";
+import { db, storage } from "@/lib/firebase";
 
 export type UserProfile = {
   id: string;
@@ -36,6 +38,30 @@ export type EquipmentRecord = {
   location: string;
   imageUrls: string[];
   category?: string;
+};
+
+export type NewEquipmentInput = {
+  title: string;
+  description: string;
+  category: string;
+  pricePerDay: number;
+  ownerId: string;
+  imageUrls: string[];
+  location: string;
+  availability?: boolean;
+  weeklyRate?: number;
+  availabilityNote?: string;
+};
+
+export type GearImageUploadUpdate = {
+  file: File;
+  progress: number;
+};
+
+export type UploadGearImagesOptions = {
+  files: File[];
+  ownerId: string;
+  onProgress?: (update: GearImageUploadUpdate) => void;
 };
 
 const getNumericValue = (value: unknown): number => {
@@ -106,6 +132,119 @@ export const getUser = async (uid: string): Promise<UserProfile | null> => {
     id: snapshot.id,
     ...data,
   };
+};
+
+export const addEquipment = async (equipment: NewEquipmentInput): Promise<string> => {
+  const {
+    title,
+    description,
+    category,
+    pricePerDay,
+    ownerId,
+    imageUrls,
+    location,
+    availability,
+    weeklyRate,
+    availabilityNote,
+  } = equipment;
+
+  if (!ownerId || ownerId.trim().length === 0) {
+    throw new Error("An authenticated owner is required to list gear.");
+  }
+
+  if (!Number.isFinite(pricePerDay) || pricePerDay <= 0) {
+    throw new Error("Daily rate must be a positive number.");
+  }
+
+  const sanitizedImageUrls = imageUrls
+    .map((url) => (typeof url === "string" ? url.trim() : ""))
+    .filter((url) => url.length > 0);
+
+  if (sanitizedImageUrls.length === 0) {
+    throw new Error("At least one image must be uploaded for the listing.");
+  }
+
+  const payload: Record<string, unknown> = {
+    title: title.trim(),
+    description: description.trim(),
+    category: category.trim(),
+    pricePerDay,
+    ownerId: ownerId.trim(),
+    imageUrls: sanitizedImageUrls,
+    location: location.trim(),
+    availability: typeof availability === "boolean" ? availability : true,
+    listedAt: serverTimestamp(),
+  };
+
+  if (typeof weeklyRate === "number" && Number.isFinite(weeklyRate) && weeklyRate > 0) {
+    payload.weeklyRate = weeklyRate;
+  }
+
+  if (typeof availabilityNote === "string" && availabilityNote.trim().length > 0) {
+    payload.availabilityNote = availabilityNote.trim();
+  }
+
+  try {
+    const docRef = await addDoc(collection(db, "equipment"), payload);
+    return docRef.id;
+  } catch (error) {
+    console.error("Error adding equipment document:", error);
+    throw new Error("Failed to create the equipment listing. Please try again.");
+  }
+};
+
+export const uploadGearImages = async ({
+  files,
+  ownerId,
+  onProgress,
+}: UploadGearImagesOptions): Promise<string[]> => {
+  if (!files || files.length === 0) {
+    return [];
+  }
+
+  if (!ownerId || ownerId.trim().length === 0) {
+    throw new Error("An authenticated owner is required to upload images.");
+  }
+
+  const normalizedOwnerId = ownerId.trim();
+
+  const uploadPromises = files.map(
+    (file) =>
+      new Promise<string>((resolve, reject) => {
+        const uniqueSuffix = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+        const safeName = file.name.replace(/\s+/g, "-");
+        const storageRef = ref(storage, `equipment/${normalizedOwnerId}/${uniqueSuffix}-${safeName}`);
+        const uploadTask = uploadBytesResumable(storageRef, file);
+
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {
+            const progress = snapshot.totalBytes > 0 ? (snapshot.bytesTransferred / snapshot.totalBytes) * 100 : 0;
+            onProgress?.({ file, progress });
+          },
+          (error) => {
+            onProgress?.({ file, progress: 0 });
+            reject(error);
+          },
+          async () => {
+            try {
+              const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+              onProgress?.({ file, progress: 100 });
+              resolve(downloadURL);
+            } catch (error) {
+              reject(error);
+            }
+          },
+        );
+      }),
+  );
+
+  try {
+    return await Promise.all(uploadPromises);
+  } catch (error) {
+    console.error("Error uploading gear images:", error);
+    throw new Error("Failed to upload one or more images. Please try again.");
+  }
 };
 
 export const getEquipmentList = async (): Promise<EquipmentRecord[]> => {
