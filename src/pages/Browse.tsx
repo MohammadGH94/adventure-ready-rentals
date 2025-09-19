@@ -6,100 +6,14 @@ import GearCard from "@/components/GearCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import climbingGear from "@/assets/climbing-gear.jpg";
-import campingGear from "@/assets/camping-gear.jpg";
-import waterSportsGear from "@/assets/water-sports-gear.jpg";
-import winterSportsGear from "@/assets/winter-sports-gear.jpg";
-
-const allGear = [
-  {
-    title: "Professional Climbing Rope Set",
-    description: "Complete dynamic climbing rope with carabiners and safety gear included",
-    image: climbingGear,
-    price: 45,
-    rating: 4.9,
-    reviewCount: 127,
-    location: "Boulder, CO",
-    category: "climbing"
-  },
-  {
-    title: "4-Person Family Camping Kit",
-    description: "Everything you need for family camping: tent, sleeping bags, camp chairs",
-    image: campingGear,
-    price: 85,
-    rating: 4.8,
-    reviewCount: 89,
-    location: "Portland, OR",
-    category: "camping"
-  },
-  {
-    title: "Inflatable Kayak with Paddle",
-    description: "2-person inflatable kayak perfect for lakes and calm rivers",
-    image: waterSportsGear,
-    price: 65,
-    rating: 4.7,
-    reviewCount: 156,
-    location: "Lake Tahoe, CA",
-    category: "water-sports"
-  },
-  {
-    title: "Premium Ski Equipment Set",
-    description: "High-performance skis, boots, and poles for advanced skiers",
-    image: winterSportsGear,
-    price: 120,
-    rating: 4.9,
-    reviewCount: 94,
-    location: "Aspen, CO",
-    category: "winter-sports"
-  },
-  {
-    title: "Rock Climbing Starter Kit",
-    description: "Perfect for beginners: harness, helmet, shoes, and chalk bag",
-    image: climbingGear,
-    price: 35,
-    rating: 4.6,
-    reviewCount: 203,
-    location: "Joshua Tree, CA",
-    category: "climbing"
-  },
-  {
-    title: "Backpacking Essentials",
-    description: "Lightweight tent, sleeping system, and cooking gear for multi-day hikes",
-    image: campingGear,
-    price: 95,
-    rating: 4.8,
-    reviewCount: 167,
-    location: "Yosemite, CA",
-    category: "camping"
-  },
-  {
-    title: "Surfboard & Wetsuit Combo",
-    description: "Complete surfing setup with board, wetsuit, and accessories",
-    image: waterSportsGear,
-    price: 55,
-    rating: 4.7,
-    reviewCount: 89,
-    location: "Santa Cruz, CA",
-    category: "water-sports"
-  },
-  {
-    title: "Snowboard Complete Package",
-    description: "Board, boots, bindings, and helmet for the perfect snow day",
-    image: winterSportsGear,
-    price: 75,
-    rating: 4.8,
-    reviewCount: 112,
-    location: "Whistler, BC",
-    category: "winter-sports"
-  }
-];
+import { gearListings } from "@/lib/gear";
 
 const Browse = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [showMap, setShowMap] = useState(false);
 
-  const filteredGear = allGear.filter(gear => {
+  const filteredGear = gearListings.filter(gear => {
     const matchesSearch = gear.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          gear.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === "all" || gear.category === selectedCategory;
@@ -217,9 +131,10 @@ const Browse = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {filteredGear.map((gear, index) => (
+              {filteredGear.map((gear) => (
                 <GearCard
-                  key={index}
+                  key={gear.id}
+                  id={gear.id}
                   title={gear.title}
                   description={gear.description}
                   image={gear.image}

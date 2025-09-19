@@ -1,7 +1,9 @@
 import { Star, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 interface GearCardProps {
+  id: string;
   title: string;
   description: string;
   image: string;
@@ -11,28 +13,38 @@ interface GearCardProps {
   location: string;
 }
 
-const GearCard = ({ title, description, image, price, rating, reviewCount, location }: GearCardProps) => {
+const GearCard = ({ id, title, description, image, price, rating, reviewCount, location }: GearCardProps) => {
   return (
     <div className="gear-card group cursor-pointer overflow-hidden">
       <div className="relative aspect-[4/3] overflow-hidden">
         <img
           src={image}
           alt={title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-adventure"
+          className="h-full w-full object-cover transition-adventure group-hover:scale-105"
         />
         <Button
           variant="ghost"
           size="icon"
-          className="absolute top-3 right-3 bg-white/80 hover:bg-white/90 backdrop-blur-sm"
+          className="absolute top-3 right-3 z-20 bg-white/80 backdrop-blur-sm hover:bg-white/90"
+          aria-label="Save to favorites"
         >
           <Heart className="h-4 w-4" />
         </Button>
+        <Link
+          to={`/gear/${id}`}
+          className="absolute inset-0 z-10"
+          aria-label={`View ${title}`}
+        >
+          <span className="sr-only">View {title}</span>
+        </Link>
       </div>
-      
+
       <div className="p-4">
         <div className="flex items-start justify-between mb-2">
           <h3 className="text-lg font-semibold text-card-foreground line-clamp-1">
-            {title}
+            <Link to={`/gear/${id}`} className="transition-adventure hover:text-primary">
+              {title}
+            </Link>
           </h3>
           <div className="flex items-center gap-1 text-sm">
             <Star className="h-3 w-3 fill-action text-action" />
@@ -58,8 +70,10 @@ const GearCard = ({ title, description, image, price, rating, reviewCount, locat
               /day
             </span>
           </div>
-          <Button variant="action" size="sm">
-            Rent Now
+          <Button variant="action" size="sm" asChild>
+            <Link to={`/gear/${id}`}>
+              Rent Now
+            </Link>
           </Button>
         </div>
       </div>

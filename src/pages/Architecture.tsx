@@ -1814,6 +1814,7 @@ const diagramTypes = [
   "Container: apps, services, and data stores.",
   "Component: internals of critical services (Booking, Payments+KYC, Insurance Gateway, etc.).",
   "Sequence diagrams: booking, payout, claim, refund, messaging flows.",
+  "User flows: renter journey from discovery to post-trip review (mirrored in the in-app renter experience).",
   "Data/ER view: core entities and where they live.",
   "Optional deployment views covering runtime environments.",
 ];
@@ -1830,6 +1831,7 @@ const highlights = [
   "Operations: Observability, idempotency keys, retries and DLQs on webhooks, gateway rate limiting.",
   "Scale & cost: Managed services for relational data, object storage, search index, cache, and event bus.",
   "Bounded contexts: Bookings, Payments & KYC, Insurance, Inventory/Listings, Messaging, Reviews/Trust, Identity/Auth, Admin/Ops, Analytics.",
+  "Renter UX: The product now mirrors the renter booking journey end-to-end with deposit, claim, and review touchpoints managed in-app.",
   "Analytics hooks: Domain events routed to Analytics/Event Ingest and BI warehouse.",
 ];
 
