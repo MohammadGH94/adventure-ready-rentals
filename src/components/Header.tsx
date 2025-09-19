@@ -1,57 +1,9 @@
-import { Search, User, Heart, ShoppingBag, LogOut } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
-
+import { Search, User, Heart, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { toast } from "@/components/ui/sonner";
-import { useAuth } from "@/contexts/AuthContext";
-import { signOutUser } from "@/services/auth";
-
-const getInitials = (displayName?: string | null, email?: string | null) => {
-  if (displayName) {
-    const parts = displayName.split(" ");
-    const [first = "", second = ""] = [parts[0], parts[1] ?? ""];
-    return `${first.charAt(0)}${second.charAt(0)}`.toUpperCase();
-  }
-
-  if (email) {
-    return email.charAt(0).toUpperCase();
-  }
-
-  return "U";
-};
-
-const getErrorMessage = (error: unknown) => {
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  return "Something went wrong. Please try again.";
-};
+import { Link } from "react-router-dom";
 
 const Header = () => {
-  const navigate = useNavigate();
-  const { user, loading } = useAuth();
-
-  const handleSignOut = async () => {
-    try {
-      await signOutUser();
-      toast.success("Signed out successfully.");
-      navigate("/");
-    } catch (error) {
-      toast.error(getErrorMessage(error));
-    }
-  };
-
   return (
     <header className="bg-card border-b border-border shadow-soft sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -98,52 +50,12 @@ const Header = () => {
             <Button variant="ghost" size="icon" className="hidden sm:flex">
               <ShoppingBag className="h-4 w-4" />
             </Button>
-            {loading ? (
-              <div className="h-9 w-20 animate-pulse rounded-full bg-muted" />
-            ) : user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="rounded-full p-0">
-                    <Avatar className="h-9 w-9">
-                      <AvatarImage
-                        src={user.photoURL ?? undefined}
-                        alt={user.displayName ?? user.email ?? "User avatar"}
-                      />
-                      <AvatarFallback>{getInitials(user.displayName, user.email)}</AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium text-foreground">
-                        {user.displayName || "Account"}
-                      </span>
-                      {user.email ? (
-                        <span className="text-xs text-muted-foreground">{user.email}</span>
-                      ) : null}
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    className="text-destructive focus:text-destructive"
-                    onSelect={(event) => {
-                      event.preventDefault();
-                      handleSignOut();
-                    }}
-                  >
-                    <LogOut className="mr-2 h-4 w-4" /> Sign Out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Button asChild variant="outline" size="sm">
-                <Link to="/signin">
-                  <User className="mr-2 h-4 w-4" />
-                  Sign In
-                </Link>
-              </Button>
-            )}
+            <Button asChild variant="outline" size="sm">
+              <Link to="/signin">
+                <User className="h-4 w-4 mr-2" />
+                Sign In
+              </Link>
+            </Button>
           </div>
         </div>
       </div>
