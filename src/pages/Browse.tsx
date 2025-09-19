@@ -9,11 +9,13 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { getEquipmentList } from "@/services/firestore";
 import { normalizeEquipmentToGearCard, type GearCardData } from "@/utils/gear";
+import { useSearchParams } from "react-router-dom";
 
 const Browse = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [showMap, setShowMap] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const {
     data: equipment,
@@ -75,10 +77,44 @@ const Browse = () => {
   }, [allGear]);
 
   useEffect(() => {
+    const categoryParam = searchParams.get("category");
+
+    if (!categoryParam) {
+      if (selectedCategory !== "all") {
+        setSelectedCategory("all");
+      }
+      return;
+    }
+
+    const normalizedCategory = categoryParam.trim().toLowerCase();
+    const isValidCategory = categories.some(
+      (category) => category.id === normalizedCategory,
+    );
+
+    if (isValidCategory && normalizedCategory !== selectedCategory) {
+      setSelectedCategory(normalizedCategory);
+    }
+  }, [categories, searchParams, selectedCategory]);
+
+  useEffect(() => {
     if (!categories.some((category) => category.id === selectedCategory)) {
       setSelectedCategory("all");
     }
   }, [categories, selectedCategory]);
+
+  const handleCategorySelect = (categoryId: string) => {
+    setSelectedCategory(categoryId);
+
+    const nextSearchParams = new URLSearchParams(searchParams);
+
+    if (categoryId === "all") {
+      nextSearchParams.delete("category");
+    } else {
+      nextSearchParams.set("category", categoryId);
+    }
+
+    setSearchParams(nextSearchParams, { replace: true });
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -138,7 +174,7 @@ const Browse = () => {
                     key={category.id}
                     variant={selectedCategory === category.id ? "default" : "outline"}
                     size="sm"
-                    onClick={() => setSelectedCategory(category.id)}
+                    onClick={() => handleCategorySelect(category.id)}
                   >
                     {category.name}
                   </Button>
