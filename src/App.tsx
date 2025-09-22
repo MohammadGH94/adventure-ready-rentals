@@ -14,6 +14,9 @@ import InfoPage from "./pages/InfoPage";
 import Architecture from "./pages/Architecture";
 import ListingDetails from "./pages/ListingDetails";
 import Dashboard from "./pages/Dashboard";
+import MyListings from "./pages/MyListings";
+import ListingBookings from "./pages/ListingBookings";
+import MyRentals from "./pages/MyRentals";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -42,6 +45,21 @@ const App = () => (
             <Route path="/dashboard" element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/my-listings" element={
+              <ProtectedRoute>
+                <MyListings />
+              </ProtectedRoute>
+            } />
+            <Route path="/listing-bookings/:listingId" element={
+              <ProtectedRoute>
+                <ListingBookings />
+              </ProtectedRoute>
+            } />
+            <Route path="/my-rentals" element={
+              <ProtectedRoute>
+                <MyRentals />
               </ProtectedRoute>
             } />
             <Route path="/architecture" element={<Architecture />} />
