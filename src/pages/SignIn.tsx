@@ -1,15 +1,23 @@
-import { useState } from "react";
-import { Eye, EyeOff, Mail, Lock } from "lucide-react";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Link } from "react-router-dom";
+import SignInForm from "@/components/auth/SignInForm";
+import SignUpForm from "@/components/auth/SignUpForm";
+import { useAuth } from "@/hooks/useAuth";
 
 const SignIn = () => {
-  const [showPassword, setShowPassword] = useState(false);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) {
+      navigate('/');
+    }
+  }, [user, navigate]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -21,137 +29,22 @@ const SignIn = () => {
             <CardHeader className="text-center">
               <CardTitle className="text-2xl">Welcome to CiKr</CardTitle>
               <p className="text-muted-foreground">
-                Sign in to your account or create a new one
+                Vancouver's Premier Outdoor Gear Rental Platform
               </p>
             </CardHeader>
             <CardContent>
               <Tabs defaultValue="signin" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="signin">Sign In</TabsTrigger>
-                  <TabsTrigger value="signup">Sign Up</TabsTrigger>
+                  <TabsTrigger value="signup">Join CiKr</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="signin" className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">
-                      Email
-                    </label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                      <Input
-                        type="email"
-                        placeholder="your@email.com"
-                        className="pl-10"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">
-                      Password
-                    </label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                      <Input
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Your password"
-                        className="pl-10 pr-10"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"
-                      >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <label className="flex items-center">
-                      <input type="checkbox" className="mr-2" />
-                      <span className="text-sm text-muted-foreground">Remember me</span>
-                    </label>
-                    <a href="#" className="text-sm text-primary hover:text-primary-glow">
-                      Forgot password?
-                    </a>
-                  </div>
-                  
-                  <Button variant="action" className="w-full">
-                    Sign In
-                  </Button>
+                  <SignInForm />
                 </TabsContent>
                 
                 <TabsContent value="signup" className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">
-                        First Name
-                      </label>
-                      <Input placeholder="John" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">
-                        Last Name
-                      </label>
-                      <Input placeholder="Doe" />
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">
-                      Email
-                    </label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                      <Input
-                        type="email"
-                        placeholder="your@email.com"
-                        className="pl-10"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">
-                      Password
-                    </label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                      <Input
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Create a password"
-                        className="pl-10 pr-10"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"
-                      >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label className="flex items-start">
-                      <input type="checkbox" className="mr-2 mt-1" />
-                      <span className="text-sm text-muted-foreground">
-                        I agree to the{" "}
-                        <a href="#" className="text-primary hover:text-primary-glow">
-                          Terms of Service
-                        </a>{" "}
-                        and{" "}
-                        <a href="#" className="text-primary hover:text-primary-glow">
-                          Privacy Policy
-                        </a>
-                      </span>
-                    </label>
-                  </div>
-                  
-                  <Button variant="action" className="w-full">
-                    Create Account
-                  </Button>
+                  <SignUpForm />
                 </TabsContent>
               </Tabs>
               
