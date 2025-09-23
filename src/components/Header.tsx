@@ -36,7 +36,7 @@ const Header = () => {
             </Link>
             
             <Link to="/list-gear" className="text-foreground hover:text-primary transition-adventure">
-              List your gear
+              Share your gear
             </Link>
           </nav>
 

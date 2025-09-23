@@ -85,7 +85,7 @@ const SignInForm = () => {
         className="w-full" 
         disabled={loading}
       >
-        {loading ? "Signing In..." : "Sign In"}
+        {loading ? "Getting you ready..." : "Welcome Back"}
       </Button>
     </form>
   );

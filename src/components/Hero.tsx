@@ -18,14 +18,14 @@ const Hero = () => {
       {/* Content */}
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 tracking-tight">
-          Rent Amazing
+          Discover Your Next
           <span className="block bg-gradient-sunset bg-clip-text text-transparent">
-            Adventure Gear
+            Adventure
           </span>
         </h1>
         
         <p className="text-xl md:text-2xl text-white/90 mb-12 max-w-2xl mx-auto leading-relaxed">
-          From climbing gear to camping equipment. Discover, rent, and explore with confidence.
+          Connect with locals and rent gear to reduce waste. From climbing gear to camping equipment - your adventure starts here.
         </p>
 
         {/* Search Interface */}
@@ -72,7 +72,7 @@ const Hero = () => {
             
             <div className="md:col-span-1 flex items-end">
               <Button asChild variant="action" size="lg" className="w-full h-12">
-                <Link to="/browse">Search Gear</Link>
+                <Link to="/browse">Find Your Adventure</Link>
               </Button>
             </div>
           </div>
@@ -81,10 +81,10 @@ const Hero = () => {
         {/* Quick Actions */}
         <div className="flex flex-wrap justify-center gap-4 mt-8">
           <Button asChild variant="hero" size="sm">
-            <Link to="/browse">Browse All Categories</Link>
+            <Link to="/browse">Explore All Adventures</Link>
           </Button>
           <Button asChild variant="outline" size="sm" className="bg-white/10 border-white/30 text-white hover:bg-white/20">
-            <Link to="/list-gear">List Your Gear</Link>
+            <Link to="/list-gear">Share Your Gear</Link>
           </Button>
         </div>
       </div>
