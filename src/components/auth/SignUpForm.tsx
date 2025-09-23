@@ -56,7 +56,7 @@ const SignUpForm = () => {
       {/* User Type Selection */}
       <div>
         <label className="block text-sm font-medium text-foreground mb-3">
-          I want to join as:
+          Let's get you started - how would you like to adventure with us?
         </label>
         <div className="grid grid-cols-1 gap-3">
           <Card 
@@ -79,9 +79,9 @@ const SignUpForm = () => {
                 <div className="flex items-center space-x-2">
                   <User className="h-5 w-5 text-primary" />
                   <div>
-                    <div className="font-medium">Individual</div>
+                    <div className="font-medium">Adventure Seeker</div>
                     <div className="text-sm text-muted-foreground">
-                      Rent gear or list your personal gear for others to rent
+                      Discover gear and share your own with fellow adventurers
                     </div>
                   </div>
                 </div>
@@ -109,9 +109,9 @@ const SignUpForm = () => {
                 <div className="flex items-center space-x-2">
                   <Building2 className="h-5 w-5 text-primary" />
                   <div>
-                    <div className="font-medium">Shop/Business</div>
+                    <div className="font-medium">Gear Business</div>
                     <div className="text-sm text-muted-foreground">
-                      Manage a rental business with multiple gear listings
+                      Share your business inventory with the adventure community
                     </div>
                   </div>
                 </div>
@@ -220,8 +220,8 @@ const SignUpForm = () => {
         <div className="flex items-center space-x-2 text-sm">
           <Users className="h-4 w-4 text-accent-foreground" />
           <span className="text-accent-foreground">
-            <strong>Vancouver/Lower Mainland BC:</strong> Your location is set to the Vancouver area. 
-            You can update this in your profile later.
+            <strong>Welcome to Vancouver's adventure community!</strong> We've set you up in the Lower Mainland - 
+            you can always update this later in your profile.
           </span>
         </div>
       </div>
@@ -254,7 +254,7 @@ const SignUpForm = () => {
         className="w-full"
         disabled={loading || !formData.agreeToTerms}
       >
-        {loading ? "Creating Account..." : "Create Account"}
+        {loading ? "Getting you set up..." : "Join the Adventure"}
       </Button>
     </form>
   );

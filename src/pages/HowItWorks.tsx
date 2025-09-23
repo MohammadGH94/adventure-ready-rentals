@@ -7,50 +7,50 @@ import { Link } from "react-router-dom";
 const steps = [
   {
     icon: Search,
-    title: "1. Search & Browse",
-    description: "Find the perfect gear for your adventure. Filter by location, dates, and gear type to discover amazing equipment from local owners."
+    title: "1. Discover Local Gear",
+    description: "Browse trusted equipment from fellow adventurers in your area. Each item comes with clear photos and honest descriptions."
   },
   {
     icon: Calendar,
-    title: "2. Book & Pay",
-    description: "Select your dates and book instantly. Secure payment processing and instant confirmation. Message owners directly for any questions."
+    title: "2. Book Safely",
+    description: "Reserve your dates with transparent pricing - no hidden fees. Chat with owners who love sharing their gear knowledge."
   },
   {
     icon: Shield,
-    title: "3. Pick Up & Adventure",
-    description: "Meet your gear owner or arrange delivery. All rentals include damage protection and 24/7 support during your adventure."
+    title: "3. Adventure Confidently",
+    description: "Meet friendly locals or arrange convenient pickup. Every rental includes protection coverage and we're here if you need us."
   },
   {
     icon: Star,
-    title: "4. Return & Review",
-    description: "Return the gear and share your experience. Rate your rental and help build our trusted community of adventurers."
+    title: "4. Share Your Story",
+    description: "Return the gear and tell others about your adventure. Your review helps fellow explorers discover new trails."
   }
 ];
 
 const benefits = [
   {
-    title: "Save Money",
-    description: "Rent gear for a fraction of buying new. Try before you buy expensive equipment."
+    title: "Try Before You Invest",
+    description: "Test expensive gear before committing to buy. Discover what works best for your adventures without the big upfront cost."
   },
   {
-    title: "Local Community",
-    description: "Connect with fellow adventurers in your area. Get local tips and recommendations."
+    title: "Connect With Locals",
+    description: "Meet passionate adventurers who share insider tips about the best trails, conditions, and hidden gems in your area."
   },
   {
-    title: "Quality Gear",
-    description: "Access high-end equipment that would be too expensive to own. All gear is verified and maintained."
+    title: "Access Premium Gear",
+    description: "Borrow top-quality equipment that owners personally use and maintain. Every item is loved and cared for."
   },
   {
-    title: "Insurance Coverage",
-    description: "Every rental includes comprehensive damage protection for peace of mind."
+    title: "Protected Adventures",
+    description: "Adventure worry-free with damage coverage included. Clear terms, fair policies - we've got your back."
   },
   {
-    title: "Expert Support",
-    description: "Get help from gear experts and experienced adventurers. 24/7 customer support."
+    title: "Friendly Support",
+    description: "Get help from real people who understand your passion for the outdoors. We're here when you need us most."
   },
   {
-    title: "Eco-Friendly",
-    description: "Reduce waste by sharing resources. Make a positive environmental impact."
+    title: "Adventure Sustainably",
+    description: "Share resources with your community and reduce waste. Every rental helps our planet and supports local adventurers."
   }
 ];
 
@@ -67,14 +67,14 @@ const HowItWorks = () => {
               How CiKr Works
             </h1>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Rent amazing adventure gear in 4 simple steps. Join thousands of adventurers sharing gear in your local community.
+              Connect with your local adventure community in 4 simple steps. Share gear, reduce waste, and discover new trails together.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild variant="action" size="lg">
-                <Link to="/browse">Start Browsing Gear</Link>
+                <Link to="/browse">Discover Local Gear</Link>
               </Button>
               <Button asChild variant="outline" size="lg">
-                <Link to="/list-gear">List Your Gear</Link>
+                <Link to="/list-gear">Share Your Gear</Link>
               </Button>
             </div>
           </div>
@@ -106,10 +106,10 @@ const HowItWorks = () => {
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-                Why Choose CiKr?
+                Why Adventure With CiKr?
               </h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Join the sharing economy and discover the benefits of gear rental.
+                Join fellow adventurers who believe in sharing gear and protecting our planet.
               </p>
             </div>
             
@@ -134,23 +134,23 @@ const HowItWorks = () => {
             <div className="bg-accent/10 rounded-2xl p-8">
               <Shield className="h-16 w-16 text-primary mx-auto mb-6" />
               <h2 className="text-3xl font-bold text-foreground mb-4">
-                Safety & Trust First
+                Adventure With Confidence
               </h2>
               <p className="text-lg text-muted-foreground mb-6">
-                Every rental includes comprehensive damage protection, verified gear owners, and 24/7 support. Your adventure is our priority.
+                We protect every adventure with clear coverage, verified community members, and friendly support. Your safety and peace of mind come first.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
                 <div>
-                  <strong className="text-foreground block mb-1">Damage Protection</strong>
-                  <span className="text-muted-foreground">Up to $2,000 coverage included</span>
+                  <strong className="text-foreground block mb-1">Adventure Protection</strong>
+                  <span className="text-muted-foreground">Up to $2,000 coverage - clearly explained, no surprises</span>
                 </div>
                 <div>
-                  <strong className="text-foreground block mb-1">Verified Owners</strong>
-                  <span className="text-muted-foreground">ID verification & background checks</span>
+                  <strong className="text-foreground block mb-1">Trusted Community</strong>
+                  <span className="text-muted-foreground">Real adventurers, verified profiles, honest reviews</span>
                 </div>
                 <div>
-                  <strong className="text-foreground block mb-1">24/7 Support</strong>
-                  <span className="text-muted-foreground">Help when you need it most</span>
+                  <strong className="text-foreground block mb-1">Friendly Help</strong>
+                  <span className="text-muted-foreground">Real people who understand your passion, here 24/7</span>
                 </div>
               </div>
             </div>
@@ -161,13 +161,13 @@ const HowItWorks = () => {
         <section className="py-16 bg-gradient-hero">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Ready for Your Next Adventure?
+              Your Next Adventure Awaits
             </h2>
             <p className="text-xl text-white/90 mb-8">
-              Join thousands of adventurers renting gear in your local community.
+              Join thousands of adventurers sharing gear and exploring sustainably in communities worldwide.
             </p>
             <Button asChild variant="action" size="lg">
-              <Link to="/browse">Start Exploring Gear</Link>
+              <Link to="/browse">Discover Your Adventure</Link>
             </Button>
           </div>
         </section>

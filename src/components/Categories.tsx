@@ -7,25 +7,25 @@ import winterSportsGear from "@/assets/winter-sports-gear.jpg";
 const categories = [
   {
     title: "Climbing & Mountaineering",
-    description: "Ropes, harnesses, helmets, and more for your vertical adventures",
+    description: "Borrow trusted ropes, harnesses, and helmets from local climbers who know the routes",
     image: climbingGear,
     itemCount: 245
   },
   {
     title: "Camping & Hiking",
-    description: "Tents, sleeping bags, backpacks for the perfect outdoor getaway",
+    description: "Share tents, sleeping bags, and backpacks with fellow outdoor enthusiasts nearby",
     image: campingGear,
     itemCount: 189
   },
   {
     title: "Water Sports",
-    description: "Kayaks, paddleboards, snorkeling gear for aquatic fun",
+    description: "Rent kayaks and paddleboards from locals who'll share their favorite spots",
     image: waterSportsGear,
     itemCount: 156
   },
   {
     title: "Winter Sports",
-    description: "Skis, snowboards, boots for powder-perfect adventures",
+    description: "Try before you buy - rent skis and snowboards from passionate winter athletes",
     image: winterSportsGear,
     itemCount: 203
   }
@@ -37,10 +37,10 @@ const Categories = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Explore by Category
+            Discover Your Next Trail
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Find the perfect gear for your next adventure. From mountain peaks to ocean depths.
+            Connect with fellow adventurers and explore sustainably. From mountain peaks to ocean depths, your community has the gear.
           </p>
         </div>
         

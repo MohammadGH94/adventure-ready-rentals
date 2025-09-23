@@ -13,7 +13,7 @@ const Footer = () => {
               CiKr
             </h3>
             <p className="text-muted-foreground mb-4">
-              Rent amazing adventure gear from local owners. Explore more, own less.
+              Connect with fellow adventurers and share gear sustainably. Explore more, waste less.
             </p>
             <div className="flex space-x-3">
               <Button variant="ghost" size="icon" asChild>
