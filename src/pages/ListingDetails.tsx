@@ -448,11 +448,16 @@ const mapDatabaseToGearListing = (dbListing: DatabaseListing): GearListing => {
 const ListingDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { data: dbListing, isLoading, error } = useListing(id ?? "");
+  
+  console.log("ListingDetails render:", { id, user: user?.id, authLoading, isLoading, error });
   
   const listing = dbListing ? mapDatabaseToGearListing(dbListing) : null;
   const [bookingState, dispatch] = useReducer(bookingReducer, listing?.title ?? "this gear", createInitialState);
+  
+  // State for preventing multiple rapid clicks
+  const [isProcessingBooking, setIsProcessingBooking] = useState(false);
   
   useEffect(() => {
     if (listing) {
@@ -462,6 +467,47 @@ const ListingDetails = () => {
       });
     }
   }, [listing]);
+
+  // Handle stored booking data on component mount and auth changes
+  useEffect(() => {
+    console.log("Auth state changed:", { user: user?.id, authLoading });
+    
+    if (!authLoading && user) {
+      // Check for stored booking data when user becomes available
+      const storedBookingData = sessionStorage.getItem(`booking_${id}`);
+      if (storedBookingData) {
+        try {
+          const bookingData = JSON.parse(storedBookingData);
+          console.log("Found stored booking data:", bookingData);
+          
+          // Restore dates with proper conversion from string to Date
+          if (bookingData.startDate && bookingData.endDate) {
+            const startDate = new Date(bookingData.startDate);
+            const endDate = new Date(bookingData.endDate);
+            
+            // Validate dates are valid
+            if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
+              dispatch({
+                type: "SET_DATES",
+                startDate,
+                endDate
+              });
+              console.log("Restored booking dates:", { startDate, endDate });
+            } else {
+              console.warn("Invalid stored dates found, clearing storage");
+              sessionStorage.removeItem(`booking_${id}`);
+            }
+          }
+          
+          // Clear stored data after restoration
+          sessionStorage.removeItem(`booking_${id}`);
+        } catch (error) {
+          console.error("Error parsing stored booking data:", error);
+          sessionStorage.removeItem(`booking_${id}`);
+        }
+      }
+    }
+  }, [user, authLoading, id]);
 
   if (isLoading) {
     return (
@@ -540,39 +586,82 @@ const ListingDetails = () => {
   const quote = calculateQuote();
 
   const handleBookingStart = () => {
-    if (!user) {
-      // Store booking state in sessionStorage before redirecting
-      sessionStorage.setItem('pendingBooking', JSON.stringify({
-        listingId: id,
-        startDate: bookingState.startDate,
-        endDate: bookingState.endDate,
-        protectionChoice: bookingState.protectionChoice
-      }));
-      dispatch({ type: "REQUIRE_AUTH" });
-      navigate('/signin');
+    console.log("handleBookingStart called:", { 
+      user: user?.id, 
+      authLoading, 
+      isProcessingBooking,
+      hasValidDates: !!bookingState.startDate && !!bookingState.endDate 
+    });
+
+    // Prevent multiple rapid clicks
+    if (isProcessingBooking) {
+      console.log("Booking already in progress, ignoring click");
       return;
     }
-    
-    dispatch({
-      type: "START_BOOKING",
-      requiresProtection
-    });
+
+    // Validate dates are selected
+    if (!bookingState.startDate || !bookingState.endDate) {
+      console.warn("Attempted booking without valid dates");
+      return;
+    }
+
+    // Show loading state during auth check and navigation
+    setIsProcessingBooking(true);
+
+    try {
+      if (!user) {
+        console.log("User not authenticated, storing booking data and redirecting");
+        
+        // Store booking state in sessionStorage with proper date serialization
+        const bookingData = {
+          listingId: id,
+          startDate: bookingState.startDate.toISOString(),
+          endDate: bookingState.endDate.toISOString(),
+          protectionChoice: bookingState.protectionChoice
+        };
+        
+        sessionStorage.setItem(`booking_${id}`, JSON.stringify(bookingData));
+        dispatch({ type: "REQUIRE_AUTH" });
+        
+        // Use setTimeout to ensure state updates before navigation
+        setTimeout(() => {
+          navigate('/signin');
+          setIsProcessingBooking(false);
+        }, 100);
+        return;
+      }
+      
+      console.log("User authenticated, starting booking");
+      dispatch({
+        type: "START_BOOKING",
+        requiresProtection
+      });
+    } catch (error) {
+      console.error("Error in handleBookingStart:", error);
+    } finally {
+      // Reset processing state after a short delay to prevent rapid clicks
+      setTimeout(() => {
+        setIsProcessingBooking(false);
+      }, 500);
+    }
   };
 
-  // Check for pending booking after auth
-  useEffect(() => {
-    if (user && sessionStorage.getItem('pendingBooking')) {
-      const pending = JSON.parse(sessionStorage.getItem('pendingBooking') || '{}');
-      if (pending.listingId === id) {
-        dispatch({ type: "SET_DATES", startDate: new Date(pending.startDate), endDate: new Date(pending.endDate) });
-        if (pending.protectionChoice) {
-          // Resume booking flow
-          dispatch({ type: "START_BOOKING", requiresProtection });
-        }
-        sessionStorage.removeItem('pendingBooking');
-      }
-    }
-  }, [user, id, requiresProtection]);
+  // Add loading state for auth and prevent blank pages
+  if (authLoading) {
+    console.log("Auth loading, showing spinner");
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="py-24">
+          <div className="mx-auto max-w-xl px-4 text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading...</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
   const renderActionCard = () => {
     switch (bookingState.stage) {
       case "details":
@@ -639,9 +728,16 @@ const ListingDetails = () => {
               variant="action" 
               className="w-full" 
               onClick={handleBookingStart}
-              disabled={!bookingState.startDate || !bookingState.endDate}
+              disabled={!bookingState.startDate || !bookingState.endDate || isProcessingBooking || authLoading}
             >
-              {!user ? "Get Quote & Sign In to Book" : `Book ${listing.title}`}
+              {isProcessingBooking ? (
+                <div className="flex items-center gap-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  {!user ? "Redirecting to sign in..." : "Starting booking..."}
+                </div>
+              ) : (
+                !user ? "Sign In to Book" : "Rent Now"
+              )}
             </Button>
             
             {!user && (
