@@ -4,13 +4,8 @@ import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DateRange } from "react-day-picker";
-
 interface DatePickerProps {
   date?: Date;
   onSelect?: (date: Date | undefined) => void;
@@ -19,7 +14,6 @@ interface DatePickerProps {
   disabled?: (date: Date) => boolean;
   iconClassName?: string;
 }
-
 export function DatePicker({
   date,
   onSelect,
@@ -28,37 +22,20 @@ export function DatePicker({
   disabled,
   iconClassName = "absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4"
 }: DatePickerProps) {
-  return (
-    <Popover>
+  return <Popover>
       <PopoverTrigger asChild>
         <div className="relative">
           <CalendarIcon className={iconClassName} />
-          <Button
-            variant="outline"
-            className={cn(
-              "w-full justify-start text-left font-normal pl-10",
-              !date && "text-muted-foreground",
-              className
-            )}
-          >
+          <Button variant="outline" className={cn("w-full justify-start text-left font-normal pl-10", !date && "text-muted-foreground", className)}>
             {date ? format(date, "PPP") : placeholder}
           </Button>
         </div>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
-        <Calendar
-          mode="single"
-          selected={date}
-          onSelect={onSelect}
-          disabled={disabled}
-          initialFocus
-          className="p-3 pointer-events-auto"
-        />
+        <Calendar mode="single" selected={date} onSelect={onSelect} disabled={disabled} initialFocus className="p-3 pointer-events-auto" />
       </PopoverContent>
-    </Popover>
-  );
+    </Popover>;
 }
-
 interface DateRangePickerProps {
   startDate?: Date;
   endDate?: Date;
@@ -69,7 +46,6 @@ interface DateRangePickerProps {
   disabled?: (date: Date) => boolean;
   iconClassName?: string;
 }
-
 export function DateRangePicker({
   startDate,
   endDate,
@@ -81,7 +57,6 @@ export function DateRangePicker({
   iconClassName = "absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4"
 }: DateRangePickerProps) {
   const [isOpen, setIsOpen] = React.useState(false);
-
   const formatDateRange = () => {
     if (startDate && endDate) {
       return `${format(startDate, "MMM d")} - ${format(endDate, "MMM d, yyyy")}`;
@@ -90,14 +65,12 @@ export function DateRangePicker({
     }
     return placeholder;
   };
-
   const handleRangeSelect = (range: DateRange | undefined) => {
     if (range?.from) {
       onStartDateSelect?.(range.from);
     } else {
       onStartDateSelect?.(undefined);
     }
-    
     if (range?.to) {
       onEndDateSelect?.(range.to);
       setIsOpen(false); // Close when both dates are selected
@@ -105,44 +78,24 @@ export function DateRangePicker({
       onEndDateSelect?.(undefined);
     }
   };
-
   const dateRange: DateRange | undefined = React.useMemo(() => {
     if (startDate || endDate) {
       return {
         from: startDate,
-        to: endDate,
+        to: endDate
       };
     }
     return undefined;
   }, [startDate, endDate]);
-
-  return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
+  return <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <div className="relative">
           <CalendarIcon className={iconClassName} />
-          <Button
-            variant="outline"
-            className={cn(
-              "w-full justify-start text-left font-normal pl-10",
-              !startDate && "text-muted-foreground",
-              className
-            )}
-          >
-            {formatDateRange()}
-          </Button>
+          
         </div>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
-        <Calendar
-          mode="range"
-          selected={dateRange}
-          onSelect={handleRangeSelect}
-          disabled={disabled}
-          initialFocus
-          className="p-3 pointer-events-auto"
-        />
+        <Calendar mode="range" selected={dateRange} onSelect={handleRangeSelect} disabled={disabled} initialFocus className="p-3 pointer-events-auto" />
       </PopoverContent>
-    </Popover>
-  );
+    </Popover>;
 }

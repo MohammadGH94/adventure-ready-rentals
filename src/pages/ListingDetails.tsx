@@ -248,9 +248,7 @@ const bookingReducer = (state: BookingState, action: BookingAction): BookingStat
           ...state,
           startDate: action.startDate,
           endDate: action.endDate,
-          history: action.startDate && action.endDate 
-            ? [...state.history, `Dates selected: ${action.startDate.toLocaleDateString()} - ${action.endDate.toLocaleDateString()}`]
-            : state.history
+          history: action.startDate && action.endDate ? [...state.history, `Dates selected: ${action.startDate.toLocaleDateString()} - ${action.endDate.toLocaleDateString()}`] : state.history
         };
       }
     case "REQUIRE_AUTH":
@@ -412,50 +410,63 @@ const mapDatabaseToGearListing = (dbListing: DatabaseListing): GearListing => {
     description: dbListing.description || "",
     image: getStorageImageUrl(dbListing.photos?.[0]),
     price: Number(dbListing.price_per_day),
-    rating: 4.5, // Default rating - in future could be calculated from reviews
-    reviewCount: 0, // Default - in future could be calculated from reviews
+    rating: 4.5,
+    // Default rating - in future could be calculated from reviews
+    reviewCount: 0,
+    // Default - in future could be calculated from reviews
     location: dbListing.pickup_addresses?.[0] || "Location TBD",
     category: dbListing.categories?.[0] || "general",
     protection: {
       requiresProtection: !!dbListing.deposit_amount || dbListing.insurance_required,
       depositAmount: dbListing.deposit_amount ? Number(dbListing.deposit_amount) : undefined,
       depositDescription: dbListing.deposit_amount ? "Refundable deposit held until return" : undefined,
-      insuranceDailyPrice: dbListing.insurance_required ? 10 : undefined, // Default insurance price
-      insuranceDescription: dbListing.insurance_required ? "Optional damage protection coverage" : undefined,
+      insuranceDailyPrice: dbListing.insurance_required ? 10 : undefined,
+      // Default insurance price
+      insuranceDescription: dbListing.insurance_required ? "Optional damage protection coverage" : undefined
     },
     cancellationPolicy: {
       headline: "Standard cancellation policy",
-      details: [
-        "Full refund up to 24h before pickup",
-        "50% refund for cancellations within 24h",
-        "After pickup, refunds subject to inspection"
-      ]
+      details: ["Full refund up to 24h before pickup", "50% refund for cancellations within 24h", "After pickup, refunds subject to inspection"]
     },
     pickupNotes: dbListing.pickup_instructions ? [dbListing.pickup_instructions] : ["Pickup details will be provided upon booking"],
-    highlights: [
-      "Quality gear maintained to high standards",
-      "Detailed inspection before each rental",
-      "Owner support throughout your adventure"
-    ],
+    highlights: ["Quality gear maintained to high standards", "Detailed inspection before each rental", "Owner support throughout your adventure"],
     gearIncludes: ["Complete gear package as described"],
     owner: {
-      name: "Gear Owner", // In future, join with users table
+      name: "Gear Owner",
+      // In future, join with users table
       responseTime: "Usually responds quickly",
       tripsHosted: 1,
       rating: 4.8
     }
   };
 };
-
 const ListingDetails = () => {
-  const { id } = useParams<{ id: string }>();
+  const {
+    id
+  } = useParams<{
+    id: string;
+  }>();
   const navigate = useNavigate();
-  const { user, loading: authLoading } = useAuth();
-  const { data: dbListing, isLoading, error } = useListing(id ?? "");
-  const { data: availabilityData, isLoading: availabilityLoading } = useAvailability(id ?? "");
-  
-  console.log("ListingDetails render:", { id, user: user?.id, authLoading, isLoading, error });
-  
+  const {
+    user,
+    loading: authLoading
+  } = useAuth();
+  const {
+    data: dbListing,
+    isLoading,
+    error
+  } = useListing(id ?? "");
+  const {
+    data: availabilityData,
+    isLoading: availabilityLoading
+  } = useAvailability(id ?? "");
+  console.log("ListingDetails render:", {
+    id,
+    user: user?.id,
+    authLoading,
+    isLoading,
+    error
+  });
   const listing = dbListing ? mapDatabaseToGearListing(dbListing) : null;
 
   // Cache current date to avoid creating new objects on every render
@@ -465,52 +476,43 @@ const ListingDetails = () => {
   const isDateDisabled = useCallback((date: Date) => {
     // Always disable past dates
     if (date < today) return true;
-    
+
     // If availability data is still loading, allow all future dates to be selectable
     if (availabilityLoading || !availabilityData) {
-      console.log("Date picker: availability loading, allowing all future dates", { 
-        availabilityLoading, 
+      console.log("Date picker: availability loading, allowing all future dates", {
+        availabilityLoading,
         hasData: !!availabilityData,
         date: date.toISOString().split('T')[0]
       });
       return false;
     }
-    
+
     // Simple availability check with detailed logging
     try {
-      const isAvailable = isDateAvailable(
-        date,
-        availabilityData.unavailable_dates,
-        availabilityData.block_out_times,
-        availabilityData.existing_bookings
-      );
-      
+      const isAvailable = isDateAvailable(date, availabilityData.unavailable_dates, availabilityData.block_out_times, availabilityData.existing_bookings);
       console.log("Date availability check:", {
         date: date.toISOString().split('T')[0],
         isAvailable,
         unavailableDates: availabilityData.unavailable_dates?.length || 0,
         existingBookings: availabilityData.existing_bookings?.length || 0
       });
-      
       return !isAvailable;
     } catch (error) {
       console.error("Error checking date availability:", error);
       return false; // Allow the date if there's an error
     }
   }, [today, availabilityLoading, availabilityData]);
-  
   const [bookingState, dispatch] = useReducer(bookingReducer, listing?.title ?? "this gear", createInitialState);
-  
+
   // Calculate total days for rental
   const totalDays = useMemo(() => {
     if (!bookingState.startDate || !bookingState.endDate) return 0;
     const timeDiff = bookingState.endDate.getTime() - bookingState.startDate.getTime();
     return Math.ceil(timeDiff / (1000 * 3600 * 24));
   }, [bookingState.startDate, bookingState.endDate]);
-  
+
   // State for preventing multiple rapid clicks
   const [isProcessingBooking, setIsProcessingBooking] = useState(false);
-  
   useEffect(() => {
     if (listing) {
       dispatch({
@@ -522,8 +524,10 @@ const ListingDetails = () => {
 
   // Handle stored booking data on component mount and auth changes
   useEffect(() => {
-    console.log("Auth state changed:", { user: user?.id, authLoading });
-    
+    console.log("Auth state changed:", {
+      user: user?.id,
+      authLoading
+    });
     if (!authLoading && user) {
       // Check for stored booking data when user becomes available
       const storedBookingData = sessionStorage.getItem(`booking_${id}`);
@@ -531,12 +535,12 @@ const ListingDetails = () => {
         try {
           const bookingData = JSON.parse(storedBookingData);
           console.log("Found stored booking data:", bookingData);
-          
+
           // Restore dates with proper conversion from string to Date
           if (bookingData.startDate && bookingData.endDate) {
             const startDate = new Date(bookingData.startDate);
             const endDate = new Date(bookingData.endDate);
-            
+
             // Validate dates are valid
             if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
               dispatch({
@@ -544,13 +548,16 @@ const ListingDetails = () => {
                 startDate,
                 endDate
               });
-              console.log("Restored booking dates:", { startDate, endDate });
+              console.log("Restored booking dates:", {
+                startDate,
+                endDate
+              });
             } else {
               console.warn("Invalid stored dates found, clearing storage");
               sessionStorage.removeItem(`booking_${id}`);
             }
           }
-          
+
           // Clear stored data after restoration
           sessionStorage.removeItem(`booking_${id}`);
         } catch (error) {
@@ -560,10 +567,8 @@ const ListingDetails = () => {
       }
     }
   }, [user, authLoading, id]);
-
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background">
+    return <div className="min-h-screen bg-background">
         <Header />
         <main className="py-24">
           <div className="mx-auto max-w-xl px-4 text-center">
@@ -574,10 +579,8 @@ const ListingDetails = () => {
           </div>
         </main>
         <Footer />
-      </div>
-    );
+      </div>;
   }
-
   if (error || !listing) {
     return <div className="min-h-screen bg-background">
         <Header />
@@ -612,18 +615,13 @@ const ListingDetails = () => {
   // Calculate quote
   const calculateQuote = () => {
     if (!bookingState.startDate || !bookingState.endDate) return null;
-    
     const days = differenceInDays(bookingState.endDate, bookingState.startDate);
     if (days <= 0) return null;
-    
     const subtotal = days * listing.price;
     const serviceFee = Math.round(subtotal * 0.1); // 10% service fee
     const taxes = Math.round(subtotal * 0.08); // 8% taxes
-    const insurance = bookingState.protectionChoice === "insurance" && listing.protection.insuranceDailyPrice 
-      ? days * listing.protection.insuranceDailyPrice 
-      : 0;
+    const insurance = bookingState.protectionChoice === "insurance" && listing.protection.insuranceDailyPrice ? days * listing.protection.insuranceDailyPrice : 0;
     const total = subtotal + serviceFee + taxes + insurance;
-    
     return {
       days,
       subtotal,
@@ -634,15 +632,13 @@ const ListingDetails = () => {
       deposit: listing.protection.depositAmount || 0
     };
   };
-
   const quote = calculateQuote();
-
   const handleBookingStart = () => {
-    console.log("handleBookingStart called:", { 
-      user: user?.id, 
-      authLoading, 
+    console.log("handleBookingStart called:", {
+      user: user?.id,
+      authLoading,
       isProcessingBooking,
-      hasValidDates: !!bookingState.startDate && !!bookingState.endDate 
+      hasValidDates: !!bookingState.startDate && !!bookingState.endDate
     });
 
     // Prevent multiple rapid clicks
@@ -659,11 +655,10 @@ const ListingDetails = () => {
 
     // Show loading state during auth check and navigation
     setIsProcessingBooking(true);
-
     try {
       if (!user) {
         console.log("User not authenticated, storing booking data and redirecting");
-        
+
         // Store booking state in sessionStorage with proper date serialization
         const bookingData = {
           listingId: id,
@@ -671,10 +666,11 @@ const ListingDetails = () => {
           endDate: bookingState.endDate.toISOString(),
           protectionChoice: bookingState.protectionChoice
         };
-        
         sessionStorage.setItem(`booking_${id}`, JSON.stringify(bookingData));
-        dispatch({ type: "REQUIRE_AUTH" });
-        
+        dispatch({
+          type: "REQUIRE_AUTH"
+        });
+
         // Use setTimeout to ensure state updates before navigation
         setTimeout(() => {
           navigate('/signin');
@@ -682,7 +678,6 @@ const ListingDetails = () => {
         }, 100);
         return;
       }
-      
       console.log("User authenticated, starting booking");
       dispatch({
         type: "START_BOOKING",
@@ -701,8 +696,7 @@ const ListingDetails = () => {
   // Add loading state for auth and prevent blank pages
   if (authLoading) {
     console.log("Auth loading, showing spinner");
-    return (
-      <div className="min-h-screen bg-background">
+    return <div className="min-h-screen bg-background">
         <Header />
         <main className="py-24">
           <div className="mx-auto max-w-xl px-4 text-center">
@@ -711,27 +705,26 @@ const ListingDetails = () => {
           </div>
         </main>
         <Footer />
-      </div>
-    );
+      </div>;
   }
   const renderActionCard = () => {
     switch (bookingState.stage) {
       case "details":
         return <div className="space-y-4">
             <div className="space-y-3">
-              <div className="text-sm font-medium">Select your dates</div>
-              <DateRangePicker
-                startDate={bookingState.startDate}
-                endDate={bookingState.endDate}
-                onStartDateSelect={(date) => dispatch({ type: "SET_DATES", startDate: date, endDate: bookingState.endDate })}
-                onEndDateSelect={(date) => dispatch({ type: "SET_DATES", startDate: bookingState.startDate, endDate: date })}
-                placeholder="Choose rental dates"
-                disabled={isDateDisabled}
-              />
+              
+              <DateRangePicker startDate={bookingState.startDate} endDate={bookingState.endDate} onStartDateSelect={date => dispatch({
+              type: "SET_DATES",
+              startDate: date,
+              endDate: bookingState.endDate
+            })} onEndDateSelect={date => dispatch({
+              type: "SET_DATES",
+              startDate: bookingState.startDate,
+              endDate: date
+            })} placeholder="Choose rental dates" disabled={isDateDisabled} />
             </div>
             
-            {quote && (
-              <Card className="border-primary/20 bg-primary/5">
+            {quote && <Card className="border-primary/20 bg-primary/5">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg">Your Quote</CardTitle>
                   <CardDescription>{quote.days} day{quote.days !== 1 ? 's' : ''} rental</CardDescription>
@@ -749,54 +742,35 @@ const ListingDetails = () => {
                     <span>Taxes</span>
                     <span>{formatCurrency(quote.taxes)}</span>
                   </div>
-                  {quote.insurance > 0 && (
-                    <div className="flex justify-between">
+                  {quote.insurance > 0 && <div className="flex justify-between">
                       <span>Insurance</span>
                       <span>{formatCurrency(quote.insurance)}</span>
-                    </div>
-                  )}
+                    </div>}
                   <Separator />
                   <div className="flex justify-between font-medium">
                     <span>Total</span>
                     <span>{formatCurrency(quote.total)}</span>
                   </div>
-                  {quote.deposit > 0 && (
-                    <div className="text-xs text-muted-foreground">
+                  {quote.deposit > 0 && <div className="text-xs text-muted-foreground">
                       Plus {formatCurrency(quote.deposit)} refundable deposit
-                    </div>
-                  )}
+                    </div>}
                 </CardContent>
-              </Card>
-            )}
+              </Card>}
             
             <p className="text-sm text-muted-foreground">
-              {!user ? "Get an instant quote above, then sign in to book." : 
-               requiresProtection ? "A refundable deposit or insurance is required before pickup." : 
-               listing.protection.insuranceDailyPrice ? "Insurance is optional for this listing—book instantly when you're ready." : 
-               "Book instantly with no additional protection requirements."}
+              {!user ? "Get an instant quote above, then sign in to book." : requiresProtection ? "A refundable deposit or insurance is required before pickup." : listing.protection.insuranceDailyPrice ? "Insurance is optional for this listing—book instantly when you're ready." : "Book instantly with no additional protection requirements."}
             </p>
             
-            <Button 
-              variant="action" 
-              className="w-full" 
-              onClick={handleBookingStart}
-              disabled={!bookingState.startDate || !bookingState.endDate || isProcessingBooking || authLoading}
-            >
-              {isProcessingBooking ? (
-                <div className="flex items-center gap-2">
+            <Button variant="action" className="w-full" onClick={handleBookingStart} disabled={!bookingState.startDate || !bookingState.endDate || isProcessingBooking || authLoading}>
+              {isProcessingBooking ? <div className="flex items-center gap-2">
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                   {!user ? "Redirecting to sign in..." : "Starting booking..."}
-                </div>
-              ) : (
-                !user ? "Sign In to Book" : "Rent Now"
-              )}
+                </div> : !user ? "Sign In to Book" : "Rent Now"}
             </Button>
             
-            {!user && (
-              <Button asChild variant="outline" className="w-full">
+            {!user && <Button asChild variant="outline" className="w-full">
                 <Link to="/signin">Sign in to save trip details</Link>
-              </Button>
-            )}
+              </Button>}
           </div>;
       case "payment":
         return <div className="space-y-4">
@@ -974,26 +948,14 @@ const ListingDetails = () => {
               {/* Image gallery */}
               <div className="grid gap-2 lg:grid-cols-[2fr_1fr]">
                 <div className="overflow-hidden rounded-2xl">
-                  <img 
-                    src={listing.image} 
-                    alt={listing.title} 
-                    className="h-[400px] w-full object-cover"
-                  />
+                  <img src={listing.image} alt={listing.title} className="h-[400px] w-full object-cover" />
                 </div>
                 <div className="hidden lg:block space-y-2">
                   <div className="overflow-hidden rounded-2xl">
-                    <img 
-                      src={listing.image} 
-                      alt={listing.title} 
-                      className="h-[196px] w-full object-cover"
-                    />
+                    <img src={listing.image} alt={listing.title} className="h-[196px] w-full object-cover" />
                   </div>
                   <div className="relative overflow-hidden rounded-2xl">
-                    <img 
-                      src={listing.image} 
-                      alt={listing.title} 
-                      className="h-[196px] w-full object-cover"
-                    />
+                    <img src={listing.image} alt={listing.title} className="h-[196px] w-full object-cover" />
                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                       <Button variant="secondary" size="sm" className="gap-2">
                         <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1070,23 +1032,19 @@ const ListingDetails = () => {
                     <div>
                       <h4 className="font-medium mb-3">Highlights</h4>
                       <ul className="space-y-2">
-                        {listing.highlights.map(item => (
-                          <li key={item} className="flex items-start gap-2 text-sm text-muted-foreground">
+                        {listing.highlights.map(item => <li key={item} className="flex items-start gap-2 text-sm text-muted-foreground">
                             <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
                             <span>{item}</span>
-                          </li>
-                        ))}
+                          </li>)}
                       </ul>
                     </div>
                     <div>
                       <h4 className="font-medium mb-3">What's included</h4>
                       <ul className="space-y-2">
-                        {listing.gearIncludes.map(item => (
-                          <li key={item} className="flex items-start gap-2 text-sm text-muted-foreground">
+                        {listing.gearIncludes.map(item => <li key={item} className="flex items-start gap-2 text-sm text-muted-foreground">
                             <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
                             <span>{item}</span>
-                          </li>
-                        ))}
+                          </li>)}
                       </ul>
                     </div>
                   </div>
@@ -1145,26 +1103,8 @@ const ListingDetails = () => {
                     {/* Trip dates */}
                     <div className="space-y-3">
                       <div>
-                        <label className="text-sm font-medium text-muted-foreground">Trip start</label>
-                        <div className="grid grid-cols-2 gap-2 mt-1">
-                          <DateRangePicker
-                            startDate={bookingState.startDate}
-                            endDate={bookingState.endDate}
-                            onStartDateSelect={(date) => dispatch({ 
-                              type: "SET_DATES", 
-                              startDate: date, 
-                              endDate: bookingState.endDate 
-                            })}
-                            onEndDateSelect={(date) => dispatch({ 
-                              type: "SET_DATES", 
-                              startDate: bookingState.startDate, 
-                              endDate: date 
-                            })}
-                            disabled={isDateDisabled}
-                            placeholder="Add dates"
-                            className="col-span-2"
-                          />
-                        </div>
+                        
+                        
                       </div>
                     </div>
 
@@ -1180,15 +1120,13 @@ const ListingDetails = () => {
                     </div>
 
                     {/* Trip Savings */}
-                    {totalDays >= 3 && (
-                      <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                    {totalDays >= 3 && <div className="bg-green-50 border border-green-200 rounded-lg p-3">
                         <h4 className="font-medium text-green-800">Trip Savings</h4>
                         <div className="flex justify-between text-sm text-green-700">
                           <span>3-day discount</span>
                           <span>$15</span>
                         </div>
-                      </div>
-                    )}
+                      </div>}
                   </div>
 
                   {/* Booking actions */}
@@ -1197,8 +1135,7 @@ const ListingDetails = () => {
                   </div>
 
                   {/* Quote breakdown */}
-                  {quote && (
-                    <div className="mt-6 pt-4 border-t space-y-2">
+                  {quote && <div className="mt-6 pt-4 border-t space-y-2">
                       <div className="flex justify-between text-sm">
                         <span>{formatCurrency(listing.price)} × {totalDays} days</span>
                         <span>{formatCurrency(quote.subtotal)}</span>
@@ -1215,8 +1152,7 @@ const ListingDetails = () => {
                         <span>Total</span>
                         <span>{formatCurrency(quote.total)}</span>
                       </div>
-                    </div>
-                  )}
+                    </div>}
                 </CardContent>
               </Card>
             </div>
