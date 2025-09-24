@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { DateRangePicker } from "@/components/DatePicker";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useListings } from "@/hooks/useListings";
+import { getStorageImageUrl } from "@/lib/utils";
 
 const Browse = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -168,7 +169,7 @@ const Browse = () => {
                   id={listing.id}
                   title={listing.title}
                   description={listing.description || ""}
-                  image={listing.photos?.[0] || "/placeholder.svg"}
+                  image={getStorageImageUrl(listing.photos?.[0])}
                   price={Number(listing.price_per_day)}
                   rating={4.5}
                   reviewCount={0}

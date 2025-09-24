@@ -1,6 +1,7 @@
 import { Star, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useState } from "react";
 
 interface GearCardProps {
   id: string;
@@ -14,13 +15,16 @@ interface GearCardProps {
 }
 
 const GearCard = ({ id, title, description, image, price, rating, reviewCount, location }: GearCardProps) => {
+  const [imageError, setImageError] = useState(false);
+
   return (
     <div className="gear-card group cursor-pointer overflow-hidden">
       <div className="relative aspect-[4/3] overflow-hidden">
         <img
-          src={image}
+          src={imageError ? "/placeholder.svg" : image}
           alt={title}
           className="h-full w-full object-cover transition-adventure group-hover:scale-105"
+          onError={() => setImageError(true)}
         />
         <Button
           variant="ghost"

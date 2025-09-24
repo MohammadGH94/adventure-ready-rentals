@@ -12,6 +12,7 @@ import { useListing, DatabaseListing } from "@/hooks/useListing";
 import { useAuth } from "@/hooks/useAuth";
 import { DateRangePicker } from "@/components/DatePicker";
 import { differenceInDays } from "date-fns";
+import { getStorageImageUrl } from "@/lib/utils";
 const currencyFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
   currency: "USD",
@@ -408,7 +409,7 @@ const mapDatabaseToGearListing = (dbListing: DatabaseListing): GearListing => {
     id: dbListing.id,
     title: dbListing.title,
     description: dbListing.description || "",
-    image: dbListing.photos?.[0] || "",
+    image: getStorageImageUrl(dbListing.photos?.[0]),
     price: Number(dbListing.price_per_day),
     rating: 4.5, // Default rating - in future could be calculated from reviews
     reviewCount: 0, // Default - in future could be calculated from reviews
