@@ -10,6 +10,7 @@ export interface GearListing {
   title: string;
   description: string;
   image: string;
+  photos?: string[];
   price: number;
   rating: number;
   reviewCount: number;
