@@ -7,7 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { getGearById, GearListing, ProtectionChoice } from "@/lib/gear";
+import { GearListing, ProtectionChoice } from "@/lib/gear";
+import { useListing, DatabaseListing } from "@/hooks/useListing";
 const currencyFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
   currency: "USD",
@@ -371,14 +372,55 @@ const computeJourneySteps = (listing: GearListing, state: BookingState): Journey
   }];
   return steps;
 };
+const mapDatabaseToGearListing = (dbListing: DatabaseListing): GearListing => {
+  return {
+    id: dbListing.id,
+    title: dbListing.title,
+    description: dbListing.description || "",
+    image: dbListing.photos?.[0] || "",
+    price: Number(dbListing.price_per_day),
+    rating: 4.5, // Default rating - in future could be calculated from reviews
+    reviewCount: 0, // Default - in future could be calculated from reviews
+    location: dbListing.pickup_addresses?.[0] || "Location TBD",
+    category: dbListing.categories?.[0] || "general",
+    protection: {
+      requiresProtection: !!dbListing.deposit_amount || dbListing.insurance_required,
+      depositAmount: dbListing.deposit_amount ? Number(dbListing.deposit_amount) : undefined,
+      depositDescription: dbListing.deposit_amount ? "Refundable deposit held until return" : undefined,
+      insuranceDailyPrice: dbListing.insurance_required ? 10 : undefined, // Default insurance price
+      insuranceDescription: dbListing.insurance_required ? "Optional damage protection coverage" : undefined,
+    },
+    cancellationPolicy: {
+      headline: "Standard cancellation policy",
+      details: [
+        "Full refund up to 24h before pickup",
+        "50% refund for cancellations within 24h",
+        "After pickup, refunds subject to inspection"
+      ]
+    },
+    pickupNotes: dbListing.pickup_instructions ? [dbListing.pickup_instructions] : ["Pickup details will be provided upon booking"],
+    highlights: [
+      "Quality gear maintained to high standards",
+      "Detailed inspection before each rental",
+      "Owner support throughout your adventure"
+    ],
+    gearIncludes: ["Complete gear package as described"],
+    owner: {
+      name: "Gear Owner", // In future, join with users table
+      responseTime: "Usually responds quickly",
+      tripsHosted: 1,
+      rating: 4.8
+    }
+  };
+};
+
 const ListingDetails = () => {
-  const {
-    id
-  } = useParams<{
-    id: string;
-  }>();
-  const listing = getGearById(id ?? "");
+  const { id } = useParams<{ id: string }>();
+  const { data: dbListing, isLoading, error } = useListing(id ?? "");
+  
+  const listing = dbListing ? mapDatabaseToGearListing(dbListing) : null;
   const [bookingState, dispatch] = useReducer(bookingReducer, listing?.title ?? "this gear", createInitialState);
+  
   useEffect(() => {
     if (listing) {
       dispatch({
@@ -387,7 +429,25 @@ const ListingDetails = () => {
       });
     }
   }, [listing]);
-  if (!listing) {
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="py-24">
+          <div className="mx-auto max-w-xl px-4 text-center">
+            <div className="animate-pulse">
+              <div className="h-8 bg-muted rounded w-3/4 mx-auto mb-4"></div>
+              <div className="h-4 bg-muted rounded w-1/2 mx-auto"></div>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error || !listing) {
     return <div className="min-h-screen bg-background">
         <Header />
         <main className="py-24">
