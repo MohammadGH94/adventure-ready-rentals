@@ -7,6 +7,16 @@ import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import type { Database } from '@/integrations/supabase/types';
 
+const addOnSchema = z.object({
+  id: z.string(),
+  name: z.string().min(1, "Add-on name is required"),
+  description: z.string(),
+  price: z.number().min(0, "Add-on price must be 0 or greater"),
+  category: z.string(),
+  required: z.boolean(),
+  available_count: z.number().min(1, "Available count must be at least 1"),
+});
+
 const listingSchema = z.object({
   title: z.string().min(1, "Title is required").max(100, "Title too long"),
   description: z.string().min(20, "Description must be at least 20 characters"),
@@ -25,6 +35,7 @@ const listingSchema = z.object({
   inventory_count: z.number().min(1).default(1),
   business_license_verified: z.boolean().default(false),
   bulk_pricing: z.record(z.number()).optional(),
+  add_ons: z.array(addOnSchema).optional().default([]),
 });
 
 export type ListingFormData = z.infer<typeof listingSchema>;
@@ -42,6 +53,7 @@ export const useListingForm = () => {
       insurance_required: false,
       delivery_available: false,
       business_license_verified: false,
+      add_ons: [],
     },
   });
 
@@ -113,6 +125,7 @@ export const useListingForm = () => {
         inventory_count: data.inventory_count,
         business_license_verified: data.business_license_verified,
         bulk_pricing: data.bulk_pricing || null,
+        add_ons: data.add_ons || [],
         owner_id: userProfile.id,
         photos: photoPaths,
         listing_status: 'pending_review',
@@ -211,6 +224,7 @@ export const useListingForm = () => {
         inventory_count: data.inventory_count,
         business_license_verified: data.business_license_verified,
         bulk_pricing: data.bulk_pricing || null,
+        add_ons: data.add_ons || [],
         photos: photoPaths,
         updated_at: new Date().toISOString(),
       };

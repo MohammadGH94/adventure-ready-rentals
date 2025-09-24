@@ -10,6 +10,8 @@ import { Badge } from '@/components/ui/badge';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { DateRangePicker } from '@/components/DatePicker';
 import { PhotoUpload } from '@/components/PhotoUpload';
+import { AddOnsManager } from '@/components/AddOnsManager';
+import type { AddOn } from '@/components/AddOnsManager';
 import { useFileUpload } from '@/hooks/useFileUpload';
 import { useListingForm } from '@/hooks/useListingForm';
 import { useAuth } from '@/hooks/useAuth';
@@ -372,34 +374,49 @@ const ListGear = () => {
                       />
                     </div>
 
-                    <FormField
-                      control={form.control}
-                      name="pickup_instructions"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Pickup Instructions</FormLabel>
-                          <FormControl>
-                            <Textarea 
-                              {...field} 
-                              placeholder="Provide instructions for pickup location, times, etc."
-                              className="h-20"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                     <FormField
+                       control={form.control}
+                       name="pickup_instructions"
+                       render={({ field }) => (
+                         <FormItem>
+                           <FormLabel>Pickup Instructions</FormLabel>
+                           <FormControl>
+                             <Textarea 
+                               {...field} 
+                               placeholder="Provide instructions for pickup location, times, etc."
+                               className="h-20"
+                             />
+                           </FormControl>
+                           <FormMessage />
+                         </FormItem>
+                       )}
+                     />
 
-                    <div>
-                      <Label className="text-base font-medium">Availability</Label>
-                      <p className="text-sm text-muted-foreground mb-4">When is your gear available for rent?</p>
-                      <DateRangePicker 
-                        startDate={availability?.from}
-                        endDate={availability?.to}
-                        onStartDateSelect={(date) => setAvailability(prev => ({ ...prev, from: date }))}
-                        onEndDateSelect={(date) => setAvailability(prev => ({ ...prev, to: date }))}
-                      />
-                    </div>
+                     <FormField
+                       control={form.control}
+                       name="add_ons"
+                       render={({ field }) => (
+                         <FormItem>
+                           <AddOnsManager
+                             addOns={(field.value || []) as AddOn[]}
+                             onChange={(addOns) => field.onChange(addOns)}
+                             isBusinessUser={isBusinessUser}
+                           />
+                           <FormMessage />
+                         </FormItem>
+                       )}
+                     />
+
+                     <div>
+                       <Label className="text-base font-medium">Availability</Label>
+                       <p className="text-sm text-muted-foreground mb-4">When is your gear available for rent?</p>
+                       <DateRangePicker 
+                         startDate={availability?.from}
+                         endDate={availability?.to}
+                         onStartDateSelect={(date) => setAvailability(prev => ({ ...prev, from: date }))}
+                         onEndDateSelect={(date) => setAvailability(prev => ({ ...prev, to: date }))}
+                       />
+                     </div>
 
                     <div className="flex justify-end space-x-4">
                       <Button 
