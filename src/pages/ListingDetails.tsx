@@ -466,25 +466,37 @@ const ListingDetails = () => {
     // Always disable past dates
     if (date < today) return true;
     
-    // If availability data is still loading, don't disable any future dates
+    // If availability data is still loading, allow all future dates to be selectable
     if (availabilityLoading || !availabilityData) {
-      console.log("Date picker: availability still loading or no data", { availabilityLoading, hasData: !!availabilityData });
+      console.log("Date picker: availability loading, allowing all future dates", { 
+        availabilityLoading, 
+        hasData: !!availabilityData,
+        date: date.toISOString().split('T')[0]
+      });
       return false;
     }
     
-    // Check if date is available based on listing constraints
-    const isAvailable = isDateAvailable(
-      date,
-      availabilityData.unavailable_dates,
-      availabilityData.block_out_times,
-      availabilityData.existing_bookings
-    );
-    
-    if (!isAvailable) {
-      console.log("Date disabled:", date.toISOString().split('T')[0], { availabilityData });
+    // Simple availability check with detailed logging
+    try {
+      const isAvailable = isDateAvailable(
+        date,
+        availabilityData.unavailable_dates,
+        availabilityData.block_out_times,
+        availabilityData.existing_bookings
+      );
+      
+      console.log("Date availability check:", {
+        date: date.toISOString().split('T')[0],
+        isAvailable,
+        unavailableDates: availabilityData.unavailable_dates?.length || 0,
+        existingBookings: availabilityData.existing_bookings?.length || 0
+      });
+      
+      return !isAvailable;
+    } catch (error) {
+      console.error("Error checking date availability:", error);
+      return false; // Allow the date if there's an error
     }
-    
-    return !isAvailable;
   }, [today, availabilityLoading, availabilityData]);
   const [bookingState, dispatch] = useReducer(bookingReducer, listing?.title ?? "this gear", createInitialState);
   
