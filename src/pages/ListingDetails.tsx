@@ -467,15 +467,24 @@ const ListingDetails = () => {
     if (date < today) return true;
     
     // If availability data is still loading, don't disable any future dates
-    if (availabilityLoading || !availabilityData) return false;
+    if (availabilityLoading || !availabilityData) {
+      console.log("Date picker: availability still loading or no data", { availabilityLoading, hasData: !!availabilityData });
+      return false;
+    }
     
     // Check if date is available based on listing constraints
-    return !isDateAvailable(
+    const isAvailable = isDateAvailable(
       date,
       availabilityData.unavailable_dates,
       availabilityData.block_out_times,
       availabilityData.existing_bookings
     );
+    
+    if (!isAvailable) {
+      console.log("Date disabled:", date.toISOString().split('T')[0], { availabilityData });
+    }
+    
+    return !isAvailable;
   }, [today, availabilityLoading, availabilityData]);
   const [bookingState, dispatch] = useReducer(bookingReducer, listing?.title ?? "this gear", createInitialState);
   
