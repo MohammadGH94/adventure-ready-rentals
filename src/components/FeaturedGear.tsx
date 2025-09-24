@@ -1,9 +1,10 @@
 import GearCard from "./GearCard";
+import IllustratedSection from "./IllustratedSection";
 import { gearListings } from "@/lib/gear";
 
 const FeaturedGear = () => {
   return (
-    <section className="py-16">
+    <IllustratedSection variant="sunset" className="py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -30,7 +31,7 @@ const FeaturedGear = () => {
           ))}
         </div>
       </div>
-    </section>
+    </IllustratedSection>
   );
 };
 

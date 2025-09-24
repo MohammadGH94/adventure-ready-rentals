@@ -1,4 +1,5 @@
 import CategoryCard from "./CategoryCard";
+import IllustratedSection from "./IllustratedSection";
 import climbingGear from "@/assets/climbing-gear.jpg";
 import campingGear from "@/assets/camping-gear.jpg";
 import waterSportsGear from "@/assets/water-sports-gear.jpg";
@@ -33,7 +34,7 @@ const categories = [
 
 const Categories = () => {
   return (
-    <section className="py-16 bg-muted/30">
+    <IllustratedSection variant="mountain" className="py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -56,7 +57,7 @@ const Categories = () => {
           ))}
         </div>
       </div>
-    </section>
+    </IllustratedSection>
   );
 };
 

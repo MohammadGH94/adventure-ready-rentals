@@ -46,10 +46,23 @@
 
     --radius: 0.75rem;
 
-    /* Updated gradients with new palette */
-    --gradient-hero: linear-gradient(135deg, hsl(106 22% 73%) 0%, hsl(218 39% 77%) 100%);
+    /* Nature illustration inspired colors */
+    --nature-green: 142 65% 30%;
+    --nature-forest: 158 90% 12%;
+    --nature-mountain: 220 65% 25%;
+    --nature-sky: 210 80% 85%;
+    --nature-sunset: 15 95% 65%;
+    --nature-orange: 25 90% 55%;
+    --nature-cream: 45 60% 95%;
+    
+    /* Updated gradients with nature illustration palette */
+    --gradient-hero: linear-gradient(135deg, hsl(var(--nature-green)) 0%, hsl(var(--nature-mountain)) 100%);
     --gradient-card: linear-gradient(145deg, hsl(60 17% 99%) 0%, hsl(60 15% 95%) 100%);
-    --gradient-sunset: linear-gradient(90deg, hsl(25 53% 69%) 0%, hsl(35 53% 72%) 100%);
+    --gradient-sunset: linear-gradient(90deg, hsl(var(--nature-orange)) 0%, hsl(var(--nature-sunset)) 100%);
+    --gradient-forest: linear-gradient(135deg, hsl(var(--nature-green)), hsl(var(--nature-forest)));
+    --gradient-mountain: linear-gradient(135deg, hsl(var(--nature-mountain)), hsl(var(--nature-sky)));
+    --gradient-dawn: linear-gradient(180deg, hsl(var(--nature-sky)), hsl(var(--nature-cream)));
+    --gradient-dusk: linear-gradient(180deg, hsl(var(--nature-orange)), hsl(var(--nature-forest)));
     
     /* Softer shadows with new colors */
     --shadow-soft: 0 4px 20px -4px hsl(106 22% 73% / 0.1);
