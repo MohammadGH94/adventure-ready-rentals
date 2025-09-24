@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { DateRangePicker } from '@/components/DatePicker';
 import { PhotoUpload } from '@/components/PhotoUpload';
+import { AddOnsManager, type AddOn } from '@/components/AddOnsManager';
 import { useFileUpload } from '@/hooks/useFileUpload';
 import { useListingForm } from '@/hooks/useListingForm';
 import { useAuth } from '@/hooks/useAuth';
@@ -56,6 +57,15 @@ const EditListing = () => {
         delivery_fee: listing.delivery_fee || undefined,
         inventory_count: 1, // This field isn't in the listing type but is in the form
         business_license_verified: false, // This field isn't in the listing type but is in the form
+        add_ons: (listing.add_ons || []).map((addon: any) => ({
+          id: addon.id || crypto.randomUUID(),
+          name: addon.name || '',
+          description: addon.description || '',
+          price: addon.price || 0,
+          category: addon.category || '',
+          required: addon.required || false,
+          available_count: addon.available_count || 1
+        })) as AddOn[]
       });
 
       // Set existing photos as preview images
@@ -388,16 +398,38 @@ const EditListing = () => {
                     </div>
                   )}
 
-                  <div>
-                    <Label className="text-base font-medium">Photos *</Label>
-                    <p className="text-sm text-muted-foreground mb-4">Update photos of your gear (up to 10 photos)</p>
-                    <PhotoUpload
-                      files={files}
-                      onAddFiles={addFiles}
-                      onRemoveFile={removeFile}
-                      uploading={uploading}
-                    />
-                  </div>
+                   <div>
+                     <Label className="text-base font-medium">Photos *</Label>
+                     <p className="text-sm text-muted-foreground mb-4">Update photos of your gear (up to 10 photos)</p>
+                     <PhotoUpload
+                       files={files}
+                       onAddFiles={addFiles}
+                       onRemoveFile={removeFile}
+                       uploading={uploading}
+                     />
+                   </div>
+
+                   <FormField
+                     control={form.control}
+                     name="add_ons"
+                     render={({ field }) => (
+                       <FormItem>
+                         <AddOnsManager
+                           addOns={(field.value || []).map((addon: any) => ({
+                             id: addon.id || crypto.randomUUID(),
+                             name: addon.name || '',
+                             description: addon.description || '',
+                             price: addon.price || 0,
+                             category: addon.category || '',
+                             required: addon.required || false,
+                             available_count: addon.available_count || 1
+                           }))}
+                           onChange={field.onChange}
+                           isBusinessUser={isBusinessUser}
+                         />
+                       </FormItem>
+                     )}
+                   />
 
                   <FormField
                     control={form.control}

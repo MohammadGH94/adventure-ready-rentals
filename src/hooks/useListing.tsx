@@ -19,6 +19,7 @@ export interface DatabaseListing {
   max_rental_days: number | null;
   delivery_available: boolean;
   delivery_fee: number | null;
+  add_ons: any[] | null;
 }
 
 export const useListing = (id: string) => {
@@ -44,7 +45,8 @@ export const useListing = (id: string) => {
           min_rental_days,
           max_rental_days,
           delivery_available,
-          delivery_fee
+          delivery_fee,
+          add_ons
         `)
         .eq("id", id)
         .eq("is_available", true)
