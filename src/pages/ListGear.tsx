@@ -28,24 +28,22 @@ const ListGear = () => {
   const { user } = useAuth();
   const { files, uploading, addFiles, removeFile, uploadFiles, clearFiles } = useFileUpload();
   const { form, createListing } = useListingForm();
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [availability, setAvailability] = useState<DateRange | undefined>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const categories = [
     'camping', 'water_sports', 'climbing', 'vehicles', 'winter_sports', 'hiking', 'cycling'
-  ];
+  ] as const;
 
   const isBusinessUser = user?.user_metadata?.user_type === 'business';
 
-  const handleCategoryToggle = (category: string) => {
+  const handleCategoryToggle = (category: typeof categories[number]) => {
     const currentCategories = form.getValues('categories') || [];
-    const updatedCategories = currentCategories.includes(category as any)
+    const updatedCategories = currentCategories.includes(category)
       ? currentCategories.filter(c => c !== category)
-      : [...currentCategories, category as any];
+      : [...currentCategories, category];
     
     form.setValue('categories', updatedCategories);
-    setSelectedCategories(updatedCategories);
   };
 
   const onSubmit = async (data: any) => {
@@ -76,7 +74,6 @@ const ListGear = () => {
       // Clear form and files
       form.reset();
       clearFiles();
-      setSelectedCategories([]);
       setAvailability(undefined);
       
     } catch (error) {
@@ -188,38 +185,40 @@ const ListGear = () => {
                       )}
                     />
 
-                    <div>
-                      <Label className="text-sm font-medium">Categories *</Label>
-                      <p className="text-sm text-muted-foreground mb-3">Select all categories that apply</p>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        {categories.map((category) => (
-                          <div
-                            key={category}
-                            className={`border rounded-lg p-3 cursor-pointer transition-colors ${
-                              selectedCategories.includes(category)
-                                ? 'border-primary bg-primary/5'
-                                : 'border-muted hover:border-primary/50'
-                            }`}
-                            onClick={() => handleCategoryToggle(category)}
-                          >
-                            <div className="flex items-center space-x-2">
-                              <Checkbox
-                                checked={selectedCategories.includes(category)}
-                                onChange={() => handleCategoryToggle(category)}
-                              />
-                              <Label className="capitalize cursor-pointer">
-                                {category.replace('_', ' ')}
-                              </Label>
-                            </div>
+                    <FormField
+                      control={form.control}
+                      name="categories"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Categories *</FormLabel>
+                          <p className="text-sm text-muted-foreground mb-3">Select all categories that apply</p>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            {categories.map((category) => (
+                              <div
+                                key={category}
+                                className={`border rounded-lg p-3 cursor-pointer transition-colors ${
+                                  (field.value || []).includes(category)
+                                    ? 'border-primary bg-primary/5'
+                                    : 'border-muted hover:border-primary/50'
+                                }`}
+                                onClick={() => handleCategoryToggle(category)}
+                              >
+                                <div className="flex items-center space-x-2">
+                                  <Checkbox
+                                    checked={(field.value || []).includes(category)}
+                                    onCheckedChange={() => handleCategoryToggle(category)}
+                                  />
+                                  <Label className="capitalize cursor-pointer">
+                                    {category.replace('_', ' ')}
+                                  </Label>
+                                </div>
+                              </div>
+                            ))}
                           </div>
-                        ))}
-                      </div>
-                      {form.formState.errors.categories && (
-                        <p className="text-sm text-destructive mt-2">
-                          {form.formState.errors.categories.message}
-                        </p>
+                          <FormMessage />
+                        </FormItem>
                       )}
-                    </div>
+                    />
 
                     <FormField
                       control={form.control}
