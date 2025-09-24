@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
 import { DateRangePicker } from "@/components/DatePicker";
-import heroImage from "@/assets/hero-adventure-gear.jpg";
+import heroImage from "@/assets/nature-illustration-1.png";
 
 const Hero = () => {
   const [startDate, setStartDate] = useState<Date>();
@@ -17,7 +17,7 @@ const Hero = () => {
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${heroImage})` }}
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-black/60" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/40" />
       </div>
 
       {/* Content */}
