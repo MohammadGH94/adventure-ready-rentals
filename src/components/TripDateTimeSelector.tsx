@@ -89,7 +89,6 @@ export function TripDateTimeSelector({
                 }}
                 disabled={disabled}
                 initialFocus
-                className="p-3 pointer-events-auto"
               />
             </PopoverContent>
           </Popover>
@@ -140,7 +139,6 @@ export function TripDateTimeSelector({
                 }}
                 disabled={disabled}
                 initialFocus
-                className="p-3 pointer-events-auto"
               />
             </PopoverContent>
           </Popover>
