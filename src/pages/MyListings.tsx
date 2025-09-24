@@ -151,7 +151,6 @@ const MyListings = () => {
       setDeletingId(null);
     }
   };
-  };
 
   if (loading) {
     return (
