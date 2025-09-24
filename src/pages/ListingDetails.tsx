@@ -10,7 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { GearListing, ProtectionChoice } from "@/lib/gear";
 import { useListing, DatabaseListing } from "@/hooks/useListing";
 import { useAuth } from "@/hooks/useAuth";
-import { DateRangePicker } from "@/components/DatePicker";
+import { TripDateTimeSelector } from "@/components/TripDateTimeSelector";
 import { differenceInDays } from "date-fns";
 import { getStorageImageUrl, isDateAvailable } from "@/lib/utils";
 import { useAvailability } from "@/hooks/useAvailability";
@@ -40,6 +40,8 @@ interface BookingState {
   history: string[];
   startDate?: Date;
   endDate?: Date;
+  startTime: string;
+  endTime: string;
 }
 type BookingAction = {
   type: "START_BOOKING";
@@ -75,6 +77,10 @@ type BookingAction = {
   startDate?: Date;
   endDate?: Date;
 } | {
+  type: "SET_TIMES";
+  startTime: string;
+  endTime: string;
+} | {
   type: "REQUIRE_AUTH";
 };
 const createInitialState = (title: string): BookingState => ({
@@ -86,7 +92,9 @@ const createInitialState = (title: string): BookingState => ({
   reviewSubmitted: false,
   history: [`Reviewing ${title} before booking.`],
   startDate: undefined,
-  endDate: undefined
+  endDate: undefined,
+  startTime: "10:00",
+  endTime: "10:00"
 });
 const stageRank: Record<Stage, number> = {
   details: 0,
@@ -249,6 +257,14 @@ const bookingReducer = (state: BookingState, action: BookingAction): BookingStat
           startDate: action.startDate,
           endDate: action.endDate,
           history: action.startDate && action.endDate ? [...state.history, `Dates selected: ${action.startDate.toLocaleDateString()} - ${action.endDate.toLocaleDateString()}`] : state.history
+        };
+      }
+    case "SET_TIMES":
+      {
+        return {
+          ...state,
+          startTime: action.startTime,
+          endTime: action.endTime
         };
       }
     case "REQUIRE_AUTH":
@@ -713,15 +729,33 @@ const ListingDetails = () => {
         return <div className="space-y-4">
             <div className="space-y-3">
               
-              <DateRangePicker startDate={bookingState.startDate} endDate={bookingState.endDate} onStartDateSelect={date => dispatch({
-              type: "SET_DATES",
-              startDate: date,
-              endDate: bookingState.endDate
-            })} onEndDateSelect={date => dispatch({
-              type: "SET_DATES",
-              startDate: bookingState.startDate,
-              endDate: date
-            })} placeholder="Choose rental dates" disabled={isDateDisabled} />
+              <TripDateTimeSelector 
+                startDate={bookingState.startDate} 
+                endDate={bookingState.endDate}
+                startTime={bookingState.startTime}
+                endTime={bookingState.endTime}
+                onStartDateSelect={date => dispatch({
+                  type: "SET_DATES",
+                  startDate: date,
+                  endDate: bookingState.endDate
+                })} 
+                onEndDateSelect={date => dispatch({
+                  type: "SET_DATES",
+                  startDate: bookingState.startDate,
+                  endDate: date
+                })}
+                onStartTimeSelect={time => dispatch({
+                  type: "SET_TIMES",
+                  startTime: time,
+                  endTime: bookingState.endTime
+                })}
+                onEndTimeSelect={time => dispatch({
+                  type: "SET_TIMES",
+                  startTime: bookingState.startTime,
+                  endTime: time
+                })}
+                disabled={isDateDisabled} 
+              />
             </div>
             
             {quote && <Card className="border-primary/20 bg-primary/5">
