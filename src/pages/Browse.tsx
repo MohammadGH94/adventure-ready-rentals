@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { DateRangePicker } from "@/components/DatePicker";
-import { gearListings } from "@/lib/gear";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useListings } from "@/hooks/useListings";
 
 const Browse = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -16,10 +17,13 @@ const Browse = () => {
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
 
-  const filteredGear = gearListings.filter(gear => {
-    const matchesSearch = gear.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         gear.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === "all" || gear.category === selectedCategory;
+  const { data: listings = [], isLoading, error } = useListings();
+
+  const filteredGear = listings.filter(listing => {
+    const matchesSearch = listing.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (listing.description || "").toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === "all" || 
+                           listing.categories.some(cat => cat.toLowerCase() === selectedCategory.toLowerCase());
     return matchesSearch && matchesCategory;
   });
 
@@ -134,21 +138,49 @@ const Browse = () => {
                 availability details.
               </p>
             </div>
+          ) : isLoading ? (
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="gear-card">
+                  <Skeleton className="aspect-[4/3] w-full" />
+                  <div className="p-4 space-y-2">
+                    <Skeleton className="h-6 w-3/4" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-1/2" />
+                    <div className="flex justify-between">
+                      <Skeleton className="h-6 w-20" />
+                      <Skeleton className="h-8 w-20" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : error ? (
+            <div className="flex h-48 flex-col items-center justify-center rounded-xl border border-border bg-muted/40 text-center">
+              <h3 className="text-lg font-semibold text-foreground mb-2">Unable to load listings</h3>
+              <p className="text-sm text-muted-foreground">Please try refreshing the page</p>
+            </div>
           ) : (
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {filteredGear.map((gear) => (
+              {filteredGear.map((listing) => (
                 <GearCard
-                  key={gear.id}
-                  id={gear.id}
-                  title={gear.title}
-                  description={gear.description}
-                  image={gear.image}
-                  price={gear.price}
-                  rating={gear.rating}
-                  reviewCount={gear.reviewCount}
-                  location={gear.location}
+                  key={listing.id}
+                  id={listing.id}
+                  title={listing.title}
+                  description={listing.description || ""}
+                  image={listing.photos?.[0] || "/placeholder.svg"}
+                  price={Number(listing.price_per_day)}
+                  rating={4.5}
+                  reviewCount={0}
+                  location={listing.pickup_addresses?.[0] || "Location not specified"}
                 />
               ))}
+              {filteredGear.length === 0 && !isLoading && (
+                <div className="col-span-full flex h-48 flex-col items-center justify-center rounded-xl border border-border bg-muted/40 text-center">
+                  <h3 className="text-lg font-semibold text-foreground mb-2">No gear found</h3>
+                  <p className="text-sm text-muted-foreground">Try adjusting your search or filters</p>
+                </div>
+              )}
             </div>
           )}
         </div>
