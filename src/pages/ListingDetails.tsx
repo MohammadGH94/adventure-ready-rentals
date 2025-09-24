@@ -498,7 +498,15 @@ const ListingDetails = () => {
       return false; // Allow the date if there's an error
     }
   }, [today, availabilityLoading, availabilityData]);
+  
   const [bookingState, dispatch] = useReducer(bookingReducer, listing?.title ?? "this gear", createInitialState);
+  
+  // Calculate total days for rental
+  const totalDays = useMemo(() => {
+    if (!bookingState.startDate || !bookingState.endDate) return 0;
+    const timeDiff = bookingState.endDate.getTime() - bookingState.startDate.getTime();
+    return Math.ceil(timeDiff / (1000 * 3600 * 24));
+  }, [bookingState.startDate, bookingState.endDate]);
   
   // State for preventing multiple rapid clicks
   const [isProcessingBooking, setIsProcessingBooking] = useState(false);
@@ -947,9 +955,10 @@ const ListingDetails = () => {
   };
   return <div className="min-h-screen bg-background">
       <Header />
-      <main className="py-10">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 space-y-8">
-          <div>
+      <main className="py-8">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          {/* Header with back button */}
+          <div className="mb-6">
             <Button asChild variant="ghost" size="sm" className="text-muted-foreground">
               <Link to="/browse" className="flex items-center gap-2">
                 <ArrowLeft className="h-4 w-4" />
@@ -958,263 +967,258 @@ const ListingDetails = () => {
             </Button>
           </div>
 
-          <div className="grid gap-8 lg:grid-cols-[2fr_1fr]">
+          {/* Main content grid */}
+          <div className="grid gap-8 lg:grid-cols-[1fr_400px]">
+            {/* Left column - Images and details */}
             <div className="space-y-6">
-              <div className="overflow-hidden rounded-2xl border border-border shadow-soft">
-                <img src={listing.image} alt={listing.title} className="h-full w-full object-cover" />
+              {/* Image gallery */}
+              <div className="grid gap-2 lg:grid-cols-[2fr_1fr]">
+                <div className="overflow-hidden rounded-2xl">
+                  <img 
+                    src={listing.image} 
+                    alt={listing.title} 
+                    className="h-[400px] w-full object-cover"
+                  />
+                </div>
+                <div className="hidden lg:block space-y-2">
+                  <div className="overflow-hidden rounded-2xl">
+                    <img 
+                      src={listing.image} 
+                      alt={listing.title} 
+                      className="h-[196px] w-full object-cover"
+                    />
+                  </div>
+                  <div className="relative overflow-hidden rounded-2xl">
+                    <img 
+                      src={listing.image} 
+                      alt={listing.title} 
+                      className="h-[196px] w-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                      <Button variant="secondary" size="sm" className="gap-2">
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        View photos
+                      </Button>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <Card>
-                <CardHeader className="space-y-4">
-                  <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                    <div className="space-y-2">
-                      <CardTitle className="text-3xl text-foreground">{listing.title}</CardTitle>
-                      <CardDescription>{listing.description}</CardDescription>
+              {/* Title and basic info */}
+              <div className="space-y-4">
+                <div>
+                  <h1 className="text-3xl font-bold text-foreground">{listing.title}</h1>
+                  <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                      <span className="font-medium">{listing.rating}</span>
+                      <span>({listing.reviewCount} trips)</span>
                     </div>
-                    <div className="rounded-xl bg-muted/40 px-4 py-3 text-right">
-                      <p className="text-xs uppercase tracking-wide text-muted-foreground">From</p>
-                      <p className="text-3xl font-semibold text-foreground">
-                        {formatCurrency(listing.price)}
-                        <span className="ml-1 text-base font-normal text-muted-foreground">/day</span>
+                    <div className="flex items-center gap-1">
+                      <MapPin className="h-4 w-4" />
+                      <span>{listing.location}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quick specs */}
+                <div className="flex gap-6 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <div className="h-5 w-5 rounded-full bg-muted flex items-center justify-center">
+                      <Clock className="h-3 w-3" />
+                    </div>
+                    <span>Daily rental</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="h-5 w-5 rounded-full bg-muted flex items-center justify-center">
+                      <CheckCircle2 className="h-3 w-3" />
+                    </div>
+                    <span>Available</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Hosted by */}
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">Hosted by</h3>
+                  <div className="flex items-center gap-4">
+                    <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
+                      <span className="text-lg font-semibold">{listing.owner.name.charAt(0)}</span>
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                        <span className="font-medium">{listing.owner.rating.toFixed(1)}</span>
+                      </div>
+                      <p className="font-medium">{listing.owner.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {listing.owner.tripsHosted} trips • Joined {new Date().getFullYear() - 1}
                       </p>
                     </div>
-                  </div>
-                  <div className="flex flex-wrap gap-x-6 gap-y-3 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-primary" />
-                      {listing.location}
-                    </span>
-                    <span className="flex items-center gap-2">
-                      <Star className="h-4 w-4 fill-action text-action" />
-                      {listing.rating} ({listing.reviewCount} reviews)
-                    </span>
-                    <span className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-primary" />
-                      Host responds {listing.owner.responseTime}
-                    </span>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div>
-                    <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground">Highlights</h3>
-                    <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-                      {listing.highlights.map(item => <li key={item} className="flex gap-2">
-                          <CheckCircle2 className="mt-0.5 h-4 w-4 text-primary" />
-                          <span>{item}</span>
-                        </li>)}
-                    </ul>
-                  </div>
-                  <Separator />
-                  <div>
-                    <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground">What's included</h3>
-                    <ul className="mt-3 grid gap-2 text-sm text-muted-foreground md:grid-cols-2">
-                      {listing.gearIncludes.map(item => <li key={item} className="flex gap-2">
-                          <CheckCircle2 className="mt-0.5 h-4 w-4 text-primary" />
-                          <span>{item}</span>
-                        </li>)}
-                    </ul>
                   </div>
                 </CardContent>
               </Card>
 
+              {/* Features */}
               <Card>
-                <CardHeader>
-                  <CardTitle>Protection & policies</CardTitle>
-                  <CardDescription>Understand deposits, insurance, and cancellation rules before you confirm.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-5">
-                  <div className="flex items-start gap-3 rounded-xl border border-border bg-muted/20 p-4">
-                    <ShieldCheck className="mt-1 h-5 w-5 text-primary" />
-                    <div className="space-y-1 text-sm">
-                      <p className="font-medium text-foreground">Deposit & insurance</p>
-                      <p className="text-muted-foreground">
-                        {requiresProtection ? "This trip requires a refundable deposit or active insurance before pickup." : "Deposits are optional—book instantly or add coverage for extra peace of mind."}
-                      </p>
-                      <ul className="text-muted-foreground">
-                        {depositAmount && <li>Deposit: {depositAmount} — {listing.protection.depositDescription}</li>}
-                        {insurancePrice && <li>Insurance: {insurancePrice}/day — {listing.protection.insuranceDescription}</li>}
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">Gear features</h3>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div>
+                      <h4 className="font-medium mb-3">Highlights</h4>
+                      <ul className="space-y-2">
+                        {listing.highlights.map(item => (
+                          <li key={item} className="flex items-start gap-2 text-sm text-muted-foreground">
+                            <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                            <span>{item}</span>
+                          </li>
+                        ))}
                       </ul>
                     </div>
-                  </div>
-                  <div className="flex items-start gap-3 rounded-xl border border-border bg-muted/20 p-4">
-                    <FileText className="mt-1 h-5 w-5 text-primary" />
-                    <div className="space-y-1 text-sm">
-                      <p className="font-medium text-foreground">Cancellation policy</p>
-                      <p className="text-muted-foreground">{listing.cancellationPolicy.headline}</p>
-                      <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
-                        {listing.cancellationPolicy.details.map(detail => <li key={detail}>{detail}</li>)}
-                      </ul>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3 rounded-xl border border-border bg-muted/20 p-4">
-                    <Wallet className="mt-1 h-5 w-5 text-primary" />
-                    <div className="space-y-1 text-sm">
-                      <p className="font-medium text-foreground">Pickup notes</p>
-                      <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
-                        {listing.pickupNotes.map(note => <li key={note}>{note}</li>)}
+                    <div>
+                      <h4 className="font-medium mb-3">What's included</h4>
+                      <ul className="space-y-2">
+                        {listing.gearIncludes.map(item => (
+                          <li key={item} className="flex items-start gap-2 text-sm text-muted-foreground">
+                            <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                            <span>{item}</span>
+                          </li>
+                        ))}
                       </ul>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-            {/* Show different content based on booking stage */}
-              {bookingState.stage === "details" ?
-            // Simple "How it works" for browsing users
-            <Card>
-                  <CardHeader>
-                    <CardTitle>How renting works</CardTitle>
-                    <CardDescription>
-                      Three simple steps to your next outdoor adventure
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex items-start gap-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-semibold">
-                          1
-                        </div>
-                        <div>
-                          <p className="font-medium text-foreground">Book your adventure</p>
-                          <p className="text-sm text-muted-foreground">
-                            Choose your dates, add protection if needed, and confirm your trip
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-semibold">
-                          2
-                        </div>
-                        <div>
-                          <p className="font-medium text-foreground">Pick up & explore</p>
-                          <p className="text-sm text-muted-foreground">
-                            Meet your host, get the gear, and head out on your adventure
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-semibold">
-                          3
-                        </div>
-                        <div>
-                          <p className="font-medium text-foreground">Return & review</p>
-                          <p className="text-sm text-muted-foreground">
-                            Bring the gear back clean, take a quick photo, and share your experience
-                          </p>
-                        </div>
-                      </div>
-                      
-                      <div className="mt-6 rounded-xl bg-primary/5 border border-primary/20 p-4">
-                        <div className="flex items-start gap-3">
-                          <ShieldCheck className="h-5 w-5 text-primary mt-0.5" />
-                          <div className="text-sm">
-                            <p className="font-medium text-foreground">You're protected</p>
-                            <p className="text-muted-foreground">
-                              Every rental includes community trust, host verification, and optional protection coverage
-                            </p>
-                          </div>
-                        </div>
-                      </div>
+              {/* Included in the price */}
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">Included in the price</h3>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div>
+                      <h4 className="font-medium mb-2 flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-green-500" />
+                        Convenience
+                      </h4>
+                      <ul className="space-y-2 text-sm text-muted-foreground">
+                        <li>Skip the rental counter</li>
+                        <li>Use the app for pickup and return instructions</li>
+                        <li>30-minute return grace period</li>
+                      </ul>
                     </div>
-                  </CardContent>
-                </Card> :
-            // Progressive journey tracking for active bookings
-            <Card>
-                  <CardHeader>
-                    <CardTitle>Your trip progress</CardTitle>
-                    <CardDescription>
-                      {bookingState.stage === "cancelled" ? "Your booking was cancelled - here's what happened" : "Track your adventure from booking to return"}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-4">
-                      {steps.filter(step => {
-                    // Show only relevant steps based on current stage
-                    if (bookingState.stage === "cancelled") {
-                      return ["details", "protection", "confirmation", "browse"].includes(step.id);
-                    }
-                    if (bookingState.stage === "completed") {
-                      return true; // Show all steps when completed
-                    }
-
-                    // For active bookings, show current step + 1-2 upcoming steps
-                    const currentRank = stepRank[step.id];
-                    const stageStepRank = stepRank[bookingState.stage as keyof typeof stepRank] || 0;
-                    return currentRank <= stageStepRank + 2;
-                  }).map(step => <li key={step.id} className="rounded-xl border border-border p-4">
-                          <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
-                            <div>
-                              <p className="font-semibold text-foreground">{step.title}</p>
-                              <p className="text-sm text-muted-foreground">{step.description}</p>
-                            </div>
-                            <Badge variant={step.status === "complete" ? "secondary" : step.status === "current" ? "default" : step.status === "cancelled" ? "destructive" : "outline"} className="self-start">
-                              {step.status === "complete" ? "Done" : step.status === "current" ? "Current" : step.status === "cancelled" ? "Cancelled" : "Upcoming"}
-                            </Badge>
-                          </div>
-                        </li>)}
-                    </ul>
-                  </CardContent>
-                </Card>}
+                    <div>
+                      <h4 className="font-medium mb-2 flex items-center gap-2">
+                        <ShieldCheck className="h-4 w-4 text-green-500" />
+                        Peace of mind
+                      </h4>
+                      <ul className="space-y-2 text-sm text-muted-foreground">
+                        <li>No need to wash before returning</li>
+                        <li>Access to basic roadside assistance</li>
+                        <li>24/7 customer support</li>
+                      </ul>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
 
-            <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>
-                    {bookingState.stage === "details" ? "Ready to book?" : "Next steps"}
-                  </CardTitle>
-                  <CardDescription>
-                    {bookingState.stage === "details" ? "Start your adventure with this gear" : "Keep your trip moving forward"}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>{renderActionCard()}</CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Meet the owner</CardTitle>
-                  <CardDescription>Verified host with quick response times.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-3">
-                    <Badge variant="secondary" className="text-xs">
-                      {listing.owner.rating.toFixed(2)} ★
-                    </Badge>
-                    <span>{listing.owner.tripsHosted} trips hosted</span>
+            {/* Right column - Booking card */}
+            <div className="lg:sticky lg:top-8 lg:self-start">
+              <Card className="shadow-lg">
+                <CardContent className="p-6">
+                  {/* Pricing */}
+                  <div className="mb-4">
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-2xl font-bold">{formatCurrency(listing.price)}</span>
+                      <span className="text-muted-foreground">total</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">Before taxes</p>
                   </div>
-                  <p className="text-foreground font-medium">{listing.owner.name}</p>
-                  
-                  <Button asChild variant="outline" size="sm" className="gap-2">
+
+                  {/* Your trip section */}
+                  <div className="space-y-4 mb-6">
+                    <h3 className="font-semibold">Your trip</h3>
                     
-                  </Button>
+                    {/* Trip dates */}
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">Trip start</label>
+                        <div className="grid grid-cols-2 gap-2 mt-1">
+                          <DateRangePicker
+                            startDate={bookingState.startDate}
+                            endDate={bookingState.endDate}
+                            onStartDateSelect={(date) => dispatch({ 
+                              type: "SET_DATES", 
+                              startDate: date, 
+                              endDate: bookingState.endDate 
+                            })}
+                            onEndDateSelect={(date) => dispatch({ 
+                              type: "SET_DATES", 
+                              startDate: bookingState.startDate, 
+                              endDate: date 
+                            })}
+                            disabled={isDateDisabled}
+                            placeholder="Add dates"
+                            className="col-span-2"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Pickup & return location */}
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">Pickup & return location</label>
+                      <div className="mt-1 p-3 border rounded-lg bg-muted/20">
+                        <div className="flex items-center gap-2">
+                          <MapPin className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm">{listing.location}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Trip Savings */}
+                    {totalDays >= 3 && (
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                        <h4 className="font-medium text-green-800">Trip Savings</h4>
+                        <div className="flex justify-between text-sm text-green-700">
+                          <span>3-day discount</span>
+                          <span>$15</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Booking actions */}
+                  <div className="space-y-3">
+                    {renderActionCard()}
+                  </div>
+
+                  {/* Quote breakdown */}
+                  {quote && (
+                    <div className="mt-6 pt-4 border-t space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>{formatCurrency(listing.price)} × {totalDays} days</span>
+                        <span>{formatCurrency(quote.subtotal)}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span>Service fee</span>
+                        <span>{formatCurrency(quote.serviceFee)}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span>Taxes</span>
+                        <span>{formatCurrency(quote.taxes)}</span>
+                      </div>
+                      <div className="flex justify-between font-semibold pt-2 border-t">
+                        <span>Total</span>
+                        <span>{formatCurrency(quote.total)}</span>
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Activity log</CardTitle>
-                  <CardDescription>Every action in the renter flow is tracked here.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ol className="space-y-2 text-sm text-muted-foreground">
-                    {bookingState.history.map((entry, index) => <li key={`${entry}-${index}`} className="flex gap-2">
-                        <RefreshCcw className="mt-0.5 h-4 w-4 text-primary" />
-                        <span>{entry}</span>
-                      </li>)}
-                  </ol>
-                </CardContent>
-              </Card>
-
-              {bookingState.stage === "cancelled" && <Card className="border-destructive/40 bg-destructive/5">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-destructive">
-                      <AlertTriangle className="h-5 w-5" /> Trip cancelled
-                    </CardTitle>
-                    <CardDescription className="text-destructive">
-                      A refund has been queued. You can start a new booking anytime from this page.
-                    </CardDescription>
-                  </CardHeader>
-                </Card>}
             </div>
           </div>
         </div>
