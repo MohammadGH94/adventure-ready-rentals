@@ -2,6 +2,7 @@ import { Star, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 interface GearCardProps {
   id: string;
@@ -16,6 +17,17 @@ interface GearCardProps {
 
 const GearCard = ({ id, title, description, image, price, rating, reviewCount, location }: GearCardProps) => {
   const [imageError, setImageError] = useState(false);
+  const [isFavorited, setIsFavorited] = useState(false);
+  const { toast } = useToast();
+
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsFavorited(!isFavorited);
+    toast({
+      description: isFavorited ? "Removed from favorites" : "Added to favorites",
+    });
+  };
 
   return (
     <div className="gear-card group cursor-pointer overflow-hidden">
@@ -29,10 +41,11 @@ const GearCard = ({ id, title, description, image, price, rating, reviewCount, l
         <Button
           variant="ghost"
           size="icon"
+          onClick={handleFavoriteClick}
           className="absolute top-3 right-3 z-20 bg-white/80 backdrop-blur-sm hover:bg-white/90"
-          aria-label="Save to favorites"
+          aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
         >
-          <Heart className="h-4 w-4" />
+          <Heart className={`h-4 w-4 transition-colors ${isFavorited ? "fill-red-500 text-red-500" : "text-gray-600"}`} />
         </Button>
         <Link
           to={`/gear/${id}`}
