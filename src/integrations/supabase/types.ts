@@ -220,6 +220,7 @@ export type Database = {
       }
       listings: {
         Row: {
+          add_ons: Json | null
           block_out_times: Json | null
           booking_count: number | null
           bulk_pricing: Json | null
@@ -256,6 +257,7 @@ export type Database = {
           view_count: number | null
         }
         Insert: {
+          add_ons?: Json | null
           block_out_times?: Json | null
           booking_count?: number | null
           bulk_pricing?: Json | null
@@ -292,6 +294,7 @@ export type Database = {
           view_count?: number | null
         }
         Update: {
+          add_ons?: Json | null
           block_out_times?: Json | null
           booking_count?: number | null
           bulk_pricing?: Json | null
