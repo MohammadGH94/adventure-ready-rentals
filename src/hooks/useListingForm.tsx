@@ -56,20 +56,43 @@ export const useListingForm = () => {
     }
 
     try {
-      // Get user profile to get user ID
-      const { data: userProfile, error: userError } = await supabase
+      // Get user profile to get user ID - with automatic creation fallback
+      let { data: userProfile, error: userError } = await supabase
         .from('users')
         .select('id')
         .eq('auth_user_id', user.id)
         .single();
 
+      // If profile doesn't exist, try to create it (fallback for edge cases)
       if (userError || !userProfile) {
-        toast({
-          title: "Profile error",
-          description: "Unable to find user profile",
-          variant: "destructive",
-        });
-        return;
+        console.log('Profile not found, attempting to create one...');
+        
+        // Create a basic profile for the user
+        const { data: newProfile, error: createError } = await supabase
+          .from('users')
+          .insert({
+            auth_user_id: user.id,
+            email: user.email || '',
+            first_name: user.user_metadata?.first_name || '',
+            last_name: user.user_metadata?.last_name || '',
+            password_hash: '', // Not used, auth handles this
+            user_type: (user.user_metadata?.user_type as any) || 'individual'
+          })
+          .select('id')
+          .single();
+
+        if (createError || !newProfile) {
+          console.error('Failed to create user profile:', createError);
+          toast({
+            title: "Profile error",
+            description: "Unable to create user profile. Please try signing out and back in, or contact support.",
+            variant: "destructive",
+          });
+          return;
+        }
+        
+        userProfile = newProfile;
+        console.log('Successfully created user profile');
       }
 
       const listingData: Database['public']['Tables']['listings']['Insert'] = {
