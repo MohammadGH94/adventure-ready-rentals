@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useListingForm } from "@/hooks/useListingForm";
+import { getStorageImageUrl } from "@/lib/utils";
 
 interface Listing {
   id: string;
@@ -246,12 +247,15 @@ const MyListings = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {listings.map((listing) => (
                 <Card key={listing.id} className="overflow-hidden">
-                  <div className="aspect-video bg-muted relative">
+                  <div className="aspect-video bg-muted relative overflow-hidden">
                     {listing.photos && listing.photos[0] ? (
                       <img
-                        src={listing.photos[0]}
+                        src={getStorageImageUrl(listing.photos[0])}
                         alt={listing.title}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover transition-transform hover:scale-105"
+                        onError={(e) => {
+                          e.currentTarget.src = '/placeholder.svg';
+                        }}
                       />
                     ) : (
                       <div className="flex items-center justify-center h-full">
