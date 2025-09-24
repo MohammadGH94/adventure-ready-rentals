@@ -16,6 +16,7 @@ import Architecture from "./pages/Architecture";
 import ListingDetails from "./pages/ListingDetails";
 import Dashboard from "./pages/Dashboard";
 import MyListings from "./pages/MyListings";
+import EditListing from "./pages/EditListing";
 import ListingBookings from "./pages/ListingBookings";
 import MyAdventures from "./pages/MyAdventures";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
@@ -52,6 +53,11 @@ const App = () => (
             <Route path="/my-listings" element={
               <ProtectedRoute>
                 <MyListings />
+              </ProtectedRoute>
+            } />
+            <Route path="/edit-listing/:id" element={
+              <ProtectedRoute>
+                <EditListing />
               </ProtectedRoute>
             } />
             <Route path="/listing-bookings/:listingId" element={
