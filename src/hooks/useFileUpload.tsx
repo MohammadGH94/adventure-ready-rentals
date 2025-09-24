@@ -8,6 +8,7 @@ export interface UploadedFile {
   uploaded: boolean;
   url?: string;
   path?: string;
+  isExisting?: boolean;
 }
 
 export const useFileUpload = () => {
@@ -121,5 +122,6 @@ export const useFileUpload = () => {
     removeFile,
     uploadFiles,
     clearFiles,
+    setFiles,
   };
 };

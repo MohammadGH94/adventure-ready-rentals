@@ -166,8 +166,91 @@ export const useListingForm = () => {
     }
   };
 
+  const updateListing = async (id: string, data: ListingFormData, photoPaths: string[]) => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to update a listing",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Get user profile to get user ID
+      const { data: userProfile, error: userError } = await supabase
+        .from('users')
+        .select('id')
+        .eq('auth_user_id', user.id)
+        .single();
+
+      if (userError || !userProfile) {
+        toast({
+          title: "Profile error",
+          description: "Unable to find user profile. Please try signing out and back in.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const listingData: Database['public']['Tables']['listings']['Update'] = {
+        title: data.title,
+        description: data.description,
+        categories: data.categories,
+        price_per_day: data.price_per_day,
+        pickup_addresses: data.location_address ? [data.location_address] : [],
+        pickup_instructions: data.pickup_instructions,
+        rules_and_requirements: data.rules_and_requirements,
+        min_rental_days: data.min_rental_days,
+        max_rental_days: data.max_rental_days,
+        deposit_amount: data.deposit_amount,
+        insurance_required: data.insurance_required,
+        delivery_available: data.delivery_available,
+        delivery_radius: data.delivery_radius,
+        delivery_fee: data.delivery_fee,
+        inventory_count: data.inventory_count,
+        business_license_verified: data.business_license_verified,
+        bulk_pricing: data.bulk_pricing || null,
+        photos: photoPaths,
+        updated_at: new Date().toISOString(),
+      };
+
+      const { data: listing, error } = await supabase
+        .from('listings')
+        .update(listingData)
+        .eq('id', id)
+        .eq('owner_id', userProfile.id) // Ensure user owns the listing
+        .select()
+        .single();
+
+      if (error) {
+        toast({
+          title: "Listing update failed",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Listing updated successfully!",
+        description: "Your listing has been updated.",
+      });
+      
+      return listing;
+    } catch (error) {
+      console.error('Error updating listing:', error);
+      toast({
+        title: "Unexpected error",
+        description: "An error occurred while updating your listing",
+        variant: "destructive",
+      });
+    }
+  };
+
   return {
     form,
     createListing,
+    updateListing,
   };
 };
