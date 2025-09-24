@@ -362,9 +362,61 @@ export type Database = {
           },
         ]
       }
-      users: {
+      user_financial_data: {
         Row: {
           account_number: string | null
+          created_at: string
+          government_id_image: string | null
+          id: string
+          institution_number: string | null
+          payment_method_ids: string[] | null
+          payout_method_id: string | null
+          tax_id: string | null
+          transit_number: string | null
+          updated_at: string
+          user_id: string
+          void_cheque: string | null
+        }
+        Insert: {
+          account_number?: string | null
+          created_at?: string
+          government_id_image?: string | null
+          id?: string
+          institution_number?: string | null
+          payment_method_ids?: string[] | null
+          payout_method_id?: string | null
+          tax_id?: string | null
+          transit_number?: string | null
+          updated_at?: string
+          user_id: string
+          void_cheque?: string | null
+        }
+        Update: {
+          account_number?: string | null
+          created_at?: string
+          government_id_image?: string | null
+          id?: string
+          institution_number?: string | null
+          payment_method_ids?: string[] | null
+          payout_method_id?: string | null
+          tax_id?: string | null
+          transit_number?: string | null
+          updated_at?: string
+          user_id?: string
+          void_cheque?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_user_financial_data_user_id"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users: {
+        Row: {
           auth_user_id: string | null
           business_license: string | null
           business_name: string | null
@@ -374,28 +426,20 @@ export type Database = {
           date_of_birth: string | null
           email: string
           first_name: string
-          government_id_image: string | null
           id: string
-          institution_number: string | null
           is_verified: boolean | null
           last_name: string
           location_address: string | null
           password_hash: string
-          payment_method_ids: string[] | null
-          payout_method_id: string | null
           phone_number: string | null
           postal_code: string | null
           profile_bio: string | null
           profile_image_url: string | null
           state_province: string | null
-          tax_id: string | null
-          transit_number: string | null
           updated_at: string | null
           user_type: Database["public"]["Enums"]["user_type"]
-          void_cheque: string | null
         }
         Insert: {
-          account_number?: string | null
           auth_user_id?: string | null
           business_license?: string | null
           business_name?: string | null
@@ -405,28 +449,20 @@ export type Database = {
           date_of_birth?: string | null
           email: string
           first_name: string
-          government_id_image?: string | null
           id?: string
-          institution_number?: string | null
           is_verified?: boolean | null
           last_name: string
           location_address?: string | null
           password_hash: string
-          payment_method_ids?: string[] | null
-          payout_method_id?: string | null
           phone_number?: string | null
           postal_code?: string | null
           profile_bio?: string | null
           profile_image_url?: string | null
           state_province?: string | null
-          tax_id?: string | null
-          transit_number?: string | null
           updated_at?: string | null
           user_type?: Database["public"]["Enums"]["user_type"]
-          void_cheque?: string | null
         }
         Update: {
-          account_number?: string | null
           auth_user_id?: string | null
           business_license?: string | null
           business_name?: string | null
@@ -436,25 +472,18 @@ export type Database = {
           date_of_birth?: string | null
           email?: string
           first_name?: string
-          government_id_image?: string | null
           id?: string
-          institution_number?: string | null
           is_verified?: boolean | null
           last_name?: string
           location_address?: string | null
           password_hash?: string
-          payment_method_ids?: string[] | null
-          payout_method_id?: string | null
           phone_number?: string | null
           postal_code?: string | null
           profile_bio?: string | null
           profile_image_url?: string | null
           state_province?: string | null
-          tax_id?: string | null
-          transit_number?: string | null
           updated_at?: string | null
           user_type?: Database["public"]["Enums"]["user_type"]
-          void_cheque?: string | null
         }
         Relationships: []
       }
