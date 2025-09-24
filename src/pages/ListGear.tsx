@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState, type ChangeEvent } from "react";
-import { Camera, DollarSign, MapPin, Calendar, Shield, Users } from "lucide-react";
+import { Camera, DollarSign, MapPin, Shield, Users } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DateRangePicker } from "@/components/DatePicker";
 
 const earnings = [
   { gear: "Climbing Rope Set", monthly: "$450" },
@@ -16,6 +17,8 @@ const earnings = [
 
 const ListGear = () => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [startDate, setStartDate] = useState<Date>();
+  const [endDate, setEndDate] = useState<Date>();
 
   const previewUrls = useMemo(() => selectedFiles.map((file) => ({ file, url: URL.createObjectURL(file) })), [selectedFiles]);
 
@@ -237,10 +240,14 @@ const ListGear = () => {
                   <label className="block text-sm font-medium text-foreground mb-2">
                     Availability
                   </label>
-                  <div className="relative">
-                    <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                    <Input placeholder="Select available dates" className="pl-10" />
-                  </div>
+                  <DateRangePicker
+                    startDate={startDate}
+                    endDate={endDate}
+                    onStartDateSelect={setStartDate}
+                    onEndDateSelect={setEndDate}
+                    placeholder="Select available dates"
+                    disabled={(date) => date < new Date()}
+                  />
                 </div>
 
                 <Button variant="action" size="lg" className="w-full">
