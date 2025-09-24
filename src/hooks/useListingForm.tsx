@@ -248,9 +248,69 @@ export const useListingForm = () => {
     }
   };
 
+  const deleteListing = async (id: string) => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to delete a listing",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    try {
+      // Get user profile to get user ID
+      const { data: userProfile, error: userError } = await supabase
+        .from('users')
+        .select('id')
+        .eq('auth_user_id', user.id)
+        .single();
+
+      if (userError || !userProfile) {
+        toast({
+          title: "Profile error",
+          description: "Unable to find user profile. Please try signing out and back in.",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      const { error } = await supabase
+        .from('listings')
+        .delete()
+        .eq('id', id)
+        .eq('owner_id', userProfile.id); // Ensure user owns the listing
+
+      if (error) {
+        toast({
+          title: "Deletion failed",
+          description: error.message,
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      toast({
+        title: "Listing deleted",
+        description: "Your listing has been permanently deleted.",
+      });
+      
+      return true;
+    } catch (error) {
+      console.error('Error deleting listing:', error);
+      toast({
+        title: "Unexpected error",
+        description: "An error occurred while deleting your listing",
+        variant: "destructive",
+      });
+      return false;
+    }
+  };
+
   return {
     form,
     createListing,
     updateListing,
+    deleteListing,
   };
 };

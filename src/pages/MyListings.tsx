@@ -6,10 +6,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Package, Plus, Edit, Eye, Calendar, DollarSign } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Package, Plus, Edit, Eye, Calendar, DollarSign, Trash2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useListingForm } from "@/hooks/useListingForm";
 
 interface Listing {
   id: string;
@@ -27,8 +29,10 @@ const MyListings = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { deleteListing } = useListingForm();
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -132,6 +136,21 @@ const MyListings = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const handleDeleteListing = async (listingId: string, listingTitle: string) => {
+    setDeletingId(listingId);
+    
+    try {
+      const success = await deleteListing(listingId);
+      if (success) {
+        // Remove the listing from local state
+        setListings(prev => prev.filter(listing => listing.id !== listingId));
+      }
+    } finally {
+      setDeletingId(null);
+    }
+  };
   };
 
   if (loading) {
@@ -278,7 +297,7 @@ const MyListings = () => {
                         variant="outline" 
                         size="sm" 
                         className="flex-1"
-                        onClick={() => navigate(`/listing/${listing.id}`)}
+                        onClick={() => navigate(`/gear/${listing.id}`)}
                       >
                         <Eye className="h-4 w-4 mr-1" />
                         View
@@ -301,6 +320,36 @@ const MyListings = () => {
                         <Calendar className="h-4 w-4 mr-1" />
                         Bookings
                       </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="flex-1 text-destructive hover:text-destructive"
+                            disabled={deletingId === listing.id}
+                          >
+                            <Trash2 className="h-4 w-4 mr-1" />
+                            Delete
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Listing</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to delete "{listing.title}"? This action cannot be undone and will permanently remove the listing from your account.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleDeleteListing(listing.id, listing.title)}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              {deletingId === listing.id ? 'Deleting...' : 'Delete'}
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </div>
                   </CardContent>
                 </Card>
