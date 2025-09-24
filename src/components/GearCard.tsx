@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useFavorites } from "@/hooks/useFavorites";
 
 interface GearCardProps {
   id: string;
@@ -17,16 +18,29 @@ interface GearCardProps {
 
 const GearCard = ({ id, title, description, image, price, rating, reviewCount, location }: GearCardProps) => {
   const [imageError, setImageError] = useState(false);
-  const [isFavorited, setIsFavorited] = useState(false);
   const { toast } = useToast();
+  const { toggleFavorite, isFavorited } = useFavorites();
+
+  const isCurrentlyFavorited = isFavorited(id);
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsFavorited(!isFavorited);
-    toast({
-      description: isFavorited ? "Removed from favorites" : "Added to favorites",
-    });
+    
+    try {
+      toggleFavorite(id);
+      toast({
+        description: isCurrentlyFavorited ? "Removed from favorites" : "Added to favorites",
+        duration: 2000,
+      });
+    } catch (error) {
+      console.error('Failed to toggle favorite:', error);
+      toast({
+        description: "Failed to update favorites",
+        variant: "destructive",
+        duration: 3000,
+      });
+    }
   };
 
   return (
@@ -43,9 +57,9 @@ const GearCard = ({ id, title, description, image, price, rating, reviewCount, l
           size="icon"
           onClick={handleFavoriteClick}
           className="absolute top-3 right-3 z-20 bg-white/80 backdrop-blur-sm hover:bg-white/90"
-          aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
+          aria-label={isCurrentlyFavorited ? "Remove from favorites" : "Add to favorites"}
         >
-          <Heart className={`h-4 w-4 transition-colors ${isFavorited ? "fill-red-500 text-red-500" : "text-gray-600"}`} />
+          <Heart className={`h-4 w-4 transition-all duration-200 ${isCurrentlyFavorited ? "fill-red-500 text-red-500 scale-110" : "text-gray-600 hover:text-red-400"}`} />
         </Button>
         <Link
           to={`/gear/${id}`}
