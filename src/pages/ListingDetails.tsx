@@ -12,7 +12,8 @@ import { useListing, DatabaseListing } from "@/hooks/useListing";
 import { useAuth } from "@/hooks/useAuth";
 import { DateRangePicker } from "@/components/DatePicker";
 import { differenceInDays } from "date-fns";
-import { getStorageImageUrl } from "@/lib/utils";
+import { getStorageImageUrl, isDateAvailable } from "@/lib/utils";
+import { useAvailability } from "@/hooks/useAvailability";
 const currencyFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
   currency: "USD",
@@ -451,6 +452,7 @@ const ListingDetails = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { data: dbListing, isLoading, error } = useListing(id ?? "");
+  const { data: availabilityData, isLoading: availabilityLoading } = useAvailability(id ?? "");
   
   console.log("ListingDetails render:", { id, user: user?.id, authLoading, isLoading, error });
   
@@ -675,7 +677,22 @@ const ListingDetails = () => {
                 onStartDateSelect={(date) => dispatch({ type: "SET_DATES", startDate: date, endDate: bookingState.endDate })}
                 onEndDateSelect={(date) => dispatch({ type: "SET_DATES", startDate: bookingState.startDate, endDate: date })}
                 placeholder="Choose rental dates"
-                disabled={(date) => date < new Date()}
+                disabled={(date) => {
+                  // Disable past dates
+                  if (date < new Date()) return true;
+                  
+                  // Disable dates based on availability data if loaded
+                  if (availabilityData) {
+                    return !isDateAvailable(
+                      date,
+                      availabilityData.unavailable_dates,
+                      availabilityData.block_out_times,
+                      availabilityData.existing_bookings
+                    );
+                  }
+                  
+                  return false;
+                }}
               />
             </div>
             
