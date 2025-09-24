@@ -46,19 +46,30 @@ export const useAvailability = (listingId: string) => {
         .from("bookings")
         .select("rental_start_date, rental_end_date, status")
         .eq("listing_id", listingId)
-        .not("status", "in", ["cancelled_by_renter", "cancelled_by_owner"]);
+        .not("status", "in", "(cancelled_by_renter,cancelled_by_owner)");
 
       if (bookingsError) {
         console.error("Error fetching bookings:", bookingsError);
       }
 
-      return {
+      const result = {
         unavailable_dates: availability?.unavailable_dates || [],
         block_out_times: listing?.block_out_times || null,
         existing_bookings: bookings || [],
         min_rental_days: listing?.min_rental_days || 1,
         max_rental_days: listing?.max_rental_days || null,
       } as AvailabilityData;
+
+      console.log("Availability data loaded:", {
+        listingId,
+        unavailable_dates: result.unavailable_dates,
+        block_out_times: result.block_out_times,
+        existing_bookings: result.existing_bookings,
+        min_rental_days: result.min_rental_days,
+        max_rental_days: result.max_rental_days
+      });
+
+      return result;
     },
     enabled: !!listingId,
   });
