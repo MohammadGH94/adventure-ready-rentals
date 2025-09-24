@@ -1,5 +1,5 @@
-import { useEffect, useReducer } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useEffect, useReducer, useState } from "react";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { MapPin, Star, Clock, ShieldCheck, Wallet, FileText, RefreshCcw, CheckCircle2, AlertTriangle, MessageSquare, ArrowLeft } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -9,6 +9,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { GearListing, ProtectionChoice } from "@/lib/gear";
 import { useListing, DatabaseListing } from "@/hooks/useListing";
+import { useAuth } from "@/hooks/useAuth";
+import { DateRangePicker } from "@/components/DatePicker";
+import { differenceInDays } from "date-fns";
 const currencyFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
   currency: "USD",
@@ -33,6 +36,8 @@ interface BookingState {
   claimStatus: ClaimStatus;
   reviewSubmitted: boolean;
   history: string[];
+  startDate?: Date;
+  endDate?: Date;
 }
 type BookingAction = {
   type: "START_BOOKING";
@@ -63,6 +68,12 @@ type BookingAction = {
 } | {
   type: "RESET";
   title: string;
+} | {
+  type: "SET_DATES";
+  startDate?: Date;
+  endDate?: Date;
+} | {
+  type: "REQUIRE_AUTH";
 };
 const createInitialState = (title: string): BookingState => ({
   stage: "details",
@@ -71,7 +82,9 @@ const createInitialState = (title: string): BookingState => ({
   depositReturned: false,
   claimStatus: "none",
   reviewSubmitted: false,
-  history: [`Reviewing ${title} before booking.`]
+  history: [`Reviewing ${title} before booking.`],
+  startDate: undefined,
+  endDate: undefined
 });
 const stageRank: Record<Stage, number> = {
   details: 0,
@@ -226,6 +239,24 @@ const bookingReducer = (state: BookingState, action: BookingAction): BookingStat
     case "RESET":
       {
         return createInitialState(action.title);
+      }
+    case "SET_DATES":
+      {
+        return {
+          ...state,
+          startDate: action.startDate,
+          endDate: action.endDate,
+          history: action.startDate && action.endDate 
+            ? [...state.history, `Dates selected: ${action.startDate.toLocaleDateString()} - ${action.endDate.toLocaleDateString()}`]
+            : state.history
+        };
+      }
+    case "REQUIRE_AUTH":
+      {
+        return {
+          ...state,
+          history: [...state.history, "Sign in required to complete booking."]
+        };
       }
     default:
       return state;
@@ -416,6 +447,8 @@ const mapDatabaseToGearListing = (dbListing: DatabaseListing): GearListing => {
 
 const ListingDetails = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const { data: dbListing, isLoading, error } = useListing(id ?? "");
   
   const listing = dbListing ? mapDatabaseToGearListing(dbListing) : null;
@@ -477,22 +510,145 @@ const ListingDetails = () => {
   const depositAmount = formatCurrency(listing.protection.depositAmount);
   const insurancePrice = formatCurrency(listing.protection.insuranceDailyPrice);
   const requiresProtection = listing.protection.requiresProtection;
+
+  // Calculate quote
+  const calculateQuote = () => {
+    if (!bookingState.startDate || !bookingState.endDate) return null;
+    
+    const days = differenceInDays(bookingState.endDate, bookingState.startDate);
+    if (days <= 0) return null;
+    
+    const subtotal = days * listing.price;
+    const serviceFee = Math.round(subtotal * 0.1); // 10% service fee
+    const taxes = Math.round(subtotal * 0.08); // 8% taxes
+    const insurance = bookingState.protectionChoice === "insurance" && listing.protection.insuranceDailyPrice 
+      ? days * listing.protection.insuranceDailyPrice 
+      : 0;
+    const total = subtotal + serviceFee + taxes + insurance;
+    
+    return {
+      days,
+      subtotal,
+      serviceFee,
+      taxes,
+      insurance,
+      total,
+      deposit: listing.protection.depositAmount || 0
+    };
+  };
+
+  const quote = calculateQuote();
+
+  const handleBookingStart = () => {
+    if (!user) {
+      // Store booking state in sessionStorage before redirecting
+      sessionStorage.setItem('pendingBooking', JSON.stringify({
+        listingId: id,
+        startDate: bookingState.startDate,
+        endDate: bookingState.endDate,
+        protectionChoice: bookingState.protectionChoice
+      }));
+      dispatch({ type: "REQUIRE_AUTH" });
+      navigate('/signin');
+      return;
+    }
+    
+    dispatch({
+      type: "START_BOOKING",
+      requiresProtection
+    });
+  };
+
+  // Check for pending booking after auth
+  useEffect(() => {
+    if (user && sessionStorage.getItem('pendingBooking')) {
+      const pending = JSON.parse(sessionStorage.getItem('pendingBooking') || '{}');
+      if (pending.listingId === id) {
+        dispatch({ type: "SET_DATES", startDate: new Date(pending.startDate), endDate: new Date(pending.endDate) });
+        if (pending.protectionChoice) {
+          // Resume booking flow
+          dispatch({ type: "START_BOOKING", requiresProtection });
+        }
+        sessionStorage.removeItem('pendingBooking');
+      }
+    }
+  }, [user, id, requiresProtection]);
   const renderActionCard = () => {
     switch (bookingState.stage) {
       case "details":
         return <div className="space-y-4">
+            <div className="space-y-3">
+              <div className="text-sm font-medium">Select your dates</div>
+              <DateRangePicker
+                startDate={bookingState.startDate}
+                endDate={bookingState.endDate}
+                onStartDateSelect={(date) => dispatch({ type: "SET_DATES", startDate: date, endDate: bookingState.endDate })}
+                onEndDateSelect={(date) => dispatch({ type: "SET_DATES", startDate: bookingState.startDate, endDate: date })}
+                placeholder="Choose rental dates"
+                disabled={(date) => date < new Date()}
+              />
+            </div>
+            
+            {quote && (
+              <Card className="border-primary/20 bg-primary/5">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg">Your Quote</CardTitle>
+                  <CardDescription>{quote.days} day{quote.days !== 1 ? 's' : ''} rental</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span>{formatCurrency(listing.price)} × {quote.days} day{quote.days !== 1 ? 's' : ''}</span>
+                    <span>{formatCurrency(quote.subtotal)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Service fee</span>
+                    <span>{formatCurrency(quote.serviceFee)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Taxes</span>
+                    <span>{formatCurrency(quote.taxes)}</span>
+                  </div>
+                  {quote.insurance > 0 && (
+                    <div className="flex justify-between">
+                      <span>Insurance</span>
+                      <span>{formatCurrency(quote.insurance)}</span>
+                    </div>
+                  )}
+                  <Separator />
+                  <div className="flex justify-between font-medium">
+                    <span>Total</span>
+                    <span>{formatCurrency(quote.total)}</span>
+                  </div>
+                  {quote.deposit > 0 && (
+                    <div className="text-xs text-muted-foreground">
+                      Plus {formatCurrency(quote.deposit)} refundable deposit
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+            
             <p className="text-sm text-muted-foreground">
-              {requiresProtection ? "A refundable deposit or insurance is required before pickup." : listing.protection.insuranceDailyPrice ? "Insurance is optional for this listing—book instantly when you're ready." : "Book instantly with no additional protection requirements."}
+              {!user ? "Get an instant quote above, then sign in to book." : 
+               requiresProtection ? "A refundable deposit or insurance is required before pickup." : 
+               listing.protection.insuranceDailyPrice ? "Insurance is optional for this listing—book instantly when you're ready." : 
+               "Book instantly with no additional protection requirements."}
             </p>
-            <Button variant="action" className="w-full" onClick={() => dispatch({
-            type: "START_BOOKING",
-            requiresProtection
-          })}>
-              Book {listing.title}
+            
+            <Button 
+              variant="action" 
+              className="w-full" 
+              onClick={handleBookingStart}
+              disabled={!bookingState.startDate || !bookingState.endDate}
+            >
+              {!user ? "Get Quote & Sign In to Book" : `Book ${listing.title}`}
             </Button>
-            <Button asChild variant="outline" className="w-full">
-              <Link to="/signin">Sign in to save trip details</Link>
-            </Button>
+            
+            {!user && (
+              <Button asChild variant="outline" className="w-full">
+                <Link to="/signin">Sign in to save trip details</Link>
+              </Button>
+            )}
           </div>;
       case "payment":
         return <div className="space-y-4">
