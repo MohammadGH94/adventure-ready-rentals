@@ -9,6 +9,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { DateRange } from "react-day-picker";
 
 interface DatePickerProps {
   date?: Date;
@@ -90,6 +91,31 @@ export function DateRangePicker({
     return placeholder;
   };
 
+  const handleRangeSelect = (range: DateRange | undefined) => {
+    if (range?.from) {
+      onStartDateSelect?.(range.from);
+    } else {
+      onStartDateSelect?.(undefined);
+    }
+    
+    if (range?.to) {
+      onEndDateSelect?.(range.to);
+      setIsOpen(false); // Close when both dates are selected
+    } else {
+      onEndDateSelect?.(undefined);
+    }
+  };
+
+  const dateRange: DateRange | undefined = React.useMemo(() => {
+    if (startDate || endDate) {
+      return {
+        from: startDate,
+        to: endDate,
+      };
+    }
+    return undefined;
+  }, [startDate, endDate]);
+
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
@@ -108,42 +134,14 @@ export function DateRangePicker({
         </div>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
-        <div className="p-3 space-y-3">
-          <div className="text-sm font-medium">Start Date</div>
-          <Calendar
-            mode="single"
-            selected={startDate}
-            onSelect={(date) => {
-              onStartDateSelect?.(date);
-              if (date && endDate && date > endDate) {
-                onEndDateSelect?.(undefined);
-              }
-            }}
-            disabled={disabled}
-            className="pointer-events-auto"
-          />
-          
-          {startDate && (
-            <>
-              <div className="text-sm font-medium">End Date</div>
-              <Calendar
-                mode="single"
-                selected={endDate}
-                onSelect={(date) => {
-                  onEndDateSelect?.(date);
-                  if (date) {
-                    setIsOpen(false);
-                  }
-                }}
-                disabled={(date) => {
-                  if (disabled?.(date)) return true;
-                  return startDate ? date < startDate : false;
-                }}
-                className="pointer-events-auto"
-              />
-            </>
-          )}
-        </div>
+        <Calendar
+          mode="range"
+          selected={dateRange}
+          onSelect={handleRangeSelect}
+          disabled={disabled}
+          initialFocus
+          className="p-3 pointer-events-auto"
+        />
       </PopoverContent>
     </Popover>
   );
