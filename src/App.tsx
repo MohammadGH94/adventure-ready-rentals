@@ -16,7 +16,7 @@ import ListingDetails from "./pages/ListingDetails";
 import Dashboard from "./pages/Dashboard";
 import MyListings from "./pages/MyListings";
 import ListingBookings from "./pages/ListingBookings";
-import MyRentals from "./pages/MyRentals";
+import MyAdventures from "./pages/MyAdventures";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -59,7 +59,7 @@ const App = () => (
             } />
             <Route path="/my-rentals" element={
               <ProtectedRoute>
-                <MyRentals />
+                <MyAdventures />
               </ProtectedRoute>
             } />
             <Route path="/architecture" element={<Architecture />} />
