@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useState } from "react";
+import { useEffect, useReducer, useState, useMemo, useCallback } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { MapPin, Star, Clock, ShieldCheck, Wallet, FileText, RefreshCcw, CheckCircle2, AlertTriangle, MessageSquare, ArrowLeft } from "lucide-react";
 import Header from "@/components/Header";
@@ -457,6 +457,26 @@ const ListingDetails = () => {
   console.log("ListingDetails render:", { id, user: user?.id, authLoading, isLoading, error });
   
   const listing = dbListing ? mapDatabaseToGearListing(dbListing) : null;
+
+  // Cache current date to avoid creating new objects on every render
+  const today = useMemo(() => new Date(), []);
+
+  // Memoize the disabled function to prevent flickering
+  const isDateDisabled = useCallback((date: Date) => {
+    // Always disable past dates
+    if (date < today) return true;
+    
+    // If availability data is still loading, don't disable any future dates
+    if (availabilityLoading || !availabilityData) return false;
+    
+    // Check if date is available based on listing constraints
+    return !isDateAvailable(
+      date,
+      availabilityData.unavailable_dates,
+      availabilityData.block_out_times,
+      availabilityData.existing_bookings
+    );
+  }, [today, availabilityLoading, availabilityData]);
   const [bookingState, dispatch] = useReducer(bookingReducer, listing?.title ?? "this gear", createInitialState);
   
   // State for preventing multiple rapid clicks
@@ -677,22 +697,7 @@ const ListingDetails = () => {
                 onStartDateSelect={(date) => dispatch({ type: "SET_DATES", startDate: date, endDate: bookingState.endDate })}
                 onEndDateSelect={(date) => dispatch({ type: "SET_DATES", startDate: bookingState.startDate, endDate: date })}
                 placeholder="Choose rental dates"
-                disabled={(date) => {
-                  // Disable past dates
-                  if (date < new Date()) return true;
-                  
-                  // Disable dates based on availability data if loaded
-                  if (availabilityData) {
-                    return !isDateAvailable(
-                      date,
-                      availabilityData.unavailable_dates,
-                      availabilityData.block_out_times,
-                      availabilityData.existing_bookings
-                    );
-                  }
-                  
-                  return false;
-                }}
+                disabled={isDateDisabled}
               />
             </div>
             
