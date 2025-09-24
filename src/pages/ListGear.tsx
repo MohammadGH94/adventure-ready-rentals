@@ -1,12 +1,21 @@
-import { useEffect, useMemo, useState, type ChangeEvent } from "react";
-import { Camera, DollarSign, MapPin, Shield, Users } from "lucide-react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DateRangePicker } from "@/components/DatePicker";
+import React, { useState } from 'react';
+import { DateRange } from 'react-day-picker';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { DateRangePicker } from '@/components/DatePicker';
+import { PhotoUpload } from '@/components/PhotoUpload';
+import { useFileUpload } from '@/hooks/useFileUpload';
+import { useListingForm } from '@/hooks/useListingForm';
+import { useAuth } from '@/hooks/useAuth';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import { MapPin, DollarSign, Star, Upload, CheckCircle, Shield, Users, Building2 } from 'lucide-react';
 
 const earnings = [
   { gear: "Climbing Rope Set", monthly: "$450" },
@@ -16,21 +25,65 @@ const earnings = [
 ];
 
 const ListGear = () => {
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [startDate, setStartDate] = useState<Date>();
-  const [endDate, setEndDate] = useState<Date>();
+  const { user } = useAuth();
+  const { files, uploading, addFiles, removeFile, uploadFiles, clearFiles } = useFileUpload();
+  const { form, createListing } = useListingForm();
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [availability, setAvailability] = useState<DateRange | undefined>();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const previewUrls = useMemo(() => selectedFiles.map((file) => ({ file, url: URL.createObjectURL(file) })), [selectedFiles]);
+  const categories = [
+    'camping', 'water_sports', 'climbing', 'vehicles', 'winter_sports', 'hiking', 'cycling'
+  ];
 
-  useEffect(() => {
-    return () => {
-      previewUrls.forEach((preview) => URL.revokeObjectURL(preview.url));
-    };
-  }, [previewUrls]);
+  const isBusinessUser = user?.user_metadata?.user_type === 'business';
 
-  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files ? Array.from(event.target.files) : [];
-    setSelectedFiles(files);
+  const handleCategoryToggle = (category: string) => {
+    const currentCategories = form.getValues('categories') || [];
+    const updatedCategories = currentCategories.includes(category as any)
+      ? currentCategories.filter(c => c !== category)
+      : [...currentCategories, category as any];
+    
+    form.setValue('categories', updatedCategories);
+    setSelectedCategories(updatedCategories);
+  };
+
+  const onSubmit = async (data: any) => {
+    if (!user) {
+      alert('Please sign in to create a listing');
+      return;
+    }
+
+    if (files.length === 0) {
+      alert('Please add at least one photo');
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      // Upload photos first
+      const photoPaths = await uploadFiles(user.id);
+      
+      if (photoPaths.length === 0) {
+        alert('Failed to upload photos');
+        return;
+      }
+
+      // Create the listing
+      await createListing(data, photoPaths);
+      
+      // Clear form and files
+      form.reset();
+      clearFiles();
+      setSelectedCategories([]);
+      setAvailability(undefined);
+      
+    } catch (error) {
+      console.error('Error creating listing:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -105,154 +158,259 @@ const ListGear = () => {
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <Card>
               <CardHeader>
-                <CardTitle className="text-2xl">List Your Gear</CardTitle>
+                <div className="flex items-center gap-3">
+                  <CardTitle className="text-2xl">List Your Gear</CardTitle>
+                  {isBusinessUser && (
+                    <Badge variant="secondary" className="flex items-center gap-1">
+                      <Building2 className="h-3 w-3" />
+                      Business Account
+                    </Badge>
+                  )}
+                </div>
                 <p className="text-muted-foreground">
                   Fill out the details below to start earning from your adventure gear
                 </p>
               </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Basic Info */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">
-                      Gear Title *
-                    </label>
-                    <Input placeholder="e.g., Professional Climbing Rope Set" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">
-                      Category *
-                    </label>
-                    <select className="w-full h-11 px-3 rounded-xl border border-border bg-background">
-                      <option>Select category</option>
-                      <option>Climbing & Mountaineering</option>
-                      <option>Camping & Hiking</option>
-                      <option>Water Sports</option>
-                      <option>Winter Sports</option>
-                      <option>Other</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Description *
-                  </label>
-                  <Textarea 
-                    placeholder="Describe your gear, its condition, what's included, and any special features..."
-                    rows={4}
-                  />
-                </div>
-
-                {/* Pricing */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">
-                      Daily Rate *
-                    </label>
-                    <div className="relative">
-                      <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                      <Input placeholder="45" className="pl-10" />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">
-                      Weekly Rate (optional)
-                    </label>
-                    <div className="relative">
-                      <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                      <Input placeholder="250" className="pl-10" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Location */}
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Location *
-                  </label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                    <Input placeholder="City, State" className="pl-10" />
-                  </div>
-                </div>
-
-                {/* Photos */}
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Photos *
-                  </label>
-                  <div className="border-2 border-dashed border-border rounded-xl p-8 text-center">
-                    <Camera className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <div className="text-foreground font-medium mb-2">
-                      Upload photos of your gear
-                    </div>
-                    <div className="text-sm text-muted-foreground mb-4">
-                      Add at least 3 high-quality photos showing different angles
-                    </div>
-                    <input
-                      id="gear-photos"
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      className="sr-only"
-                      onChange={handleFileChange}
+              <CardContent>
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                    <FormField
+                      control={form.control}
+                      name="title"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Title *</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="e.g., Professional Camping Tent for 4 People" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
-                    <Button variant="outline" asChild>
-                      <label htmlFor="gear-photos" className="cursor-pointer">
-                        Choose Files
-                      </label>
-                    </Button>
-                    {selectedFiles.length > 0 && (
-                      <div className="mt-6 text-left">
-                        <p className="text-sm font-medium text-foreground">
-                          {selectedFiles.length} file{selectedFiles.length === 1 ? "" : "s"} selected
-                        </p>
-                        <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                          {previewUrls.map(({ file, url }) => (
-                            <div
-                              key={`${file.name}-${file.lastModified}`}
-                              className="flex items-center gap-3 rounded-lg border border-border bg-background/60 p-3"
-                            >
-                              <img
-                                src={url}
-                                alt={file.name}
-                                className="h-14 w-14 flex-none rounded-md object-cover"
+
+                    <div>
+                      <Label className="text-sm font-medium">Categories *</Label>
+                      <p className="text-sm text-muted-foreground mb-3">Select all categories that apply</p>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        {categories.map((category) => (
+                          <div
+                            key={category}
+                            className={`border rounded-lg p-3 cursor-pointer transition-colors ${
+                              selectedCategories.includes(category)
+                                ? 'border-primary bg-primary/5'
+                                : 'border-muted hover:border-primary/50'
+                            }`}
+                            onClick={() => handleCategoryToggle(category)}
+                          >
+                            <div className="flex items-center space-x-2">
+                              <Checkbox
+                                checked={selectedCategories.includes(category)}
+                                onChange={() => handleCategoryToggle(category)}
                               />
-                              <div>
-                                <p className="text-sm font-medium text-foreground truncate" title={file.name}>
-                                  {file.name}
-                                </p>
-                                <p className="text-xs text-muted-foreground">
-                                  {(file.size / 1024 / 1024).toFixed(2)} MB
+                              <Label className="capitalize cursor-pointer">
+                                {category.replace('_', ' ')}
+                              </Label>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      {form.formState.errors.categories && (
+                        <p className="text-sm text-destructive mt-2">
+                          {form.formState.errors.categories.message}
+                        </p>
+                      )}
+                    </div>
+
+                    <FormField
+                      control={form.control}
+                      name="description"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Description *</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              {...field} 
+                              placeholder="Describe your gear, its condition, what's included..."
+                              className="h-24"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="price_per_day"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Daily Rate *</FormLabel>
+                            <FormControl>
+                              <div className="relative">
+                                <DollarSign className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                                <Input 
+                                  {...field} 
+                                  type="number" 
+                                  placeholder="25" 
+                                  className="pl-10"
+                                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                />
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name="location_address"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Location *</FormLabel>
+                            <FormControl>
+                              <div className="relative">
+                                <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                                <Input 
+                                  {...field} 
+                                  placeholder="City, State" 
+                                  className="pl-10"
+                                />
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    {isBusinessUser && (
+                      <div className="space-y-4 p-4 bg-muted/50 rounded-lg">
+                        <h3 className="font-medium">Business Features</h3>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
+                            name="inventory_count"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Inventory Count</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    {...field} 
+                                    type="number" 
+                                    placeholder="1"
+                                    onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="min_rental_days"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Minimum Rental Days</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    {...field} 
+                                    type="number" 
+                                    placeholder="1"
+                                    onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        <FormField
+                          control={form.control}
+                          name="delivery_available"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                />
+                              </FormControl>
+                              <div className="space-y-1 leading-none">
+                                <FormLabel>Delivery Available</FormLabel>
+                                <p className="text-sm text-muted-foreground">
+                                  Offer delivery service for this item
                                 </p>
                               </div>
-                            </div>
-                          ))}
-                        </div>
+                            </FormItem>
+                          )}
+                        />
                       </div>
                     )}
-                  </div>
-                </div>
 
-                {/* Availability */}
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Availability
-                  </label>
-                  <DateRangePicker
-                    startDate={startDate}
-                    endDate={endDate}
-                    onStartDateSelect={setStartDate}
-                    onEndDateSelect={setEndDate}
-                    placeholder="Select available dates"
-                    disabled={(date) => date < new Date()}
-                  />
-                </div>
+                    <div>
+                      <Label className="text-base font-medium">Photos *</Label>
+                      <p className="text-sm text-muted-foreground mb-4">Add photos of your gear (up to 10 photos)</p>
+                      <PhotoUpload
+                        files={files}
+                        onAddFiles={addFiles}
+                        onRemoveFile={removeFile}
+                        uploading={uploading}
+                      />
+                    </div>
 
-                <Button variant="action" size="lg" className="w-full">
-                  List My Gear
-                </Button>
+                    <FormField
+                      control={form.control}
+                      name="pickup_instructions"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Pickup Instructions</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              {...field} 
+                              placeholder="Provide instructions for pickup location, times, etc."
+                              className="h-20"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <div>
+                      <Label className="text-base font-medium">Availability</Label>
+                      <p className="text-sm text-muted-foreground mb-4">When is your gear available for rent?</p>
+                      <DateRangePicker 
+                        startDate={availability?.from}
+                        endDate={availability?.to}
+                        onStartDateSelect={(date) => setAvailability(prev => ({ ...prev, from: date }))}
+                        onEndDateSelect={(date) => setAvailability(prev => ({ ...prev, to: date }))}
+                      />
+                    </div>
+
+                    <div className="flex justify-end space-x-4">
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        className="px-8"
+                        disabled={isSubmitting}
+                      >
+                        Save as Draft
+                      </Button>
+                      <Button 
+                        type="submit" 
+                        className="px-8"
+                        disabled={isSubmitting || uploading}
+                      >
+                        {isSubmitting ? 'Creating...' : 'Publish Listing'}
+                      </Button>
+                    </div>
+                  </form>
+                </Form>
               </CardContent>
             </Card>
           </div>
