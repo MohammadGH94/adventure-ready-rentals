@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { GearListing, ProtectionChoice } from "@/lib/gear";
 import { useListing, DatabaseListing } from "@/hooks/useListing";
 import { useAuth } from "@/hooks/useAuth";
@@ -460,6 +461,7 @@ const mapDatabaseToGearListing = (dbListing: DatabaseListing): GearListing => {
   };
 };
 const ListingDetails = () => {
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
   const {
     id
   } = useParams<{
@@ -994,12 +996,72 @@ const ListingDetails = () => {
                   <div className="relative overflow-hidden rounded-2xl">
                     <img src={listing.photos?.[2] || listing.photos?.[1] || listing.image} alt={listing.title} className="h-[196px] w-full object-cover" />
                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                      <Button variant="secondary" size="sm" className="gap-2">
-                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        View photos
-                      </Button>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="secondary" size="sm" className="gap-2">
+                            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            {listing.photos && listing.photos.length > 3 ? `+${listing.photos.length - 3} more` : 'View photos'}
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-4xl max-h-[90vh] p-0">
+                          <div className="relative">
+                            <div className="flex items-center justify-between p-4 border-b">
+                              <h2 className="text-lg font-semibold">{listing.title} Photos</h2>
+                              {listing.photos && (
+                                <span className="text-sm text-muted-foreground">
+                                  {selectedPhotoIndex + 1} of {listing.photos.length}
+                                </span>
+                              )}
+                            </div>
+                            <div className="relative">
+                              <img 
+                                src={listing.photos?.[selectedPhotoIndex] || listing.image} 
+                                alt={`${listing.title} - Photo ${selectedPhotoIndex + 1}`}
+                                className="w-full h-[60vh] object-cover"
+                              />
+                              {listing.photos && listing.photos.length > 1 && (
+                                <>
+                                  <button
+                                    onClick={() => setSelectedPhotoIndex(prev => prev > 0 ? prev - 1 : listing.photos!.length - 1)}
+                                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors"
+                                  >
+                                    <ArrowLeft className="h-5 w-5" />
+                                  </button>
+                                  <button
+                                    onClick={() => setSelectedPhotoIndex(prev => prev < listing.photos!.length - 1 ? prev + 1 : 0)}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors"
+                                  >
+                                    <ArrowLeft className="h-5 w-5 rotate-180" />
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                            {listing.photos && listing.photos.length > 1 && (
+                              <div className="p-4 border-t">
+                                <div className="flex gap-2 overflow-x-auto">
+                                  {listing.photos.map((photo, index) => (
+                                    <button
+                                      key={index}
+                                      onClick={() => setSelectedPhotoIndex(index)}
+                                      className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors ${
+                                        selectedPhotoIndex === index ? 'border-primary' : 'border-transparent'
+                                      }`}
+                                    >
+                                      <img 
+                                        src={photo} 
+                                        alt={`${listing.title} thumbnail ${index + 1}`}
+                                        className="w-full h-full object-cover"
+                                      />
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </DialogContent>
+                      </Dialog>
                     </div>
                   </div>
                 </div>
