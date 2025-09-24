@@ -859,58 +859,147 @@ const ListingDetails = () => {
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Renter journey status</CardTitle>
-                  <CardDescription>
-                    Track every step from confirmation through deposit release and reviews.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-4">
-                    {steps.map((step) => (
-                      <li
-                        key={step.id}
-                        className="rounded-xl border border-border p-4"
-                      >
-                        <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
-                          <div>
-                            <p className="font-semibold text-foreground">{step.title}</p>
-                            <p className="text-sm text-muted-foreground">{step.description}</p>
-                          </div>
-                          <Badge
-                            variant={
-                              step.status === "complete"
-                                ? "secondary"
-                                : step.status === "current"
-                                ? "default"
-                                : step.status === "cancelled"
-                                ? "destructive"
-                                : "outline"
-                            }
-                            className="self-start"
-                          >
-                            {step.status === "complete"
-                              ? "Complete"
-                              : step.status === "current"
-                              ? "In progress"
-                              : step.status === "cancelled"
-                              ? "Cancelled"
-                              : "Up next"}
-                          </Badge>
+{/* Show different content based on booking stage */}
+              {bookingState.stage === "details" ? (
+                // Simple "How it works" for browsing users
+                <Card>
+                  <CardHeader>
+                    <CardTitle>How renting works</CardTitle>
+                    <CardDescription>
+                      Three simple steps to your next outdoor adventure
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-3">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-semibold">
+                          1
                         </div>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
+                        <div>
+                          <p className="font-medium text-foreground">Book your adventure</p>
+                          <p className="text-sm text-muted-foreground">
+                            Choose your dates, add protection if needed, and confirm your trip
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-semibold">
+                          2
+                        </div>
+                        <div>
+                          <p className="font-medium text-foreground">Pick up & explore</p>
+                          <p className="text-sm text-muted-foreground">
+                            Meet your host, get the gear, and head out on your adventure
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-semibold">
+                          3
+                        </div>
+                        <div>
+                          <p className="font-medium text-foreground">Return & review</p>
+                          <p className="text-sm text-muted-foreground">
+                            Bring the gear back clean, take a quick photo, and share your experience
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-6 rounded-xl bg-primary/5 border border-primary/20 p-4">
+                        <div className="flex items-start gap-3">
+                          <ShieldCheck className="h-5 w-5 text-primary mt-0.5" />
+                          <div className="text-sm">
+                            <p className="font-medium text-foreground">You're protected</p>
+                            <p className="text-muted-foreground">
+                              Every rental includes community trust, host verification, and optional protection coverage
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                // Progressive journey tracking for active bookings
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Your trip progress</CardTitle>
+                    <CardDescription>
+                      {bookingState.stage === "cancelled" 
+                        ? "Your booking was cancelled - here's what happened"
+                        : "Track your adventure from booking to return"
+                      }
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="space-y-4">
+                      {steps
+                        .filter((step) => {
+                          // Show only relevant steps based on current stage
+                          if (bookingState.stage === "cancelled") {
+                            return ["details", "protection", "confirmation", "browse"].includes(step.id);
+                          }
+                          if (bookingState.stage === "completed") {
+                            return true; // Show all steps when completed
+                          }
+                          
+                          // For active bookings, show current step + 1-2 upcoming steps
+                          const currentRank = stepRank[step.id];
+                          const stageStepRank = stepRank[bookingState.stage as keyof typeof stepRank] || 0;
+                          
+                          return currentRank <= stageStepRank + 2;
+                        })
+                        .map((step) => (
+                        <li
+                          key={step.id}
+                          className="rounded-xl border border-border p-4"
+                        >
+                          <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                            <div>
+                              <p className="font-semibold text-foreground">{step.title}</p>
+                              <p className="text-sm text-muted-foreground">{step.description}</p>
+                            </div>
+                            <Badge
+                              variant={
+                                step.status === "complete"
+                                  ? "secondary"
+                                  : step.status === "current"
+                                  ? "default"
+                                  : step.status === "cancelled"
+                                  ? "destructive"
+                                  : "outline"
+                              }
+                              className="self-start"
+                            >
+                              {step.status === "complete"
+                                ? "Done"
+                                : step.status === "current"
+                                ? "Current"
+                                : step.status === "cancelled"
+                                ? "Cancelled"
+                                : "Upcoming"}
+                            </Badge>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              )}
             </div>
 
             <div className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Booking actions</CardTitle>
-                  <CardDescription>Follow the renter journey in the order shown.</CardDescription>
+                  <CardTitle>
+                    {bookingState.stage === "details" ? "Ready to book?" : "Next steps"}
+                  </CardTitle>
+                  <CardDescription>
+                    {bookingState.stage === "details" 
+                      ? "Start your adventure with this gear"
+                      : "Keep your trip moving forward"
+                    }
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>{renderActionCard()}</CardContent>
               </Card>
