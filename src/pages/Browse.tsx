@@ -1,17 +1,20 @@
 import { useState } from "react";
-import { Search, Filter, MapPin, Calendar, Map } from "lucide-react";
+import { Search, Filter, MapPin, Map } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import GearCard from "@/components/GearCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { DateRangePicker } from "@/components/DatePicker";
 import { gearListings } from "@/lib/gear";
 
 const Browse = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [showMap, setShowMap] = useState(false);
+  const [startDate, setStartDate] = useState<Date>();
+  const [endDate, setEndDate] = useState<Date>();
 
   const filteredGear = gearListings.filter(gear => {
     const matchesSearch = gear.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -68,13 +71,15 @@ const Browse = () => {
                 </div>
               </div>
               <div>
-                <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                  <Input
-                    placeholder="Dates"
-                    className="pl-10 h-11"
-                  />
-                </div>
+                <DateRangePicker
+                  startDate={startDate}
+                  endDate={endDate}
+                  onStartDateSelect={setStartDate}
+                  onEndDateSelect={setEndDate}
+                  placeholder="Dates"
+                  className="h-11"
+                  disabled={(date) => date < new Date()}
+                />
               </div>
             </div>
 

@@ -1,10 +1,15 @@
-import { Search, MapPin, Calendar } from "lucide-react";
+import { useState } from "react";
+import { Search, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
+import { DateRangePicker } from "@/components/DatePicker";
 import heroImage from "@/assets/hero-adventure-gear.jpg";
 
 const Hero = () => {
+  const [startDate, setStartDate] = useState<Date>();
+  const [endDate, setEndDate] = useState<Date>();
+
   return (
     <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden">
       {/* Background Image */}
@@ -61,13 +66,15 @@ const Hero = () => {
               <label className="block text-sm font-medium text-foreground mb-2">
                 Dates
               </label>
-              <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  placeholder="Select dates"
-                  className="pl-10 h-12"
-                />
-              </div>
+              <DateRangePicker
+                startDate={startDate}
+                endDate={endDate}
+                onStartDateSelect={setStartDate}
+                onEndDateSelect={setEndDate}
+                placeholder="Select dates"
+                className="h-12"
+                disabled={(date) => date < new Date()}
+              />
             </div>
             
             <div className="md:col-span-1 flex items-end">
