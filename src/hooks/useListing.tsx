@@ -47,12 +47,16 @@ export const useListing = (id: string) => {
           delivery_fee
         `)
         .eq("id", id)
+        .eq("is_available", true)
         .maybeSingle();
 
       if (error) {
         console.error("Error fetching listing:", error);
         throw error;
       }
+
+      console.log(`Querying listing with ID: ${id}`);
+      console.log(`Found listing data:`, data);
 
       return data as DatabaseListing | null;
     },
