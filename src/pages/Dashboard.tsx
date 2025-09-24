@@ -215,17 +215,17 @@ const Dashboard = () => {
               </CardContent>
             </Card>
 
-            <Card className="cursor-pointer hover:shadow-lg transition-shadow"
+                <Card className="cursor-pointer hover:shadow-lg transition-shadow"
                   onClick={() => navigate('/my-rentals')}>
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Calendar className="h-5 w-5 mr-2" />
-                  Rental History
+                  My Adventures
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  Track your bookings, both as a renter and gear owner.
+                  View your outdoor adventures and gear sharing experiences.
                 </p>
               </CardContent>
             </Card>

@@ -46,15 +46,18 @@ interface Listing {
   photos: string[];
 }
 
-const statusColors = {
-  'pending_approval': 'bg-yellow-100 text-yellow-800',
-  'confirmed': 'bg-blue-100 text-blue-800',
-  'picked_up': 'bg-green-100 text-green-800',
-  'completed': 'bg-emerald-100 text-emerald-800',
-  'cancelled_by_owner': 'bg-red-100 text-red-800',
-  'cancelled_by_renter': 'bg-red-100 text-red-800',
-  'disputed': 'bg-orange-100 text-orange-800',
-  'active': 'bg-green-100 text-green-800'
+const getStatusDisplay = (status: string) => {
+  const statusMap = {
+    'pending_approval': { label: 'New Request', color: 'bg-yellow-100 text-yellow-800' },
+    'confirmed': { label: 'Adventure Approved', color: 'bg-blue-100 text-blue-800' },
+    'picked_up': { label: 'Gear Out Exploring', color: 'bg-green-100 text-green-800' },
+    'active': { label: 'Gear Out Exploring', color: 'bg-green-100 text-green-800' },
+    'completed': { label: 'Adventure Complete', color: 'bg-emerald-100 text-emerald-800' },
+    'cancelled_by_owner': { label: 'Cancelled', color: 'bg-red-100 text-red-800' },
+    'cancelled_by_renter': { label: 'Cancelled', color: 'bg-red-100 text-red-800' },
+    'disputed': { label: 'Help Needed', color: 'bg-orange-100 text-orange-800' }
+  };
+  return statusMap[status as keyof typeof statusMap] || { label: status, color: 'bg-gray-100 text-gray-800' };
 };
 
 const ListingBookings = () => {
@@ -307,10 +310,10 @@ const ListingBookings = () => {
               Back to Listings
             </Button>
             <h1 className="text-3xl font-bold text-foreground">
-              Bookings for {listing?.title}
+              Adventures with {listing?.title}
             </h1>
             <p className="text-muted-foreground mt-2">
-              Manage booking requests and track rental progress
+              Connect with fellow adventurers and help them explore
             </p>
           </div>
 
@@ -319,9 +322,9 @@ const ListingBookings = () => {
             <Card className="text-center py-12">
               <CardContent>
                 <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No bookings yet</h3>
+                <h3 className="text-lg font-semibold mb-2">Ready for your first adventurer!</h3>
                 <p className="text-muted-foreground">
-                  Bookings will appear here once renters request your gear
+                  Adventure requests will appear here once people discover your gear
                 </p>
               </CardContent>
             </Card>
@@ -342,8 +345,8 @@ const ListingBookings = () => {
                           </p>
                         </div>
                       </div>
-                      <Badge className={statusColors[booking.status as keyof typeof statusColors]}>
-                        {booking.status.replace('_', ' ').toUpperCase()}
+                      <Badge className={getStatusDisplay(booking.status).color}>
+                        {getStatusDisplay(booking.status).label}
                       </Badge>
                     </div>
                   </CardHeader>
@@ -351,13 +354,13 @@ const ListingBookings = () => {
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                       <div>
-                        <span className="text-muted-foreground">Rental Period:</span>
+                        <span className="text-muted-foreground">Adventure Dates:</span>
                         <p className="font-medium">
                           {formatDate(booking.rental_start_date)} - {formatDate(booking.rental_end_date)}
                         </p>
                       </div>
                       <div>
-                        <span className="text-muted-foreground">Total Amount:</span>
+                        <span className="text-muted-foreground">Your Earnings:</span>
                         <p className="font-medium">${booking.total_price.toFixed(2)}</p>
                       </div>
                       <div>
@@ -375,7 +378,7 @@ const ListingBookings = () => {
                             className="flex items-center"
                           >
                             <Check className="h-4 w-4 mr-2" />
-                            Accept
+                            Approve Adventure
                           </Button>
                           <Button 
                             variant="destructive"
@@ -383,7 +386,7 @@ const ListingBookings = () => {
                             className="flex items-center"
                           >
                             <X className="h-4 w-4 mr-2" />
-                            Reject
+                            Decline
                           </Button>
                         </>
                       )}
@@ -394,21 +397,21 @@ const ListingBookings = () => {
                             <DialogTrigger asChild>
                               <Button className="flex items-center">
                                 <Check className="h-4 w-4 mr-2" />
-                                Confirm Pickup
+                                Meet & Handoff
                               </Button>
                             </DialogTrigger>
                             <DialogContent>
                               <DialogHeader>
-                                <DialogTitle>Confirm Pickup</DialogTitle>
+                                <DialogTitle>Adventure Handoff</DialogTitle>
                               </DialogHeader>
                               <div className="space-y-4">
                                 <div>
                                   <label className="block text-sm font-medium mb-2">
-                                    Enter Renter's PIN
+                                    Confirm meetup with adventurer
                                   </label>
                                   <Input
                                     type="text"
-                                    placeholder="4-digit PIN"
+                                    placeholder="Enter confirmation code"
                                     maxLength={4}
                                     value={pickupPin}
                                     onChange={(e) => setPickupPin(e.target.value)}
@@ -418,7 +421,7 @@ const ListingBookings = () => {
                                   onClick={() => handlePickupConfirmation(booking.id)}
                                   className="w-full"
                                 >
-                                  Confirm Pickup
+                                  Confirm Gear Handoff
                                 </Button>
                               </div>
                             </DialogContent>
@@ -427,7 +430,7 @@ const ListingBookings = () => {
                             variant="outline"
                             onClick={() => handleBookingAction(booking.id, 'cancel')}
                           >
-                            Cancel Booking
+                            Cancel Adventure
                           </Button>
                         </>
                       )}
@@ -438,21 +441,21 @@ const ListingBookings = () => {
                             <DialogTrigger asChild>
                               <Button className="flex items-center">
                                 <Check className="h-4 w-4 mr-2" />
-                                Confirm Dropoff
+                                Welcome Back Gear
                               </Button>
                             </DialogTrigger>
                             <DialogContent>
                               <DialogHeader>
-                                <DialogTitle>Confirm Dropoff</DialogTitle>
+                                <DialogTitle>Adventure Complete!</DialogTitle>
                               </DialogHeader>
                               <div className="space-y-4">
                                 <div>
                                   <label className="block text-sm font-medium mb-2">
-                                    Enter Owner's PIN
+                                    Confirm gear return meetup
                                   </label>
                                   <Input
                                     type="text"
-                                    placeholder="4-digit PIN"
+                                    placeholder="Enter confirmation code"
                                     maxLength={4}
                                     value={dropoffPin}
                                     onChange={(e) => setDropoffPin(e.target.value)}
@@ -460,7 +463,7 @@ const ListingBookings = () => {
                                 </div>
                                 <div>
                                   <label className="block text-sm font-medium mb-2">
-                                    Upload Item Condition Photos
+                                    Quick gear condition check (optional)
                                   </label>
                                   <input
                                     type="file"
@@ -474,7 +477,7 @@ const ListingBookings = () => {
                                   onClick={() => handleDropoffConfirmation(booking.id)}
                                   className="w-full"
                                 >
-                                  Confirm Dropoff
+                                  Complete Adventure
                                 </Button>
                               </div>
                             </DialogContent>
@@ -485,7 +488,7 @@ const ListingBookings = () => {
                             className="flex items-center"
                           >
                             <AlertTriangle className="h-4 w-4 mr-2" />
-                            Open Claim
+                            Get Help
                           </Button>
                         </>
                       )}
