@@ -216,7 +216,7 @@ const Dashboard = () => {
             </Card>
 
                 <Card className="cursor-pointer hover:shadow-lg transition-shadow"
-                  onClick={() => navigate('/my-rentals')}>
+                  onClick={() => navigate('/my-adventures')}>
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Calendar className="h-5 w-5 mr-2" />
