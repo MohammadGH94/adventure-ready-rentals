@@ -221,15 +221,28 @@ export type Database = {
       listings: {
         Row: {
           block_out_times: Json | null
+          booking_count: number | null
+          bulk_pricing: Json | null
+          business_license_verified: boolean | null
           categories: Database["public"]["Enums"]["listing_category"][]
           created_at: string | null
+          delivery_available: boolean | null
+          delivery_fee: number | null
+          delivery_radius: number | null
+          deposit_amount: number | null
           description: string | null
           discount_rate_month: number | null
           discount_rate_week: number | null
+          featured: boolean | null
           id: string
+          insurance_required: boolean | null
+          inventory_count: number | null
           is_available: boolean | null
+          listing_status: string | null
           location_lat: number | null
           location_lng: number | null
+          max_rental_days: number | null
+          min_rental_days: number | null
           multiplier: number | null
           owner_id: string
           photos: string[] | null
@@ -240,18 +253,32 @@ export type Database = {
           rules_and_requirements: string | null
           title: string
           updated_at: string | null
+          view_count: number | null
         }
         Insert: {
           block_out_times?: Json | null
+          booking_count?: number | null
+          bulk_pricing?: Json | null
+          business_license_verified?: boolean | null
           categories: Database["public"]["Enums"]["listing_category"][]
           created_at?: string | null
+          delivery_available?: boolean | null
+          delivery_fee?: number | null
+          delivery_radius?: number | null
+          deposit_amount?: number | null
           description?: string | null
           discount_rate_month?: number | null
           discount_rate_week?: number | null
+          featured?: boolean | null
           id?: string
+          insurance_required?: boolean | null
+          inventory_count?: number | null
           is_available?: boolean | null
+          listing_status?: string | null
           location_lat?: number | null
           location_lng?: number | null
+          max_rental_days?: number | null
+          min_rental_days?: number | null
           multiplier?: number | null
           owner_id: string
           photos?: string[] | null
@@ -262,18 +289,32 @@ export type Database = {
           rules_and_requirements?: string | null
           title: string
           updated_at?: string | null
+          view_count?: number | null
         }
         Update: {
           block_out_times?: Json | null
+          booking_count?: number | null
+          bulk_pricing?: Json | null
+          business_license_verified?: boolean | null
           categories?: Database["public"]["Enums"]["listing_category"][]
           created_at?: string | null
+          delivery_available?: boolean | null
+          delivery_fee?: number | null
+          delivery_radius?: number | null
+          deposit_amount?: number | null
           description?: string | null
           discount_rate_month?: number | null
           discount_rate_week?: number | null
+          featured?: boolean | null
           id?: string
+          insurance_required?: boolean | null
+          inventory_count?: number | null
           is_available?: boolean | null
+          listing_status?: string | null
           location_lat?: number | null
           location_lng?: number | null
+          max_rental_days?: number | null
+          min_rental_days?: number | null
           multiplier?: number | null
           owner_id?: string
           photos?: string[] | null
@@ -284,6 +325,7 @@ export type Database = {
           rules_and_requirements?: string | null
           title?: string
           updated_at?: string | null
+          view_count?: number | null
         }
         Relationships: [
           {
