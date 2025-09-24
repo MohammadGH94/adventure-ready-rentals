@@ -38,12 +38,20 @@ const ListGear = () => {
   const isBusinessUser = user?.user_metadata?.user_type === 'business';
 
   const handleCategoryToggle = (category: typeof categories[number]) => {
-    const currentCategories = form.getValues('categories') || [];
-    const updatedCategories = currentCategories.includes(category)
-      ? currentCategories.filter(c => c !== category)
-      : [...currentCategories, category];
-    
-    form.setValue('categories', updatedCategories);
+    try {
+      console.log('Toggling category:', category);
+      const currentCategories = form.getValues('categories') || [];
+      console.log('Current categories:', currentCategories);
+      
+      const updatedCategories = currentCategories.includes(category)
+        ? currentCategories.filter(c => c !== category)
+        : [...currentCategories, category];
+      
+      console.log('Updated categories:', updatedCategories);
+      form.setValue('categories', updatedCategories);
+    } catch (error) {
+      console.error('Error toggling category:', error);
+    }
   };
 
   const onSubmit = async (data: any) => {
@@ -196,19 +204,21 @@ const ListGear = () => {
                             {categories.map((category) => (
                               <div
                                 key={category}
-                                className={`border rounded-lg p-3 cursor-pointer transition-colors ${
+                                className={`border rounded-lg p-3 transition-colors ${
                                   (field.value || []).includes(category)
                                     ? 'border-primary bg-primary/5'
                                     : 'border-muted hover:border-primary/50'
                                 }`}
-                                onClick={() => handleCategoryToggle(category)}
                               >
                                 <div className="flex items-center space-x-2">
                                   <Checkbox
                                     checked={(field.value || []).includes(category)}
                                     onCheckedChange={() => handleCategoryToggle(category)}
                                   />
-                                  <Label className="capitalize cursor-pointer">
+                                  <Label 
+                                    className="capitalize cursor-pointer"
+                                    onClick={() => handleCategoryToggle(category)}
+                                  >
                                     {category.replace('_', ' ')}
                                   </Label>
                                 </div>
