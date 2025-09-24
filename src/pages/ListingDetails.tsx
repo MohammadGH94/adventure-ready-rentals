@@ -420,11 +420,14 @@ const computeJourneySteps = (listing: GearListing, state: BookingState): Journey
   return steps;
 };
 const mapDatabaseToGearListing = (dbListing: DatabaseListing): GearListing => {
+  const photos = dbListing.photos?.map(getStorageImageUrl).filter(Boolean) || [];
+  
   return {
     id: dbListing.id,
     title: dbListing.title,
     description: dbListing.description || "",
-    image: getStorageImageUrl(dbListing.photos?.[0]),
+    image: photos[0] || "/placeholder.svg",
+    photos: photos,
     price: Number(dbListing.price_per_day),
     rating: 4.5,
     // Default rating - in future could be calculated from reviews
@@ -982,14 +985,14 @@ const ListingDetails = () => {
               {/* Image gallery */}
               <div className="grid gap-2 lg:grid-cols-[2fr_1fr]">
                 <div className="overflow-hidden rounded-2xl">
-                  <img src={listing.image} alt={listing.title} className="h-[400px] w-full object-cover" />
+                  <img src={listing.photos?.[0] || listing.image} alt={listing.title} className="h-[400px] w-full object-cover" />
                 </div>
                 <div className="hidden lg:block space-y-2">
                   <div className="overflow-hidden rounded-2xl">
-                    <img src={listing.image} alt={listing.title} className="h-[196px] w-full object-cover" />
+                      <img src={listing.photos?.[1] || listing.image} alt={listing.title} className="h-[196px] w-full object-cover" />
                   </div>
                   <div className="relative overflow-hidden rounded-2xl">
-                    <img src={listing.image} alt={listing.title} className="h-[196px] w-full object-cover" />
+                    <img src={listing.photos?.[2] || listing.photos?.[1] || listing.image} alt={listing.title} className="h-[196px] w-full object-cover" />
                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                       <Button variant="secondary" size="sm" className="gap-2">
                         <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
