@@ -11,6 +11,7 @@ export interface Listing {
   categories: string[];
   is_available: boolean;
   owner_id: string;
+  add_ons: any[];
 }
 
 export const useListings = () => {
@@ -28,7 +29,8 @@ export const useListings = () => {
           pickup_addresses,
           categories,
           is_available,
-          owner_id
+          owner_id,
+          add_ons
         `)
         .eq("is_available", true);
 

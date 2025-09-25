@@ -5,6 +5,14 @@ import winterSportsGear from "@/assets/winter-sports-gear.jpg";
 
 export type ProtectionChoice = "deposit" | "insurance" | null;
 
+export interface AddOn {
+  id: string;
+  name: string;
+  description: string;
+  price_per_day: number;
+  available_quantity: number;
+}
+
 export interface GearListing {
   id: string;
   title: string;
@@ -16,6 +24,7 @@ export interface GearListing {
   reviewCount: number;
   location: string;
   category: string;
+  addOns?: AddOn[];
   protection: {
     requiresProtection: boolean;
     depositAmount?: number;

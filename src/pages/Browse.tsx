@@ -174,6 +174,7 @@ const Browse = () => {
                   rating={4.5}
                   reviewCount={0}
                   location={listing.pickup_addresses?.[0] || "Location not specified"}
+                  hasAddOns={Array.isArray(listing.add_ons) && listing.add_ons.length > 0}
                 />
               ))}
               {filteredGear.length === 0 && !isLoading && (
