@@ -74,6 +74,7 @@ export function TripDateTimeSelector({
                   "h-12 justify-between text-left font-normal",
                   !startDate && "text-muted-foreground"
                 )}
+                data-testid="start-date-button"
               >
                 {startDate ? format(startDate, "yyyy-MM-dd") : "Select date"}
                 <ChevronDownIcon className="h-4 w-4 opacity-50" />
@@ -95,7 +96,7 @@ export function TripDateTimeSelector({
 
           {/* Start Time */}
           <Select value={startTime} onValueChange={onStartTimeSelect}>
-            <SelectTrigger className="h-12">
+            <SelectTrigger className="h-12" data-testid="start-time-trigger">
               <SelectValue placeholder="Select time">
                 {formatTimeDisplay(startTime)}
               </SelectValue>
@@ -124,6 +125,7 @@ export function TripDateTimeSelector({
                   "h-12 justify-between text-left font-normal",
                   !endDate && "text-muted-foreground"
                 )}
+                data-testid="end-date-button"
               >
                 {endDate ? format(endDate, "yyyy-MM-dd") : "Select date"}
                 <ChevronDownIcon className="h-4 w-4 opacity-50" />
@@ -145,7 +147,7 @@ export function TripDateTimeSelector({
 
           {/* End Time */}
           <Select value={endTime} onValueChange={onEndTimeSelect}>
-            <SelectTrigger className="h-12">
+            <SelectTrigger className="h-12" data-testid="end-time-trigger">
               <SelectValue placeholder="Select time">
                 {formatTimeDisplay(endTime)}
               </SelectValue>
