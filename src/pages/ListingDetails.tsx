@@ -422,6 +422,7 @@ const computeJourneySteps = (listing: GearListing, state: BookingState): Journey
 };
 const mapDatabaseToGearListing = (dbListing: DatabaseListing): GearListing => {
   const photos = dbListing.photos?.map(getStorageImageUrl).filter(Boolean) || [];
+  const addOns = Array.isArray(dbListing.add_ons) ? dbListing.add_ons : [];
   
   return {
     id: dbListing.id,
@@ -436,6 +437,7 @@ const mapDatabaseToGearListing = (dbListing: DatabaseListing): GearListing => {
     // Default - in future could be calculated from reviews
     location: dbListing.pickup_addresses?.[0] || "Location TBD",
     category: dbListing.categories?.[0] || "general",
+    addOns: addOns,
     protection: {
       requiresProtection: !!dbListing.deposit_amount || dbListing.insurance_required,
       depositAmount: dbListing.deposit_amount ? Number(dbListing.deposit_amount) : undefined,
@@ -1152,6 +1154,32 @@ const ListingDetails = () => {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Optional Add-ons */}
+              {listing.addOns && listing.addOns.length > 0 && (
+                <Card>
+                  <CardContent className="p-6">
+                    <h3 className="text-lg font-semibold mb-4">Optional Add-ons</h3>
+                    <div className="space-y-4">
+                      {listing.addOns.map((addOn) => (
+                        <div key={addOn.id} className="flex items-center justify-between p-4 border border-border rounded-lg">
+                          <div>
+                            <h4 className="font-medium">{addOn.name}</h4>
+                            <p className="text-sm text-muted-foreground">{addOn.description}</p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {addOn.available_quantity} available
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-semibold">{formatCurrency(addOn.price_per_day)}</p>
+                            <p className="text-xs text-muted-foreground">per day</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Included in the price */}
               <Card>

@@ -14,9 +14,10 @@ interface GearCardProps {
   rating: number;
   reviewCount: number;
   location: string;
+  hasAddOns?: boolean;
 }
 
-const GearCard = ({ id, title, description, image, price, rating, reviewCount, location }: GearCardProps) => {
+const GearCard = ({ id, title, description, image, price, rating, reviewCount, location, hasAddOns }: GearCardProps) => {
   const [imageError, setImageError] = useState(false);
   const { toast } = useToast();
   const { toggleFavorite, isFavorited } = useFavorites();
@@ -88,8 +89,13 @@ const GearCard = ({ id, title, description, image, price, rating, reviewCount, l
           {description}
         </p>
         
-        <div className="text-xs text-muted-foreground mb-3">
-          📍 {location}
+        <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
+          <span>📍 {location}</span>
+          {hasAddOns && (
+            <span className="bg-accent text-accent-foreground px-2 py-1 rounded-full text-xs font-medium">
+              Extras Available
+            </span>
+          )}
         </div>
         
         <div className="flex items-center justify-between">
