@@ -31,6 +31,11 @@ interface JourneyStep {
   description: string;
   status: StepStatus;
 }
+interface SelectedAddOn {
+  id: string;
+  quantity: number;
+}
+
 interface BookingState {
   stage: Stage;
   protectionChoice: ProtectionChoice;
@@ -43,6 +48,7 @@ interface BookingState {
   endDate?: Date;
   startTime: string;
   endTime: string;
+  selectedAddOns: SelectedAddOn[];
 }
 type BookingAction = {
   type: "START_BOOKING";
@@ -83,6 +89,13 @@ type BookingAction = {
   endTime: string;
 } | {
   type: "REQUIRE_AUTH";
+} | {
+  type: "SELECT_ADD_ON";
+  addOnId: string;
+  quantity: number;
+} | {
+  type: "DESELECT_ADD_ON";
+  addOnId: string;
 };
 const createInitialState = (title: string): BookingState => ({
   stage: "details",
@@ -95,7 +108,8 @@ const createInitialState = (title: string): BookingState => ({
   startDate: undefined,
   endDate: undefined,
   startTime: "10:00",
-  endTime: "10:00"
+  endTime: "10:00",
+  selectedAddOns: []
 });
 const stageRank: Record<Stage, number> = {
   details: 0,
@@ -273,6 +287,27 @@ const bookingReducer = (state: BookingState, action: BookingAction): BookingStat
         return {
           ...state,
           history: [...state.history, "Sign in required to complete booking."]
+        };
+      }
+    case "SELECT_ADD_ON":
+      {
+        const existingIndex = state.selectedAddOns.findIndex(addon => addon.id === action.addOnId);
+        const newSelectedAddOns = existingIndex >= 0 
+          ? state.selectedAddOns.map((addon, index) => 
+              index === existingIndex ? { ...addon, quantity: action.quantity } : addon
+            )
+          : [...state.selectedAddOns, { id: action.addOnId, quantity: action.quantity }];
+        
+        return {
+          ...state,
+          selectedAddOns: newSelectedAddOns
+        };
+      }
+    case "DESELECT_ADD_ON":
+      {
+        return {
+          ...state,
+          selectedAddOns: state.selectedAddOns.filter(addon => addon.id !== action.addOnId)
         };
       }
     default:
@@ -643,14 +678,29 @@ const ListingDetails = () => {
     if (!bookingState.startDate || !bookingState.endDate) return null;
     const days = differenceInDays(bookingState.endDate, bookingState.startDate);
     if (days <= 0) return null;
+    
     const subtotal = days * listing.price;
-    const serviceFee = Math.round(subtotal * 0.1); // 10% service fee
-    const taxes = Math.round(subtotal * 0.08); // 8% taxes
+    
+    // Calculate add-ons cost
+    const addOnsTotal = bookingState.selectedAddOns.reduce((total, selectedAddOn) => {
+      const addOn = listing.addOns?.find(a => a.id === selectedAddOn.id);
+      if (addOn) {
+        return total + (addOn.price_per_day * selectedAddOn.quantity * days);
+      }
+      return total;
+    }, 0);
+    
+    const subtotalWithAddOns = subtotal + addOnsTotal;
+    const serviceFee = Math.round(subtotalWithAddOns * 0.1); // 10% service fee
+    const taxes = Math.round(subtotalWithAddOns * 0.08); // 8% taxes
     const insurance = bookingState.protectionChoice === "insurance" && listing.protection.insuranceDailyPrice ? days * listing.protection.insuranceDailyPrice : 0;
-    const total = subtotal + serviceFee + taxes + insurance;
+    const total = subtotalWithAddOns + serviceFee + taxes + insurance;
+    
     return {
       days,
       subtotal,
+      addOnsTotal,
+      subtotalWithAddOns,
       serviceFee,
       taxes,
       insurance,
@@ -778,6 +828,12 @@ const ListingDetails = () => {
                     <span>{formatCurrency(listing.price)} × {quote.days} day{quote.days !== 1 ? 's' : ''}</span>
                     <span>{formatCurrency(quote.subtotal)}</span>
                   </div>
+                  {quote.addOnsTotal > 0 && (
+                    <div className="flex justify-between">
+                      <span>Add-ons</span>
+                      <span>{formatCurrency(quote.addOnsTotal)}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between">
                     <span>Service fee</span>
                     <span>{formatCurrency(quote.serviceFee)}</span>
@@ -1161,21 +1217,61 @@ const ListingDetails = () => {
                   <CardContent className="p-6">
                     <h3 className="text-lg font-semibold mb-4">Optional Add-ons</h3>
                     <div className="space-y-4">
-                      {listing.addOns.map((addOn) => (
-                        <div key={addOn.id} className="flex items-center justify-between p-4 border border-border rounded-lg">
-                          <div>
-                            <h4 className="font-medium">{addOn.name}</h4>
-                            <p className="text-sm text-muted-foreground">{addOn.description}</p>
-                            <p className="text-xs text-muted-foreground mt-1">
-                              {addOn.available_quantity} available
-                            </p>
+                      {listing.addOns.map((addOn) => {
+                        const selectedAddOn = bookingState.selectedAddOns.find(sa => sa.id === addOn.id);
+                        const isSelected = !!selectedAddOn;
+                        const quantity = selectedAddOn?.quantity || 1;
+                        
+                        return (
+                          <div key={addOn.id} className="flex items-center justify-between p-4 border border-border rounded-lg">
+                            <div className="flex items-center space-x-3">
+                              <input
+                                type="checkbox"
+                                checked={isSelected}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    dispatch({ type: "SELECT_ADD_ON", addOnId: addOn.id, quantity: 1 });
+                                  } else {
+                                    dispatch({ type: "DESELECT_ADD_ON", addOnId: addOn.id });
+                                  }
+                                }}
+                                className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+                              />
+                              <div>
+                                <h4 className="font-medium">{addOn.name}</h4>
+                                <p className="text-sm text-muted-foreground">{addOn.description}</p>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  {addOn.available_quantity} available
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-4">
+                              {isSelected && (
+                                <div className="flex items-center space-x-2">
+                                  <label className="text-sm text-muted-foreground">Qty:</label>
+                                  <select
+                                    value={quantity}
+                                    onChange={(e) => dispatch({ 
+                                      type: "SELECT_ADD_ON", 
+                                      addOnId: addOn.id, 
+                                      quantity: parseInt(e.target.value) 
+                                    })}
+                                    className="border border-border rounded px-2 py-1 text-sm"
+                                  >
+                                    {Array.from({ length: Math.min(addOn.available_quantity, 10) }, (_, i) => i + 1).map(num => (
+                                      <option key={num} value={num}>{num}</option>
+                                    ))}
+                                  </select>
+                                </div>
+                              )}
+                              <div className="text-right">
+                                <p className="font-semibold">{formatCurrency(addOn.price_per_day)}</p>
+                                <p className="text-xs text-muted-foreground">per day</p>
+                              </div>
+                            </div>
                           </div>
-                          <div className="text-right">
-                            <p className="font-semibold">{formatCurrency(addOn.price_per_day)}</p>
-                            <p className="text-xs text-muted-foreground">per day</p>
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </CardContent>
                 </Card>
@@ -1264,20 +1360,26 @@ const ListingDetails = () => {
                     {renderActionCard()}
                   </div>
 
-                  {/* Quote breakdown */}
-                  {quote && <div className="mt-6 pt-4 border-t space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>{formatCurrency(listing.price)} × {totalDays} days</span>
-                        <span>{formatCurrency(quote.subtotal)}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span>Service fee</span>
-                        <span>{formatCurrency(quote.serviceFee)}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span>Taxes</span>
-                        <span>{formatCurrency(quote.taxes)}</span>
-                      </div>
+                   {/* Quote breakdown */}
+                   {quote && <div className="mt-6 pt-4 border-t space-y-2">
+                       <div className="flex justify-between text-sm">
+                         <span>{formatCurrency(listing.price)} × {totalDays} days</span>
+                         <span>{formatCurrency(quote.subtotal)}</span>
+                       </div>
+                       {quote.addOnsTotal > 0 && (
+                         <div className="flex justify-between text-sm">
+                           <span>Add-ons</span>
+                           <span>{formatCurrency(quote.addOnsTotal)}</span>
+                         </div>
+                       )}
+                       <div className="flex justify-between text-sm">
+                         <span>Service fee</span>
+                         <span>{formatCurrency(quote.serviceFee)}</span>
+                       </div>
+                       <div className="flex justify-between text-sm">
+                         <span>Taxes</span>
+                         <span>{formatCurrency(quote.taxes)}</span>
+                       </div>
                       <div className="flex justify-between font-semibold pt-2 border-t">
                         <span>Total</span>
                         <span>{formatCurrency(quote.total)}</span>
