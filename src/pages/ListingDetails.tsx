@@ -35,7 +35,6 @@ interface SelectedAddOn {
   id: string;
   quantity: number;
 }
-
 interface BookingState {
   stage: Stage;
   protectionChoice: ProtectionChoice;
@@ -292,12 +291,13 @@ const bookingReducer = (state: BookingState, action: BookingAction): BookingStat
     case "SELECT_ADD_ON":
       {
         const existingIndex = state.selectedAddOns.findIndex(addon => addon.id === action.addOnId);
-        const newSelectedAddOns = existingIndex >= 0 
-          ? state.selectedAddOns.map((addon, index) => 
-              index === existingIndex ? { ...addon, quantity: action.quantity } : addon
-            )
-          : [...state.selectedAddOns, { id: action.addOnId, quantity: action.quantity }];
-        
+        const newSelectedAddOns = existingIndex >= 0 ? state.selectedAddOns.map((addon, index) => index === existingIndex ? {
+          ...addon,
+          quantity: action.quantity
+        } : addon) : [...state.selectedAddOns, {
+          id: action.addOnId,
+          quantity: action.quantity
+        }];
         return {
           ...state,
           selectedAddOns: newSelectedAddOns
@@ -458,7 +458,6 @@ const computeJourneySteps = (listing: GearListing, state: BookingState): Journey
 const mapDatabaseToGearListing = (dbListing: DatabaseListing): GearListing => {
   const photos = dbListing.photos?.map(getStorageImageUrl).filter(Boolean) || [];
   const addOns = Array.isArray(dbListing.add_ons) ? dbListing.add_ons : [];
-  
   return {
     id: dbListing.id,
     title: dbListing.title,
@@ -678,24 +677,21 @@ const ListingDetails = () => {
     if (!bookingState.startDate || !bookingState.endDate) return null;
     const days = differenceInDays(bookingState.endDate, bookingState.startDate);
     if (days <= 0) return null;
-    
     const subtotal = days * listing.price;
-    
+
     // Calculate add-ons cost
     const addOnsTotal = bookingState.selectedAddOns.reduce((total, selectedAddOn) => {
       const addOn = listing.addOns?.find(a => a.id === selectedAddOn.id);
       if (addOn) {
-        return total + (addOn.price_per_day * selectedAddOn.quantity * days);
+        return total + addOn.price_per_day * selectedAddOn.quantity * days;
       }
       return total;
     }, 0);
-    
     const subtotalWithAddOns = subtotal + addOnsTotal;
     const serviceFee = Math.round(subtotalWithAddOns * 0.1); // 10% service fee
     const taxes = Math.round(subtotalWithAddOns * 0.08); // 8% taxes
     const insurance = bookingState.protectionChoice === "insurance" && listing.protection.insuranceDailyPrice ? days * listing.protection.insuranceDailyPrice : 0;
     const total = subtotalWithAddOns + serviceFee + taxes + insurance;
-    
     return {
       days,
       subtotal,
@@ -789,33 +785,23 @@ const ListingDetails = () => {
         return <div className="space-y-4">
             <div className="space-y-3">
               
-              <TripDateTimeSelector 
-                startDate={bookingState.startDate} 
-                endDate={bookingState.endDate}
-                startTime={bookingState.startTime}
-                endTime={bookingState.endTime}
-                onStartDateSelect={date => dispatch({
-                  type: "SET_DATES",
-                  startDate: date,
-                  endDate: bookingState.endDate
-                })} 
-                onEndDateSelect={date => dispatch({
-                  type: "SET_DATES",
-                  startDate: bookingState.startDate,
-                  endDate: date
-                })}
-                onStartTimeSelect={time => dispatch({
-                  type: "SET_TIMES",
-                  startTime: time,
-                  endTime: bookingState.endTime
-                })}
-                onEndTimeSelect={time => dispatch({
-                  type: "SET_TIMES",
-                  startTime: bookingState.startTime,
-                  endTime: time
-                })}
-                disabled={isDateDisabled} 
-              />
+              <TripDateTimeSelector startDate={bookingState.startDate} endDate={bookingState.endDate} startTime={bookingState.startTime} endTime={bookingState.endTime} onStartDateSelect={date => dispatch({
+              type: "SET_DATES",
+              startDate: date,
+              endDate: bookingState.endDate
+            })} onEndDateSelect={date => dispatch({
+              type: "SET_DATES",
+              startDate: bookingState.startDate,
+              endDate: date
+            })} onStartTimeSelect={time => dispatch({
+              type: "SET_TIMES",
+              startTime: time,
+              endTime: bookingState.endTime
+            })} onEndTimeSelect={time => dispatch({
+              type: "SET_TIMES",
+              startTime: bookingState.startTime,
+              endTime: time
+            })} disabled={isDateDisabled} />
             </div>
             
             {quote && <Card className="border-primary/20 bg-primary/5">
@@ -828,12 +814,10 @@ const ListingDetails = () => {
                     <span>{formatCurrency(listing.price)} × {quote.days} day{quote.days !== 1 ? 's' : ''}</span>
                     <span>{formatCurrency(quote.subtotal)}</span>
                   </div>
-                  {quote.addOnsTotal > 0 && (
-                    <div className="flex justify-between">
+                  {quote.addOnsTotal > 0 && <div className="flex justify-between">
                       <span>Add-ons</span>
                       <span>{formatCurrency(quote.addOnsTotal)}</span>
-                    </div>
-                  )}
+                    </div>}
                   <div className="flex justify-between">
                     <span>Service fee</span>
                     <span>{formatCurrency(quote.serviceFee)}</span>
@@ -1070,56 +1054,28 @@ const ListingDetails = () => {
                           <div className="relative">
                             <div className="flex items-center justify-between p-4 border-b">
                               <h2 className="text-lg font-semibold">{listing.title} Photos</h2>
-                              {listing.photos && (
-                                <span className="text-sm text-muted-foreground">
+                              {listing.photos && <span className="text-sm text-muted-foreground">
                                   {selectedPhotoIndex + 1} of {listing.photos.length}
-                                </span>
-                              )}
+                                </span>}
                             </div>
                             <div className="relative">
-                              <img 
-                                src={listing.photos?.[selectedPhotoIndex] || listing.image} 
-                                alt={`${listing.title} - Photo ${selectedPhotoIndex + 1}`}
-                                className="w-full h-[60vh] object-cover"
-                              />
-                              {listing.photos && listing.photos.length > 1 && (
-                                <>
-                                  <button
-                                    onClick={() => setSelectedPhotoIndex(prev => prev > 0 ? prev - 1 : listing.photos!.length - 1)}
-                                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors"
-                                  >
+                              <img src={listing.photos?.[selectedPhotoIndex] || listing.image} alt={`${listing.title} - Photo ${selectedPhotoIndex + 1}`} className="w-full h-[60vh] object-cover" />
+                              {listing.photos && listing.photos.length > 1 && <>
+                                  <button onClick={() => setSelectedPhotoIndex(prev => prev > 0 ? prev - 1 : listing.photos!.length - 1)} className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors">
                                     <ArrowLeft className="h-5 w-5" />
                                   </button>
-                                  <button
-                                    onClick={() => setSelectedPhotoIndex(prev => prev < listing.photos!.length - 1 ? prev + 1 : 0)}
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors"
-                                  >
+                                  <button onClick={() => setSelectedPhotoIndex(prev => prev < listing.photos!.length - 1 ? prev + 1 : 0)} className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors">
                                     <ArrowLeft className="h-5 w-5 rotate-180" />
                                   </button>
-                                </>
-                              )}
+                                </>}
                             </div>
-                            {listing.photos && listing.photos.length > 1 && (
-                              <div className="p-4 border-t">
+                            {listing.photos && listing.photos.length > 1 && <div className="p-4 border-t">
                                 <div className="flex gap-2 overflow-x-auto">
-                                  {listing.photos.map((photo, index) => (
-                                    <button
-                                      key={index}
-                                      onClick={() => setSelectedPhotoIndex(index)}
-                                      className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors ${
-                                        selectedPhotoIndex === index ? 'border-primary' : 'border-transparent'
-                                      }`}
-                                    >
-                                      <img 
-                                        src={photo} 
-                                        alt={`${listing.title} thumbnail ${index + 1}`}
-                                        className="w-full h-full object-cover"
-                                      />
-                                    </button>
-                                  ))}
+                                  {listing.photos.map((photo, index) => <button key={index} onClick={() => setSelectedPhotoIndex(index)} className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors ${selectedPhotoIndex === index ? 'border-primary' : 'border-transparent'}`}>
+                                      <img src={photo} alt={`${listing.title} thumbnail ${index + 1}`} className="w-full h-full object-cover" />
+                                    </button>)}
                                 </div>
-                              </div>
-                            )}
+                              </div>}
                           </div>
                         </DialogContent>
                       </Dialog>
@@ -1212,31 +1168,30 @@ const ListingDetails = () => {
               </Card>
 
               {/* Optional Add-ons */}
-              {listing.addOns && listing.addOns.length > 0 && (
-                <Card>
+              {listing.addOns && listing.addOns.length > 0 && <Card>
                   <CardContent className="p-6">
                     <h3 className="text-lg font-semibold mb-4">Optional Add-ons</h3>
                     <div className="space-y-4">
-                      {listing.addOns.map((addOn) => {
-                        const selectedAddOn = bookingState.selectedAddOns.find(sa => sa.id === addOn.id);
-                        const isSelected = !!selectedAddOn;
-                        const quantity = selectedAddOn?.quantity || 1;
-                        
-                        return (
-                          <div key={addOn.id} className="flex items-center justify-between p-4 border border-border rounded-lg">
+                      {listing.addOns.map(addOn => {
+                    const selectedAddOn = bookingState.selectedAddOns.find(sa => sa.id === addOn.id);
+                    const isSelected = !!selectedAddOn;
+                    const quantity = selectedAddOn?.quantity || 1;
+                    return <div key={addOn.id} className="flex items-center justify-between p-4 border border-border rounded-lg">
                             <div className="flex items-center space-x-3">
-                              <input
-                                type="checkbox"
-                                checked={isSelected}
-                                onChange={(e) => {
-                                  if (e.target.checked) {
-                                    dispatch({ type: "SELECT_ADD_ON", addOnId: addOn.id, quantity: 1 });
-                                  } else {
-                                    dispatch({ type: "DESELECT_ADD_ON", addOnId: addOn.id });
-                                  }
-                                }}
-                                className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-                              />
+                              <input type="checkbox" checked={isSelected} onChange={e => {
+                          if (e.target.checked) {
+                            dispatch({
+                              type: "SELECT_ADD_ON",
+                              addOnId: addOn.id,
+                              quantity: 1
+                            });
+                          } else {
+                            dispatch({
+                              type: "DESELECT_ADD_ON",
+                              addOnId: addOn.id
+                            });
+                          }
+                        }} className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded" />
                               <div>
                                 <h4 className="font-medium">{addOn.name}</h4>
                                 <p className="text-sm text-muted-foreground">{addOn.description}</p>
@@ -1246,36 +1201,20 @@ const ListingDetails = () => {
                               </div>
                             </div>
                             <div className="flex items-center space-x-4">
-                              {isSelected && (
-                                <div className="flex items-center space-x-2">
-                                  <label className="text-sm text-muted-foreground">Qty:</label>
-                                  <select
-                                    value={quantity}
-                                    onChange={(e) => dispatch({ 
-                                      type: "SELECT_ADD_ON", 
-                                      addOnId: addOn.id, 
-                                      quantity: parseInt(e.target.value) 
-                                    })}
-                                    className="border border-border rounded px-2 py-1 text-sm"
-                                  >
-                                    {Array.from({ length: Math.min(addOn.available_quantity, 10) }, (_, i) => i + 1).map(num => (
-                                      <option key={num} value={num}>{num}</option>
-                                    ))}
-                                  </select>
-                                </div>
-                              )}
+                              {isSelected && <div className="flex items-center space-x-2">
+                                  
+                                  
+                                </div>}
                               <div className="text-right">
                                 <p className="font-semibold">{formatCurrency(addOn.price_per_day)}</p>
                                 <p className="text-xs text-muted-foreground">per day</p>
                               </div>
                             </div>
-                          </div>
-                        );
-                      })}
+                          </div>;
+                  })}
                     </div>
                   </CardContent>
-                </Card>
-              )}
+                </Card>}
 
               {/* Included in the price */}
               <Card>
@@ -1366,12 +1305,10 @@ const ListingDetails = () => {
                          <span>{formatCurrency(listing.price)} × {totalDays} days</span>
                          <span>{formatCurrency(quote.subtotal)}</span>
                        </div>
-                       {quote.addOnsTotal > 0 && (
-                         <div className="flex justify-between text-sm">
+                       {quote.addOnsTotal > 0 && <div className="flex justify-between text-sm">
                            <span>Add-ons</span>
                            <span>{formatCurrency(quote.addOnsTotal)}</span>
-                         </div>
-                       )}
+                         </div>}
                        <div className="flex justify-between text-sm">
                          <span>Service fee</span>
                          <span>{formatCurrency(quote.serviceFee)}</span>
