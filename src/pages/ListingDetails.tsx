@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useState, useMemo, useCallback } from "react";
+import { useEffect, useReducer, useState, useMemo, useCallback, useRef } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { MapPin, Star, Clock, ShieldCheck, Wallet, FileText, RefreshCcw, CheckCircle2, AlertTriangle, MessageSquare, ArrowLeft } from "lucide-react";
 import Header from "@/components/Header";
@@ -12,7 +12,7 @@ import { GearListing, ProtectionChoice } from "@/lib/gear";
 import { useListing, DatabaseListing } from "@/hooks/useListing";
 import { useAuth } from "@/hooks/useAuth";
 import { TripDateTimeSelector } from "@/components/TripDateTimeSelector";
-import { differenceInDays } from "date-fns";
+import { differenceInDays, startOfDay } from "date-fns";
 import { getStorageImageUrl, isDateAvailable } from "@/lib/utils";
 import { useAvailability } from "@/hooks/useAvailability";
 const currencyFormatter = new Intl.NumberFormat("en-US", {
@@ -488,15 +488,16 @@ const ListingDetails = () => {
     isLoading,
     error
   });
-  const listing = dbListing ? mapDatabaseToGearListing(dbListing) : null;
+  const listing = useMemo(() => dbListing ? mapDatabaseToGearListing(dbListing) : null, [dbListing]);
 
   // Cache current date to avoid creating new objects on every render
-  const today = useMemo(() => new Date(), []);
+  const today = useMemo(() => startOfDay(new Date()), []);
 
   // Memoize the disabled function to prevent flickering
   const isDateDisabled = useCallback((date: Date) => {
+    const normalizedDate = startOfDay(date);
     // Always disable past dates
-    if (date < today) return true;
+    if (normalizedDate < today) return true;
 
     // If availability data is still loading, allow all future dates to be selectable
     if (availabilityLoading || !availabilityData) {
@@ -510,9 +511,9 @@ const ListingDetails = () => {
 
     // Simple availability check with detailed logging
     try {
-      const isAvailable = isDateAvailable(date, availabilityData.unavailable_dates, availabilityData.block_out_times, availabilityData.existing_bookings);
+      const isAvailable = isDateAvailable(normalizedDate, availabilityData.unavailable_dates, availabilityData.block_out_times, availabilityData.existing_bookings);
       console.log("Date availability check:", {
-        date: date.toISOString().split('T')[0],
+        date: normalizedDate.toISOString().split('T')[0],
         isAvailable,
         unavailableDates: availabilityData.unavailable_dates?.length || 0,
         existingBookings: availabilityData.existing_bookings?.length || 0
@@ -534,13 +535,15 @@ const ListingDetails = () => {
 
   // State for preventing multiple rapid clicks
   const [isProcessingBooking, setIsProcessingBooking] = useState(false);
+  const lastInitializedListingId = useRef<string | null>(null);
   useEffect(() => {
-    if (listing) {
-      dispatch({
-        type: "RESET",
-        title: listing.title
-      });
-    }
+    if (!listing) return;
+    if (lastInitializedListingId.current === listing.id) return;
+    lastInitializedListingId.current = listing.id;
+    dispatch({
+      type: "RESET",
+      title: listing.title
+    });
   }, [listing]);
 
   // Handle stored booking data on component mount and auth changes
