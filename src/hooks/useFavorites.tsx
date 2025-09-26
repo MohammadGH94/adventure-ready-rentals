@@ -1,4 +1,7 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from './useAuth';
+import { useDatabaseFavorites } from './useDatabaseFavorites';
+import { useToast } from './use-toast';
 
 interface FavoritesState {
   [gearId: string]: boolean;
@@ -7,47 +10,111 @@ interface FavoritesState {
 const FAVORITES_STORAGE_KEY = 'gear-favorites';
 
 export const useFavorites = () => {
-  const [favorites, setFavorites] = useState<FavoritesState>({});
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [localFavorites, setLocalFavorites] = useState<FavoritesState>({});
+  
+  const {
+    favorites: dbFavorites,
+    loading: dbLoading,
+    addFavorite: dbAddFavorite,
+    removeFavorite: dbRemoveFavorite,
+    isFavorited: dbIsFavorited,
+    migrateFavoritesFromLocalStorage
+  } = useDatabaseFavorites();
 
-  // Load favorites from localStorage on mount
+  // Load favorites from localStorage for unauthenticated users
   useEffect(() => {
-    try {
-      const storedFavorites = localStorage.getItem(FAVORITES_STORAGE_KEY);
-      if (storedFavorites) {
-        setFavorites(JSON.parse(storedFavorites));
+    if (!user) {
+      try {
+        const storedFavorites = localStorage.getItem(FAVORITES_STORAGE_KEY);
+        if (storedFavorites) {
+          setLocalFavorites(JSON.parse(storedFavorites));
+        }
+      } catch (error) {
+        console.error('Failed to load favorites from localStorage:', error);
       }
-    } catch (error) {
-      console.error('Failed to load favorites from localStorage:', error);
     }
-  }, []);
+  }, [user]);
 
-  // Save favorites to localStorage whenever favorites change
+  // Save local favorites to localStorage whenever they change (unauthenticated users)
   useEffect(() => {
-    try {
-      localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(favorites));
-    } catch (error) {
-      console.error('Failed to save favorites to localStorage:', error);
+    if (!user) {
+      try {
+        localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(localFavorites));
+      } catch (error) {
+        console.error('Failed to save favorites to localStorage:', error);
+      }
     }
-  }, [favorites]);
+  }, [localFavorites, user]);
 
-  const toggleFavorite = (gearId: string) => {
-    setFavorites(prev => ({
-      ...prev,
-      [gearId]: !prev[gearId]
-    }));
+  // Migrate localStorage favorites to database when user logs in
+  useEffect(() => {
+    if (user && !dbLoading) {
+      migrateFavoritesFromLocalStorage();
+    }
+  }, [user, dbLoading]);
+
+  const toggleFavorite = async (gearId: string) => {
+    if (user) {
+      // Use database for authenticated users
+      const isCurrentlyFavorited = dbIsFavorited(gearId);
+      
+      let success;
+      if (isCurrentlyFavorited) {
+        success = await dbRemoveFavorite(gearId);
+        if (success) {
+          toast({
+            description: "Removed from favorites",
+          });
+        }
+      } else {
+        success = await dbAddFavorite(gearId);
+        if (success) {
+          toast({
+            description: "Added to favorites",
+          });
+        }
+      }
+      
+      if (!success) {
+        toast({
+          description: "Failed to update favorites",
+          variant: "destructive",
+        });
+      }
+    } else {
+      // Use localStorage for unauthenticated users
+      setLocalFavorites(prev => ({
+        ...prev,
+        [gearId]: !prev[gearId]
+      }));
+      
+      const isNowFavorited = !localFavorites[gearId];
+      toast({
+        description: isNowFavorited ? "Added to favorites" : "Removed from favorites",
+      });
+    }
   };
 
   const isFavorited = (gearId: string) => {
-    return !!favorites[gearId];
+    if (user) {
+      return dbIsFavorited(gearId);
+    }
+    return !!localFavorites[gearId];
   };
 
   const getFavoriteIds = () => {
-    return Object.keys(favorites).filter(id => favorites[id]);
+    if (user) {
+      return dbFavorites;
+    }
+    return Object.keys(localFavorites).filter(id => localFavorites[id]);
   };
 
   return {
     toggleFavorite,
     isFavorited,
     getFavoriteIds,
+    loading: user ? dbLoading : false,
   };
 };
