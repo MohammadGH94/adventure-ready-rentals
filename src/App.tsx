@@ -20,6 +20,7 @@ import EditListing from "./pages/EditListing";
 import ListingBookings from "./pages/ListingBookings";
 import MyAdventures from "./pages/MyAdventures";
 import Favorites from "./pages/Favorites";
+import Settings from "./pages/Settings";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -74,6 +75,11 @@ const App = () => (
             <Route path="/favorites" element={
               <ProtectedRoute>
                 <Favorites />
+              </ProtectedRoute>
+            } />
+            <Route path="/settings" element={
+              <ProtectedRoute>
+                <Settings />
               </ProtectedRoute>
             } />
             <Route path="/architecture" element={<Architecture />} />
