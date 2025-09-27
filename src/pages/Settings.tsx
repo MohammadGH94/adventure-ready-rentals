@@ -13,6 +13,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "@/hooks/use-toast";
 import { Loader2, Upload, User, Lock, Bell, CreditCard, Palette } from "lucide-react";
 import { z } from "zod";
+import { BankAccountForm } from "@/components/settings/BankAccountForm";
+import { TaxInformationForm } from "@/components/settings/TaxInformationForm";
+import { VerificationStatus } from "@/components/settings/VerificationStatus";
+import { PayoutPreferences } from "@/components/settings/PayoutPreferences";
+import { getFinancialData, updateFinancialData, createFinancialData, UserFinancialData } from "@/lib/financialData";
 
 const profileSchema = z.object({
   first_name: z.string().min(1, "First name is required").max(100),
@@ -33,12 +38,12 @@ type ProfileFormData = z.infer<typeof profileSchema>;
 
 const Settings = () => {
   const { user } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [userData, setUserData] = useState<ProfileFormData | null>(null);
-  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [userData, setUserData] = useState<any>(null);
+  const [profileImage, setProfileImage] = useState<string>("");
+  const [financialData, setFinancialData] = useState<UserFinancialData | null>(null);
   const [notifications, setNotifications] = useState({
-    email: true,
-    booking_updates: true,
+    bookings: true,
     messages: true,
     marketing: false,
   });
@@ -51,10 +56,9 @@ const Settings = () => {
 
   const fetchUserData = async () => {
     if (!user) return;
-    
-    setLoading(true);
+
     try {
-      const { data, error } = await supabase
+      const { data: profile, error } = await supabase
         .from('users')
         .select('*')
         .eq('auth_user_id', user.id)
@@ -62,22 +66,18 @@ const Settings = () => {
 
       if (error) throw error;
 
-      if (data) {
-        setUserData({
-          first_name: data.first_name || '',
-          last_name: data.last_name || '',
-          email: data.email || user.email || '',
-          phone_number: data.phone_number || '',
-          profile_bio: data.profile_bio || '',
-          location_address: data.location_address || '',
-          city: data.city || '',
-          state_province: data.state_province || '',
-          country: data.country || '',
-          postal_code: data.postal_code || '',
-          date_of_birth: data.date_of_birth || '',
-          business_name: data.business_name || '',
-        });
-        setProfileImage(data.profile_image_url);
+      setUserData(profile);
+      setProfileImage(profile?.profile_image_url || "");
+
+      // Fetch financial data
+      if (profile?.id) {
+        try {
+          const financial = await getFinancialData(profile.id);
+          setFinancialData(financial);
+        } catch (error) {
+          // Financial data might not exist yet, which is fine
+          console.log('No financial data found:', error);
+        }
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
@@ -91,32 +91,30 @@ const Settings = () => {
     }
   };
 
-  const handleProfileUpdate = async (formData: ProfileFormData) => {
-    if (!user || !userData) return;
+  const handleProfileUpdate = async (data: ProfileFormData) => {
+    if (!userData?.id) return;
 
     try {
-      const validatedData = profileSchema.parse(formData);
       setLoading(true);
+      
+      const result = profileSchema.safeParse(data);
+      if (!result.success) {
+        toast({
+          title: "Validation Error",
+          description: "Please check your input and try again",
+          variant: "destructive",
+        });
+        return;
+      }
 
       const { error } = await supabase
         .from('users')
-        .update({
-          first_name: validatedData.first_name,
-          last_name: validatedData.last_name,
-          phone_number: validatedData.phone_number,
-          profile_bio: validatedData.profile_bio,
-          location_address: validatedData.location_address,
-          city: validatedData.city,
-          state_province: validatedData.state_province,
-          country: validatedData.country,
-          postal_code: validatedData.postal_code,
-          date_of_birth: validatedData.date_of_birth || null,
-          business_name: validatedData.business_name,
-        })
-        .eq('auth_user_id', user.id);
+        .update(data)
+        .eq('id', userData.id);
 
       if (error) throw error;
 
+      setUserData({ ...userData, ...data });
       toast({
         title: "Success",
         description: "Profile updated successfully",
@@ -156,6 +154,42 @@ const Settings = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleFinancialDataSave = async (data: any) => {
+    if (!userData?.id) return;
+
+    try {
+      if (financialData) {
+        await updateFinancialData(userData.id, data);
+      } else {
+        await createFinancialData({ ...data, user_id: userData.id });
+      }
+      
+      // Refetch financial data
+      const updated = await getFinancialData(userData.id);
+      setFinancialData(updated);
+    } catch (error) {
+      console.error('Error saving financial data:', error);
+      throw error;
+    }
+  };
+
+  const handleDocumentUpload = async (type: string, url: string) => {
+    if (!userData?.id) return;
+
+    try {
+      await handleFinancialDataSave({ [type]: url });
+    } catch (error) {
+      console.error('Error uploading document:', error);
+      throw error;
+    }
+  };
+
+  const handlePayoutPreferencesSave = async (data: any) => {
+    // For now, just show success message
+    // In a real app, this would save to a preferences table
+    console.log('Payout preferences:', data);
   };
 
   if (loading && !userData) {
@@ -207,133 +241,78 @@ const Settings = () => {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center space-x-4">
-                <Avatar className="h-20 w-20">
-                  <AvatarImage src={profileImage || undefined} />
-                  <AvatarFallback className="text-lg">
+                <Avatar className="w-20 h-20">
+                  <AvatarImage src={profileImage || ""} />
+                  <AvatarFallback>
                     {userData?.first_name?.[0]}{userData?.last_name?.[0]}
                   </AvatarFallback>
                 </Avatar>
-                <Button variant="outline" size="sm">
-                  <Upload className="h-4 w-4 mr-2" />
-                  Change Photo
-                </Button>
+                <div>
+                  <Button variant="outline" size="sm">
+                    <Upload className="h-4 w-4 mr-2" />
+                    Change Photo
+                  </Button>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    JPG, PNG or GIF. Max 5MB.
+                  </p>
+                </div>
               </div>
 
-              {userData && (
-                <form 
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    const formData = new FormData(e.currentTarget);
-                    const profileData = Object.fromEntries(formData) as any;
-                    handleProfileUpdate(profileData);
-                  }}
-                  className="space-y-4"
-                >
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="first_name">First Name</Label>
-                      <Input 
-                        id="first_name" 
-                        name="first_name"
-                        defaultValue={userData.first_name}
-                        required 
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="last_name">Last Name</Label>
-                      <Input 
-                        id="last_name" 
-                        name="last_name"
-                        defaultValue={userData.last_name}
-                        required 
-                      />
-                    </div>
-                  </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="first_name">First Name</Label>
+                  <Input
+                    id="first_name"
+                    value={userData?.first_name || ""}
+                    onChange={(e) => setUserData({ ...userData, first_name: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="last_name">Last Name</Label>
+                  <Input
+                    id="last_name"
+                    value={userData?.last_name || ""}
+                    onChange={(e) => setUserData({ ...userData, last_name: e.target.value })}
+                  />
+                </div>
+              </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input 
-                      id="email" 
-                      name="email"
-                      type="email"
-                      defaultValue={userData.email}
-                      required 
-                    />
-                  </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={userData?.email || ""}
+                  onChange={(e) => setUserData({ ...userData, email: e.target.value })}
+                />
+              </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="phone_number">Phone Number</Label>
-                    <Input 
-                      id="phone_number" 
-                      name="phone_number"
-                      defaultValue={userData.phone_number}
-                    />
-                  </div>
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone Number</Label>
+                <Input
+                  id="phone"
+                  value={userData?.phone_number || ""}
+                  onChange={(e) => setUserData({ ...userData, phone_number: e.target.value })}
+                />
+              </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="profile_bio">Bio</Label>
-                    <Textarea 
-                      id="profile_bio" 
-                      name="profile_bio"
-                      defaultValue={userData.profile_bio}
-                      placeholder="Tell others about yourself..."
-                      className="min-h-[100px]"
-                    />
-                  </div>
+              <div className="space-y-2">
+                <Label htmlFor="bio">Bio</Label>
+                <Textarea
+                  id="bio"
+                  placeholder="Tell us about yourself..."
+                  value={userData?.profile_bio || ""}
+                  onChange={(e) => setUserData({ ...userData, profile_bio: e.target.value })}
+                />
+              </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="city">City</Label>
-                      <Input 
-                        id="city" 
-                        name="city"
-                        defaultValue={userData.city}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="state_province">State/Province</Label>
-                      <Input 
-                        id="state_province" 
-                        name="state_province"
-                        defaultValue={userData.state_province}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="country">Country</Label>
-                      <Input 
-                        id="country" 
-                        name="country"
-                        defaultValue={userData.country}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="postal_code">Postal Code</Label>
-                      <Input 
-                        id="postal_code" 
-                        name="postal_code"
-                        defaultValue={userData.postal_code}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="business_name">Business Name (Optional)</Label>
-                    <Input 
-                      id="business_name" 
-                      name="business_name"
-                      defaultValue={userData.business_name}
-                    />
-                  </div>
-
-                  <Button type="submit" disabled={loading}>
-                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Update Profile
-                  </Button>
-                </form>
-              )}
+              <Button 
+                onClick={() => handleProfileUpdate(userData)}
+                disabled={loading}
+              >
+                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Save Changes
+              </Button>
             </CardContent>
           </Card>
         </TabsContent>
@@ -341,65 +320,25 @@ const Settings = () => {
         <TabsContent value="security" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Password & Security</CardTitle>
+              <CardTitle>Password</CardTitle>
               <CardDescription>
-                Manage your password and account security settings
+                Change your password to keep your account secure
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <form 
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const formData = new FormData(e.currentTarget);
-                  const currentPassword = formData.get('current_password') as string;
-                  const newPassword = formData.get('new_password') as string;
-                  const confirmPassword = formData.get('confirm_password') as string;
-                  
-                  if (newPassword !== confirmPassword) {
-                    toast({
-                      title: "Error",
-                      description: "Passwords do not match",
-                      variant: "destructive",
-                    });
-                    return;
-                  }
-                  
-                  handlePasswordChange(currentPassword, newPassword);
-                }}
-                className="space-y-4"
-              >
-                <div className="space-y-2">
-                  <Label htmlFor="current_password">Current Password</Label>
-                  <Input 
-                    id="current_password" 
-                    name="current_password"
-                    type="password"
-                    required 
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="new_password">New Password</Label>
-                  <Input 
-                    id="new_password" 
-                    name="new_password"
-                    type="password"
-                    required 
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="confirm_password">Confirm New Password</Label>
-                  <Input 
-                    id="confirm_password" 
-                    name="confirm_password"
-                    type="password"
-                    required 
-                  />
-                </div>
-                <Button type="submit" disabled={loading}>
-                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Update Password
-                </Button>
-              </form>
+              <div className="space-y-2">
+                <Label htmlFor="current-password">Current Password</Label>
+                <Input id="current-password" type="password" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="new-password">New Password</Label>
+                <Input id="new-password" type="password" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirm-password">Confirm New Password</Label>
+                <Input id="confirm-password" type="password" />
+              </div>
+              <Button>Update Password</Button>
             </CardContent>
           </Card>
         </TabsContent>
@@ -409,89 +348,82 @@ const Settings = () => {
             <CardHeader>
               <CardTitle>Notification Preferences</CardTitle>
               <CardDescription>
-                Choose what notifications you'd like to receive
+                Choose what notifications you want to receive
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>Email Notifications</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Receive notifications via email
-                    </p>
-                  </div>
-                  <Switch 
-                    checked={notifications.email}
-                    onCheckedChange={(checked) => 
-                      setNotifications(prev => ({ ...prev, email: checked }))
-                    }
-                  />
+            <CardContent className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>Booking Updates</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Receive notifications about your bookings
+                  </p>
                 </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>Booking Updates</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Get notified about booking confirmations and updates
-                    </p>
-                  </div>
-                  <Switch 
-                    checked={notifications.booking_updates}
-                    onCheckedChange={(checked) => 
-                      setNotifications(prev => ({ ...prev, booking_updates: checked }))
-                    }
-                  />
-                </div>
+                <Switch 
+                  checked={notifications.bookings}
+                  onCheckedChange={(checked) => 
+                    setNotifications(prev => ({ ...prev, bookings: checked }))
+                  }
+                />
+              </div>
 
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>Messages</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Receive notifications for new messages
-                    </p>
-                  </div>
-                  <Switch 
-                    checked={notifications.messages}
-                    onCheckedChange={(checked) => 
-                      setNotifications(prev => ({ ...prev, messages: checked }))
-                    }
-                  />
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>Messages</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Receive notifications for new messages
+                  </p>
                 </div>
+                <Switch 
+                  checked={notifications.messages}
+                  onCheckedChange={(checked) => 
+                    setNotifications(prev => ({ ...prev, messages: checked }))
+                  }
+                />
+              </div>
 
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>Marketing</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Receive updates about new features and promotions
-                    </p>
-                  </div>
-                  <Switch 
-                    checked={notifications.marketing}
-                    onCheckedChange={(checked) => 
-                      setNotifications(prev => ({ ...prev, marketing: checked }))
-                    }
-                  />
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>Marketing</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Receive updates about new features and promotions
+                  </p>
                 </div>
+                <Switch 
+                  checked={notifications.marketing}
+                  onCheckedChange={(checked) => 
+                    setNotifications(prev => ({ ...prev, marketing: checked }))
+                  }
+                />
               </div>
             </CardContent>
           </Card>
         </TabsContent>
 
         <TabsContent value="payment" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Payment Settings</CardTitle>
-              <CardDescription>
-                Manage your payment methods and financial information
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Payment settings will be available once you start listing gear for rent.
-              </p>
-            </CardContent>
-          </Card>
+          <BankAccountForm
+            initialData={financialData}
+            onSave={handleFinancialDataSave}
+            isLoading={loading}
+          />
+          
+          <TaxInformationForm
+            initialData={financialData}
+            onSave={handleFinancialDataSave}
+            isLoading={loading}
+          />
+          
+          <VerificationStatus
+            userData={userData}
+            financialData={financialData}
+            onDocumentUpload={handleDocumentUpload}
+          />
+          
+          <PayoutPreferences
+            initialData={financialData}
+            onSave={handlePayoutPreferencesSave}
+            isLoading={loading}
+          />
         </TabsContent>
 
         <TabsContent value="preferences" className="space-y-6">
@@ -499,49 +431,49 @@ const Settings = () => {
             <CardHeader>
               <CardTitle>App Preferences</CardTitle>
               <CardDescription>
-                Customize your app experience and default settings
+                Customize your app experience
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="language">Language</Label>
+                <Label>Language</Label>
                 <Select defaultValue="en">
                   <SelectTrigger>
-                    <SelectValue placeholder="Select language" />
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="en">English</SelectItem>
-                    <SelectItem value="es">Spanish</SelectItem>
-                    <SelectItem value="fr">French</SelectItem>
+                    <SelectItem value="fr">Français</SelectItem>
+                    <SelectItem value="es">Español</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="currency">Currency</Label>
-                <Select defaultValue="usd">
+                <Label>Currency</Label>
+                <Select defaultValue="cad">
                   <SelectTrigger>
-                    <SelectValue placeholder="Select currency" />
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="usd">USD - US Dollar</SelectItem>
                     <SelectItem value="cad">CAD - Canadian Dollar</SelectItem>
+                    <SelectItem value="usd">USD - US Dollar</SelectItem>
                     <SelectItem value="eur">EUR - Euro</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="timezone">Timezone</Label>
-                <Select defaultValue="america/new_york">
+                <Label>Time Zone</Label>
+                <Select defaultValue="america/toronto">
                   <SelectTrigger>
-                    <SelectValue placeholder="Select timezone" />
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="america/new_york">Eastern Time</SelectItem>
-                    <SelectItem value="america/chicago">Central Time</SelectItem>
+                    <SelectItem value="america/toronto">Eastern Time</SelectItem>
+                    <SelectItem value="america/winnipeg">Central Time</SelectItem>
                     <SelectItem value="america/denver">Mountain Time</SelectItem>
-                    <SelectItem value="america/los_angeles">Pacific Time</SelectItem>
+                    <SelectItem value="america/vancouver">Pacific Time</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
