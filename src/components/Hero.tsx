@@ -59,7 +59,7 @@ const Hero = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">Return</label>
-                <DatePicker date={endDate} onSelect={setEndDate} placeholder="Check-out date" className="h-12" disabled={date => date < new Date()} />
+                <DatePicker date={endDate} onSelect={setEndDate} placeholder="Return date" className="h-12" disabled={date => date < new Date()} />
               </div>
             </div>
             
