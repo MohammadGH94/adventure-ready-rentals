@@ -459,7 +459,13 @@ const computeJourneySteps = (listing: GearListing, state: BookingState): Journey
 };
 const mapDatabaseToGearListing = (dbListing: DatabaseListing): GearListing => {
   const photos = dbListing.photos?.map(getStorageImageUrl).filter(Boolean) || [];
-  const addOns = Array.isArray(dbListing.add_ons) ? dbListing.add_ons : [];
+  const addOns = Array.isArray(dbListing.add_ons) ? dbListing.add_ons.map((addon: any) => ({
+    id: addon.id || crypto.randomUUID(),
+    name: addon.name || '',
+    description: addon.description || '',
+    price_per_day: Number(addon.price) || Number(addon.price_per_day) || 0,
+    available_quantity: addon.available_count || addon.available_quantity || 1
+  })) : [];
   return {
     id: dbListing.id,
     title: dbListing.title,
