@@ -18,6 +18,7 @@ import { TaxInformationForm } from "@/components/settings/TaxInformationForm";
 import { VerificationStatus } from "@/components/settings/VerificationStatus";
 import { PayoutPreferences } from "@/components/settings/PayoutPreferences";
 import { getFinancialData, updateFinancialData, createFinancialData, UserFinancialData } from "@/lib/financialData";
+import Header from "@/components/Header";
 
 const profileSchema = z.object({
   first_name: z.string().min(1, "First name is required").max(100),
@@ -194,14 +195,19 @@ const Settings = () => {
 
   if (loading && !userData) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-4xl">
+    <div className="min-h-screen bg-background">
+      <Header />
+      <div className="container mx-auto py-8 px-4 max-w-4xl">
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
         <p className="text-muted-foreground">Manage your account preferences and settings</p>
@@ -391,6 +397,7 @@ const Settings = () => {
           </Card>
         </TabsContent>
       </Tabs>
+      </div>
     </div>
   );
 };
