@@ -129,7 +129,7 @@ export const OwnerProfilePreview = ({ ownerId, ownerName, open, onOpenChange }: 
                   {profile.listings.slice(0, 3).map((listing) => (
                     <Link
                       key={listing.id}
-                      to={`/listing/${listing.id}`}
+                      to={`/gear/${listing.id}`}
                       onClick={() => onOpenChange(false)}
                     >
                       <Card className="hover:shadow-md transition-shadow cursor-pointer">
