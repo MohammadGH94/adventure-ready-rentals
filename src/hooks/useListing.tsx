@@ -20,6 +20,12 @@ export interface DatabaseListing {
   delivery_available: boolean;
   delivery_fee: number | null;
   add_ons: any[] | null;
+  owner?: {
+    id: string;
+    first_name: string;
+    profile_image_url: string | null;
+    created_at: string;
+  };
 }
 
 export const useListing = (id: string) => {
@@ -46,7 +52,13 @@ export const useListing = (id: string) => {
           max_rental_days,
           delivery_available,
           delivery_fee,
-          add_ons
+          add_ons,
+          owner:users!owner_id (
+            id,
+            first_name,
+            profile_image_url,
+            created_at
+          )
         `)
         .eq("id", id)
         .eq("is_available", true)

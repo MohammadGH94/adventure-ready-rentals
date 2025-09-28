@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { OwnerProfilePreview } from "@/components/OwnerProfilePreview";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { GearListing, ProtectionChoice } from "@/lib/gear";
 import { useListing, DatabaseListing } from "@/hooks/useListing";
 import { useAuth } from "@/hooks/useAuth";
@@ -498,6 +500,7 @@ const mapDatabaseToGearListing = (dbListing: DatabaseListing): GearListing => {
 };
 const ListingDetails = () => {
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
+  const [showOwnerProfile, setShowOwnerProfile] = useState(false);
   const {
     id
   } = useParams<{
@@ -1123,17 +1126,23 @@ const ListingDetails = () => {
                 <CardContent className="p-6">
                   <h3 className="text-lg font-semibold mb-4">Hosted by</h3>
                   <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
-                      <span className="text-lg font-semibold">{listing.owner.name.charAt(0)}</span>
-                    </div>
+                    <Avatar className="h-12 w-12">
+                      <AvatarImage src={dbListing?.owner?.profile_image_url || undefined} />
+                      <AvatarFallback className="text-lg font-semibold">
+                        {dbListing?.owner?.first_name?.charAt(0).toUpperCase() || "?"}
+                      </AvatarFallback>
+                    </Avatar>
                     <div>
-                      <div className="flex items-center gap-2">
-                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        <span className="font-medium">{listing.owner.rating.toFixed(1)}</span>
-                      </div>
-                      <p className="font-medium">{listing.owner.name}</p>
+                      <button
+                        onClick={() => setShowOwnerProfile(true)}
+                        className="font-medium text-primary hover:underline cursor-pointer text-left"
+                      >
+                        {dbListing?.owner?.first_name || "Owner"}
+                      </button>
                       <p className="text-sm text-muted-foreground">
-                        {listing.owner.tripsHosted} trips • Joined {new Date().getFullYear() - 1}
+                        Member since {dbListing?.owner?.created_at 
+                          ? new Date(dbListing.owner.created_at).getFullYear() 
+                          : "Unknown"}
                       </p>
                     </div>
                   </div>
@@ -1329,6 +1338,16 @@ const ListingDetails = () => {
         </div>
       </main>
       <Footer />
+      
+      {/* Owner Profile Preview Modal */}
+      {dbListing?.owner && (
+        <OwnerProfilePreview
+          ownerId={dbListing.owner.id}
+          ownerName={dbListing.owner.first_name}
+          open={showOwnerProfile}
+          onOpenChange={setShowOwnerProfile}
+        />
+      )}
     </div>;
 };
 export default ListingDetails;
