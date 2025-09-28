@@ -3,7 +3,7 @@ import { Search, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
-import { DateRangePicker } from "@/components/DatePicker";
+import { DatePicker } from "@/components/DatePicker";
 import heroImage from "@/assets/nature-illustration-1.png";
 
 const Hero = () => {
@@ -62,22 +62,34 @@ const Hero = () => {
               </div>
             </div>
             
-            <div className="md:col-span-1">
-              <label className="block text-sm font-medium text-foreground mb-2">
-                Dates
-              </label>
-              <DateRangePicker
-                startDate={startDate}
-                endDate={endDate}
-                onStartDateSelect={setStartDate}
-                onEndDateSelect={setEndDate}
-                placeholder="Select dates"
-                className="h-12"
-                disabled={(date) => date < new Date()}
-              />
+            <div className="md:col-span-2 grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Check-in
+                </label>
+                <DatePicker
+                  date={startDate}
+                  onSelect={setStartDate}
+                  placeholder="Check-in date"
+                  className="h-12"
+                  disabled={(date) => date < new Date()}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Check-out
+                </label>
+                <DatePicker
+                  date={endDate}
+                  onSelect={setEndDate}
+                  placeholder="Check-out date"
+                  className="h-12"
+                  disabled={(date) => date < new Date()}
+                />
+              </div>
             </div>
             
-            <div className="md:col-span-1 flex items-end">
+            <div className="md:col-span-1 flex items-end">  
               <Button asChild variant="action" size="lg" className="w-full h-12">
                 <Link to="/browse">Find Your Adventure</Link>
               </Button>
