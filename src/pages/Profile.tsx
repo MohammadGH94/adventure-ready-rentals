@@ -11,6 +11,7 @@ import { toast } from "@/hooks/use-toast";
 import { Loader2, Upload, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { z } from "zod";
+import Header from "@/components/Header";
 
 const profileSchema = z.object({
   first_name: z.string().min(1, "First name is required").max(100),
@@ -109,14 +110,19 @@ const Profile = () => {
 
   if (loading && !userData) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-4xl">
+    <div className="min-h-screen bg-background">
+      <Header />
+      <div className="container mx-auto py-8 px-4 max-w-4xl">
       <div className="mb-8">
         <Link to="/settings" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-4">
           <ArrowLeft className="h-4 w-4 mr-2" />
@@ -275,6 +281,7 @@ const Profile = () => {
           </Button>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 };
