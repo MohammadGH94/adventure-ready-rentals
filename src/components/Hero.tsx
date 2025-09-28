@@ -55,7 +55,7 @@ const Hero = () => {
             <div className="md:col-span-2 grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">Pick-up</label>
-                <DatePicker date={startDate} onSelect={setStartDate} placeholder="Check-in date" className="h-12" disabled={date => date < new Date()} />
+                <DatePicker date={startDate} onSelect={setStartDate} placeholder="Pick-up date" className="h-12" disabled={date => date < new Date()} />
               </div>
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">Return</label>
