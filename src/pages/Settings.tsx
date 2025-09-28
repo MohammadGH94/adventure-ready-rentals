@@ -207,12 +207,8 @@ const Settings = () => {
         <p className="text-muted-foreground">Manage your account preferences and settings</p>
       </div>
 
-      <Tabs defaultValue="profile" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="profile" className="flex items-center gap-2">
-            <User className="h-4 w-4" />
-            Profile
-          </TabsTrigger>
+      <Tabs defaultValue="security" className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="security" className="flex items-center gap-2">
             <Lock className="h-4 w-4" />
             Security
@@ -230,92 +226,6 @@ const Settings = () => {
             Preferences
           </TabsTrigger>
         </TabsList>
-
-        <TabsContent value="profile" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Profile Information</CardTitle>
-              <CardDescription>
-                Update your personal information and profile details
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex items-center space-x-4">
-                <Avatar className="w-20 h-20">
-                  <AvatarImage src={profileImage || ""} />
-                  <AvatarFallback>
-                    {userData?.first_name?.[0]}{userData?.last_name?.[0]}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <Button variant="outline" size="sm">
-                    <Upload className="h-4 w-4 mr-2" />
-                    Change Photo
-                  </Button>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    JPG, PNG or GIF. Max 5MB.
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="first_name">First Name</Label>
-                  <Input
-                    id="first_name"
-                    value={userData?.first_name || ""}
-                    onChange={(e) => setUserData({ ...userData, first_name: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="last_name">Last Name</Label>
-                  <Input
-                    id="last_name"
-                    value={userData?.last_name || ""}
-                    onChange={(e) => setUserData({ ...userData, last_name: e.target.value })}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={userData?.email || ""}
-                  onChange={(e) => setUserData({ ...userData, email: e.target.value })}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
-                <Input
-                  id="phone"
-                  value={userData?.phone_number || ""}
-                  onChange={(e) => setUserData({ ...userData, phone_number: e.target.value })}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="bio">Bio</Label>
-                <Textarea
-                  id="bio"
-                  placeholder="Tell us about yourself..."
-                  value={userData?.profile_bio || ""}
-                  onChange={(e) => setUserData({ ...userData, profile_bio: e.target.value })}
-                />
-              </div>
-
-              <Button 
-                onClick={() => handleProfileUpdate(userData)}
-                disabled={loading}
-              >
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Save Changes
-              </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
 
         <TabsContent value="security" className="space-y-6">
           <Card>
