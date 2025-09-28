@@ -5,18 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
 import { DatePicker } from "@/components/DatePicker";
 import heroImage from "@/assets/nature-illustration-1.png";
-
 const Hero = () => {
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
-
-  return (
-    <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden">
+  return <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden">
       {/* Background Image */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url(${heroImage})` }}
-      >
+      <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{
+      backgroundImage: `url(${heroImage})`
+    }}>
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/40" />
       </div>
 
@@ -42,10 +38,7 @@ const Hero = () => {
               </label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  placeholder="Climbing, camping..."
-                  className="pl-10 h-12"
-                />
+                <Input placeholder="Climbing, camping..." className="pl-10 h-12" />
               </div>
             </div>
             
@@ -55,37 +48,18 @@ const Hero = () => {
               </label>
               <div className="relative">
                 <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  placeholder="San Francisco, CA"
-                  className="pl-10 h-12"
-                />
+                <Input placeholder="San Francisco, CA" className="pl-10 h-12" />
               </div>
             </div>
             
             <div className="md:col-span-2 grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Check-in
-                </label>
-                <DatePicker
-                  date={startDate}
-                  onSelect={setStartDate}
-                  placeholder="Check-in date"
-                  className="h-12"
-                  disabled={(date) => date < new Date()}
-                />
+                <label className="block text-sm font-medium text-foreground mb-2">Pick-up</label>
+                <DatePicker date={startDate} onSelect={setStartDate} placeholder="Check-in date" className="h-12" disabled={date => date < new Date()} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Check-out
-                </label>
-                <DatePicker
-                  date={endDate}
-                  onSelect={setEndDate}
-                  placeholder="Check-out date"
-                  className="h-12"
-                  disabled={(date) => date < new Date()}
-                />
+                <label className="block text-sm font-medium text-foreground mb-2">Return</label>
+                <DatePicker date={endDate} onSelect={setEndDate} placeholder="Check-out date" className="h-12" disabled={date => date < new Date()} />
               </div>
             </div>
             
@@ -107,8 +81,6 @@ const Hero = () => {
           </Button>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default Hero;
