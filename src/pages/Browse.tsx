@@ -1,31 +1,86 @@
 import { useState } from "react";
-import { Search, Filter, MapPin, Map } from "lucide-react";
+import { Search, Filter, MapPin, Map, Target, RefreshCw } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import GearCard from "@/components/GearCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { DateRangePicker } from "@/components/DatePicker";
+import { DatePicker } from "@/components/DatePicker";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Slider } from "@/components/ui/slider";
 import { useListings } from "@/hooks/useListings";
+import { useLocation } from "@/hooks/useLocation";
 import { getStorageImageUrl } from "@/lib/utils";
 
 const Browse = () => {
+  // Search and filter states
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [showMap, setShowMap] = useState(false);
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
+  const [location, setLocation] = useState("");
+  const [priceRange, setPriceRange] = useState([0, 500]);
+  const [distanceRange, setDistanceRange] = useState([0, 50]);
+  const [useCurrentLocation, setUseCurrentLocation] = useState(false);
+  
+  // Applied filters (for "Apply Filters" button functionality)
+  const [appliedFilters, setAppliedFilters] = useState({
+    searchTerm: "",
+    selectedCategory: "all",
+    startDate: undefined as Date | undefined,
+    endDate: undefined as Date | undefined,
+    location: "",
+    priceRange: [0, 500],
+    distanceRange: [0, 50],
+    useCurrentLocation: false,
+  });
 
   const { data: listings = [], isLoading, error } = useListings();
+  const { coordinates, loading: locationLoading, getCurrentLocation } = useLocation();
+
+  const handleApplyFilters = () => {
+    setAppliedFilters({
+      searchTerm,
+      selectedCategory,
+      startDate,
+      endDate,
+      location,
+      priceRange,
+      distanceRange,
+      useCurrentLocation,
+    });
+  };
+
+  const handleGetCurrentLocation = () => {
+    setUseCurrentLocation(true);
+    getCurrentLocation();
+  };
 
   const filteredGear = listings.filter(listing => {
-    const matchesSearch = listing.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (listing.description || "").toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === "all" || 
-                           listing.categories.some(cat => cat.toLowerCase() === selectedCategory.toLowerCase());
-    return matchesSearch && matchesCategory;
+    const filters = appliedFilters;
+    
+    // Search filter
+    const matchesSearch = !filters.searchTerm || 
+      listing.title.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
+      (listing.description || "").toLowerCase().includes(filters.searchTerm.toLowerCase());
+    
+    // Category filter
+    const matchesCategory = filters.selectedCategory === "all" || 
+      listing.categories.some(cat => cat.toLowerCase() === filters.selectedCategory.toLowerCase());
+    
+    // Price filter
+    const matchesPrice = Number(listing.price_per_day) >= filters.priceRange[0] && 
+      Number(listing.price_per_day) <= filters.priceRange[1];
+    
+    // Location/distance filter (simplified - in real app would use actual geolocation)
+    const matchesLocation = !filters.location || 
+      (listing.pickup_addresses && listing.pickup_addresses.some(addr => 
+        addr.toLowerCase().includes(filters.location.toLowerCase())
+      ));
+    
+    return matchesSearch && matchesCategory && matchesPrice && matchesLocation;
   });
 
   const categories = [
@@ -53,42 +108,108 @@ const Browse = () => {
           </div>
 
           {/* Search and Filters */}
-          <div className="bg-card rounded-xl shadow-soft p-6 mb-8">
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-adventure p-6 md:p-8 mb-8">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-              <div className="md:col-span-2">
+              <div className="md:col-span-1">
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  What gear?
+                </label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                   <Input
-                    placeholder="Search gear..."
+                    placeholder="Climbing, camping..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 h-11"
+                    className="pl-10 h-12"
                   />
                 </div>
               </div>
-              <div>
+              
+              <div className="md:col-span-1">
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Location
+                </label>
                 <div className="relative">
                   <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                   <Input
-                    placeholder="Location"
-                    className="pl-10 h-11"
+                    placeholder="San Francisco, CA"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    className="pl-10 h-12"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleGetCurrentLocation}
+                    disabled={locationLoading}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0"
+                  >
+                    {locationLoading ? (
+                      <RefreshCw className="h-3 w-3 animate-spin" />
+                    ) : (
+                      <Target className="h-3 w-3" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+              
+              <div className="md:col-span-2 grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">Pick-up</label>
+                  <DatePicker 
+                    date={startDate} 
+                    onSelect={setStartDate} 
+                    placeholder="Pick-up date" 
+                    className="h-12" 
+                    disabled={date => date < new Date()} 
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">Return</label>
+                  <DatePicker 
+                    date={endDate} 
+                    onSelect={setEndDate} 
+                    placeholder="Return date" 
+                    className="h-12" 
+                    disabled={date => date < new Date()} 
                   />
                 </div>
               </div>
+            </div>
+
+            {/* Additional Filters */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 pt-4 border-t border-border">
               <div>
-                <DateRangePicker
-                  startDate={startDate}
-                  endDate={endDate}
-                  onStartDateSelect={setStartDate}
-                  onEndDateSelect={setEndDate}
-                  placeholder="Dates"
-                  className="h-11"
-                  disabled={(date) => date < new Date()}
+                <label className="block text-sm font-medium text-foreground mb-3">
+                  Price Range: ${priceRange[0]} - ${priceRange[1]} per day
+                </label>
+                <Slider
+                  value={priceRange}
+                  onValueChange={setPriceRange}
+                  max={500}
+                  min={0}
+                  step={25}
+                  className="w-full"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-3">
+                  Distance: {distanceRange[0]} - {distanceRange[1]} miles
+                </label>
+                <Slider
+                  value={distanceRange}
+                  onValueChange={setDistanceRange}
+                  max={100}
+                  min={0}
+                  step={5}
+                  className="w-full"
                 />
               </div>
             </div>
 
-            {/* Category Filter */}
+            {/* Category Filter and Apply Button */}
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex flex-wrap gap-2">
                 {categories.map((category) => (
@@ -101,12 +222,19 @@ const Browse = () => {
                     {category.name}
                   </Button>
                 ))}
-                <Button variant="ghost" size="sm">
-                  <Filter className="h-4 w-4 mr-2" />
-                  More Filters
-                </Button>
               </div>
+              
               <div className="flex items-center gap-3">
+                <Button 
+                  onClick={handleApplyFilters}
+                  variant="action"
+                  size="sm"
+                  className="h-10"
+                >
+                  <Filter className="h-4 w-4 mr-2" />
+                  Apply Filters
+                </Button>
+                
                 <Switch
                   id="map-toggle"
                   checked={showMap}
