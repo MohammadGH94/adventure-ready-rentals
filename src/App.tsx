@@ -21,6 +21,7 @@ import ListingBookings from "./pages/ListingBookings";
 import MyAdventures from "./pages/MyAdventures";
 import Favorites from "./pages/Favorites";
 import Settings from "./pages/Settings";
+import Profile from "./pages/Profile";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -80,6 +81,11 @@ const App = () => (
             <Route path="/settings" element={
               <ProtectedRoute>
                 <Settings />
+              </ProtectedRoute>
+            } />
+            <Route path="/profile" element={
+              <ProtectedRoute>
+                <Profile />
               </ProtectedRoute>
             } />
             <Route path="/architecture" element={<Architecture />} />
