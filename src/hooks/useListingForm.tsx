@@ -36,6 +36,8 @@ const listingSchema = z.object({
   business_license_verified: z.boolean().default(false),
   bulk_pricing: z.record(z.number()).optional(),
   add_ons: z.array(addOnSchema).optional().default([]),
+  start_date: z.date().optional(),
+  end_date: z.date().optional(),
 });
 
 export type ListingFormData = z.infer<typeof listingSchema>;

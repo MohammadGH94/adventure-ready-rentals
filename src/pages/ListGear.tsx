@@ -30,7 +30,6 @@ const ListGear = () => {
   const { user } = useAuth();
   const { files, uploading, addFiles, removeFile, uploadFiles, clearFiles } = useFileUpload();
   const { form, createListing } = useListingForm();
-  const [availability, setAvailability] = useState<DateRange | undefined>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const categories = [
@@ -84,7 +83,6 @@ const ListGear = () => {
       // Clear form and files
       form.reset();
       clearFiles();
-      setAvailability(undefined);
       
     } catch (error) {
       console.error('Error creating listing:', error);
@@ -407,15 +405,29 @@ const ListGear = () => {
                        )}
                      />
 
-                     <div>
+                     <div className="space-y-4">
                        <Label className="text-base font-medium">Availability</Label>
                        <p className="text-sm text-muted-foreground mb-4">When is your gear available for rent?</p>
-                       <DateRangePicker 
-                         startDate={availability?.from}
-                         endDate={availability?.to}
-                         onStartDateSelect={(date) => setAvailability(prev => ({ ...prev, from: date }))}
-                         onEndDateSelect={(date) => setAvailability(prev => ({ ...prev, to: date }))}
-                       />
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                         <FormField
+                           control={form.control}
+                           name="start_date"
+                           render={({ field }) => (
+                             <FormItem>
+                               <FormLabel>Available From</FormLabel>
+                               <FormControl>
+                                 <DateRangePicker 
+                                   startDate={field.value}
+                                   endDate={form.getValues('end_date')}
+                                   onStartDateSelect={(date) => field.onChange(date)}
+                                   onEndDateSelect={(date) => form.setValue('end_date', date)}
+                                 />
+                               </FormControl>
+                               <FormMessage />
+                             </FormItem>
+                           )}
+                         />
+                       </div>
                      </div>
 
                     <div className="flex justify-end space-x-4">
