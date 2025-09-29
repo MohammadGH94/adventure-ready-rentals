@@ -1,10 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { MapPin } from "lucide-react";
 
 interface MapViewProps {
   listings: Array<{
@@ -23,8 +19,7 @@ interface MapViewProps {
 export function MapView({ listings, onListingClick, userLocation, className }: MapViewProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
-  const [mapboxToken, setMapboxToken] = useState<string>('');
-  const [showTokenInput, setShowTokenInput] = useState(true);
+  const mapboxToken = import.meta.env.VITE_MAPBOX_PUBLIC_TOKEN;
 
   const initializeMap = () => {
     if (!mapContainer.current || !mapboxToken) return;
@@ -91,38 +86,6 @@ export function MapView({ listings, onListingClick, userLocation, className }: M
     };
   }, [mapboxToken, listings, userLocation, onListingClick]);
 
-  if (showTokenInput) {
-    return (
-      <Card className={className}>
-        <CardContent className="p-6 text-center">
-          <MapPin className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-          <h3 className="text-lg font-semibold mb-2">Map View Requires Setup</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            Enter your Mapbox public token to view listings on the map.
-            Get your token at{' '}
-            <a 
-              href="https://mapbox.com/" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-primary hover:underline"
-            >
-              mapbox.com
-            </a>
-          </p>
-          <div className="flex gap-2 max-w-md mx-auto">
-            <Input
-              placeholder="pk.eyJ1IjoieW91cnVzZXJuYW1lIi..."
-              value={mapboxToken}
-              onChange={(e) => setMapboxToken(e.target.value)}
-            />
-            <Button onClick={() => setShowTokenInput(false)} disabled={!mapboxToken}>
-              Load Map
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
 
   return (
     <div className={`relative ${className}`}>
