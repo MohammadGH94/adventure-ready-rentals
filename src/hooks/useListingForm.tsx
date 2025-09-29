@@ -23,6 +23,8 @@ const listingSchema = z.object({
   categories: z.array(z.enum(["camping", "water_sports", "climbing", "vehicles", "winter_sports", "hiking", "cycling"])).min(1, "At least one category is required"),
   price_per_day: z.number().min(1, "Price must be at least $1"),
   location_address: z.string().min(1, "Location is required"),
+  location_lat: z.number().optional(),
+  location_lng: z.number().optional(),
   pickup_instructions: z.string().optional(),
   rules_and_requirements: z.string().optional(),
   min_rental_days: z.number().min(1).default(1),

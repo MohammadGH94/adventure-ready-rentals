@@ -20,6 +20,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { MapPin, DollarSign, Upload, Building2, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { LocationInput } from '@/components/LocationInput';
 
 const EditListing = () => {
   const { id } = useParams<{ id: string }>();
@@ -316,14 +317,17 @@ const EditListing = () => {
                         <FormItem>
                           <FormLabel>Location *</FormLabel>
                           <FormControl>
-                            <div className="relative">
-                              <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                              <Input 
-                                {...field} 
-                                placeholder="City, State" 
-                                className="pl-10"
-                              />
-                            </div>
+                            <LocationInput
+                              value={field.value}
+                              onChange={(address, coordinates) => {
+                                field.onChange(address);
+                                if (coordinates) {
+                                  form.setValue('location_lat', coordinates.latitude);
+                                  form.setValue('location_lng', coordinates.longitude);
+                                }
+                              }}
+                              placeholder="City, State"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
