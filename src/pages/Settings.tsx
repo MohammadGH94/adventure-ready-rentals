@@ -19,6 +19,7 @@ import { VerificationStatus } from "@/components/settings/VerificationStatus";
 import { PayoutPreferences } from "@/components/settings/PayoutPreferences";
 import { getFinancialData, updateFinancialData, createFinancialData, UserFinancialData } from "@/lib/financialData";
 import Header from "@/components/Header";
+import { LocationInput } from "@/components/LocationInput";
 
 const profileSchema = z.object({
   first_name: z.string().min(1, "First name is required").max(100),

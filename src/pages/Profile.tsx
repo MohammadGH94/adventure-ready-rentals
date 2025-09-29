@@ -12,6 +12,7 @@ import { Loader2, Upload, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { z } from "zod";
 import Header from "@/components/Header";
+import { LocationInput } from "@/components/LocationInput";
 
 const profileSchema = z.object({
   first_name: z.string().min(1, "First name is required").max(100),
@@ -209,10 +210,14 @@ const Profile = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="address">Address</Label>
-              <Input
-                id="address"
+              <LocationInput
                 value={userData?.location_address || ""}
-                onChange={(e) => setUserData({ ...userData, location_address: e.target.value })}
+                onChange={(address, coordinates) => {
+                  setUserData({ ...userData, location_address: address });
+                  // Note: User profile table doesn't have lat/lng columns yet
+                  // This could be added in a future update
+                }}
+                placeholder="Enter your address"
               />
             </div>
             <div className="space-y-2">
