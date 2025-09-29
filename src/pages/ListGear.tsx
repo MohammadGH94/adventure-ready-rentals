@@ -12,6 +12,7 @@ import { DateRangePicker } from '@/components/DatePicker';
 import { PhotoUpload } from '@/components/PhotoUpload';
 import { AddOnsManager } from '@/components/AddOnsManager';
 import type { AddOn } from '@/components/AddOnsManager';
+import { LocationInput } from '@/components/LocationInput';
 import { useFileUpload } from '@/hooks/useFileUpload';
 import { useListingForm } from '@/hooks/useListingForm';
 import { useAuth } from '@/hooks/useAuth';
@@ -279,14 +280,17 @@ const ListGear = () => {
                           <FormItem>
                             <FormLabel>Location *</FormLabel>
                             <FormControl>
-                              <div className="relative">
-                                <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                                <Input 
-                                  {...field} 
-                                  placeholder="City, State" 
-                                  className="pl-10"
-                                />
-                              </div>
+                              <LocationInput
+                                value={field.value || ""}
+                                onChange={(address, coordinates) => {
+                                  field.onChange(address);
+                                  // TODO: Store coordinates when form schema is updated
+                                  if (coordinates) {
+                                    console.log('Coordinates:', coordinates);
+                                  }
+                                }}
+                                placeholder="Enter full address for accurate location"
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>

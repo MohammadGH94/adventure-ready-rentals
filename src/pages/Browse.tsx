@@ -12,6 +12,8 @@ import { Slider } from "@/components/ui/slider";
 import { useListings } from "@/hooks/useListings";
 import { useLocation } from "@/hooks/useLocation";
 import { getStorageImageUrl } from "@/lib/utils";
+import { MapView } from "@/components/MapView";
+import { calculateDistance, formatDistance } from "@/lib/distance";
 
 const Browse = () => {
   // Search and filter states
@@ -41,6 +43,9 @@ const Browse = () => {
 
   const { data: listings = [], isLoading, error } = useListings();
   const { coordinates, loading: locationLoading, getCurrentLocation } = useLocation();
+  
+  // Convert coordinates to user location format
+  const userLocation = coordinates ? { latitude: coordinates.latitude, longitude: coordinates.longitude } : null;
 
   const handleApplyFilters = () => {
     setAppliedFilters({
@@ -77,17 +82,36 @@ const Browse = () => {
     const matchesPrice = Number(listing.price_per_day) >= filters.priceRange[0] && 
       Number(listing.price_per_day) <= filters.priceRange[1];
     
-    // Location/distance filter (simplified - in real app would use actual geolocation)
+    // Location/distance filter
     const matchesLocation = !filters.location || 
       (listing.pickup_addresses && listing.pickup_addresses.some(addr => 
         addr.toLowerCase().includes(filters.location.toLowerCase())
       ));
     
+    // Distance filter (if user location and listing coordinates are available)
+    const matchesDistance = !userLocation || !listing.location_lat || !listing.location_lng ||
+      calculateDistance(
+        userLocation,
+        { latitude: listing.location_lat, longitude: listing.location_lng }
+      ) <= filters.distanceRange[1];
+    
     // User type filter
     const matchesUserType = filters.userType === "all" || 
       listing.owner?.user_type === filters.userType;
     
-    return matchesSearch && matchesCategory && matchesPrice && matchesLocation && matchesUserType;
+    return matchesSearch && matchesCategory && matchesPrice && matchesLocation && matchesUserType && matchesDistance;
+  });
+
+  // Add distance to filtered gear for display
+  const gearWithDistance = filteredGear.map((listing) => {
+    let distance = null;
+    if (userLocation && listing.location_lat && listing.location_lng) {
+      distance = calculateDistance(
+        userLocation,
+        { latitude: listing.location_lat, longitude: listing.location_lng }
+      );
+    }
+    return { ...listing, distance };
   });
 
   const categories = [
@@ -203,7 +227,8 @@ const Browse = () => {
               
               <div>
                 <label className="block text-sm font-medium text-foreground mb-3">
-                  Distance: {distanceRange[0]} - {distanceRange[1]} miles
+                  Distance: {distanceRange[0]} - {distanceRange[1]} km
+                  {userLocation && " (from your location)"}
                 </label>
                 <Slider
                   value={distanceRange}
@@ -213,6 +238,11 @@ const Browse = () => {
                   step={5}
                   className="w-full"
                 />
+                {!userLocation && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Enable location for distance filtering
+                  </p>
+                )}
               </div>
               
               <div>
@@ -282,21 +312,19 @@ const Browse = () => {
           <div className="mb-6">
             <p className="text-muted-foreground">
               {showMap
-                ? `Viewing ${filteredGear.length} matching gear on the map`
-                : `${filteredGear.length} gear items available`}
+                ? `Viewing ${gearWithDistance.length} matching gear on the map`
+                : `${gearWithDistance.length} gear items available`}
             </p>
           </div>
 
           {/* Gear Grid / Map View */}
           {showMap ? (
-            <div className="flex h-96 flex-col items-center justify-center rounded-xl border border-border bg-muted/40 text-center">
-              <Map className="mb-3 h-10 w-10 text-muted-foreground" />
-              <h3 className="text-lg font-semibold text-foreground">Map view coming soon</h3>
-              <p className="max-w-md text-sm text-muted-foreground">
-                Use the filters to find the perfect gear near you. Map results will appear here with locations and
-                availability details.
-              </p>
-            </div>
+            <MapView
+              listings={filteredGear}
+              userLocation={userLocation}
+              onListingClick={(id) => window.open(`/gear/${id}`, '_blank')}
+              className="h-96"
+            />
           ) : isLoading ? (
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 6 }).map((_, i) => (
@@ -321,7 +349,7 @@ const Browse = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {filteredGear.map((listing) => (
+              {gearWithDistance.map((listing) => (
                 <GearCard
                   key={listing.id}
                   id={listing.id}
@@ -332,10 +360,11 @@ const Browse = () => {
                   rating={4.5}
                   reviewCount={0}
                   location={listing.pickup_addresses?.[0] || "Location not specified"}
+                  distance={listing.distance ? formatDistance(listing.distance) : undefined}
                   hasAddOns={Array.isArray(listing.add_ons) && listing.add_ons.length > 0}
                 />
               ))}
-              {filteredGear.length === 0 && !isLoading && (
+              {gearWithDistance.length === 0 && !isLoading && (
                 <div className="col-span-full flex h-48 flex-col items-center justify-center rounded-xl border border-border bg-muted/40 text-center">
                   <h3 className="text-lg font-semibold text-foreground mb-2">No gear found</h3>
                   <p className="text-sm text-muted-foreground">Try adjusting your search or filters</p>
