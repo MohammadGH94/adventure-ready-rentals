@@ -154,7 +154,20 @@ export function MapView({ listings, onListingClick, userLocation, className }: M
   // Separate effect for updating markers when listings change
   useEffect(() => {
     if (map.current && !mapError) {
+      // Clear existing markers first
+      markers.current.forEach(marker => marker.remove());
+      markers.current = [];
+      
       addMarkersToMap();
+      
+      // Center map on user location when it's available
+      if (userLocation) {
+        map.current.flyTo({
+          center: [userLocation.longitude, userLocation.latitude],
+          zoom: 12,
+          duration: 2000
+        });
+      }
     }
   }, [listings, userLocation]);
 
