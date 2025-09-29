@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 interface Coordinates {
   latitude: number;
@@ -18,43 +18,101 @@ export const useLocation = () => {
     error: null,
   });
 
-  const getCurrentLocation = () => {
-    if (!navigator.geolocation) {
-      setState(prev => ({
-        ...prev,
-        loading: false,
-        error: 'Geolocation is not supported by this browser.',
-      }));
+  // Debouncing ref to prevent rapid successive calls
+  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
+  const isGettingLocation = useRef(false);
+
+  const getCurrentLocation = useCallback(() => {
+    // Prevent multiple simultaneous location requests
+    if (isGettingLocation.current) {
+      console.log('Location request already in progress');
       return;
     }
 
-    setState(prev => ({ ...prev, loading: true, error: null }));
+    // Clear any existing debounce timeout
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current);
+    }
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setState({
-          coordinates: {
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-          },
-          loading: false,
-          error: null,
-        });
-      },
-      (error) => {
+    // Debounce the location request to prevent rapid clicks
+    debounceTimeout.current = setTimeout(() => {
+      if (!navigator.geolocation) {
         setState(prev => ({
           ...prev,
           loading: false,
-          error: error.message,
+          error: 'Geolocation is not supported by this browser.',
         }));
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 600000, // 10 minutes
+        return;
       }
-    );
-  };
+
+      isGettingLocation.current = true;
+      setState(prev => ({ ...prev, loading: true, error: null }));
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          try {
+            setState({
+              coordinates: {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+              },
+              loading: false,
+              error: null,
+            });
+          } catch (error) {
+            console.error('Error processing location:', error);
+            setState(prev => ({
+              ...prev,
+              loading: false,
+              error: 'Failed to process location data',
+            }));
+          } finally {
+            isGettingLocation.current = false;
+          }
+        },
+        (error) => {
+          console.error('Geolocation error:', error);
+          let errorMessage = 'Location access denied';
+          
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              errorMessage = 'Location access denied by user';
+              break;
+            case error.POSITION_UNAVAILABLE:
+              errorMessage = 'Location information unavailable';
+              break;
+            case error.TIMEOUT:
+              errorMessage = 'Location request timed out';
+              break;
+            default:
+              errorMessage = error.message || 'Unknown location error';
+              break;
+          }
+
+          setState(prev => ({
+            ...prev,
+            loading: false,
+            error: errorMessage,
+          }));
+          isGettingLocation.current = false;
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 15000, // Increased timeout to 15 seconds
+          maximumAge: 300000, // 5 minutes cache
+        }
+      );
+    }, 300); // 300ms debounce delay
+  }, []);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimeout.current) {
+        clearTimeout(debounceTimeout.current);
+      }
+    };
+  }, []);
 
   return {
     ...state,
