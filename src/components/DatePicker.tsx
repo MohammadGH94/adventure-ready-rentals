@@ -91,7 +91,9 @@ export function DateRangePicker({
       <PopoverTrigger asChild>
         <div className="relative">
           <CalendarIcon className={iconClassName} />
-          
+          <Button variant="outline" className={cn("w-full justify-start text-left font-normal pl-10", !startDate && !endDate && "text-muted-foreground", className)}>
+            {formatDateRange()}
+          </Button>
         </div>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
