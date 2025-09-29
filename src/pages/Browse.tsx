@@ -64,6 +64,13 @@ const Browse = () => {
   const handleGetCurrentLocation = () => {
     setUseCurrentLocation(true);
     getCurrentLocation();
+    
+    // Show success/error feedback based on location state
+    setTimeout(() => {
+      if (coordinates) {
+        console.log('Location obtained successfully');
+      }
+    }, 1000);
   };
 
   const filteredGear = listings.filter(listing => {
