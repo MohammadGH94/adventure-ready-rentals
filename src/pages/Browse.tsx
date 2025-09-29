@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, Filter, MapPin, Map, Target, RefreshCw } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -42,7 +42,14 @@ const Browse = () => {
   });
 
   const { data: listings = [], isLoading, error } = useListings();
-  const { coordinates, loading: locationLoading, getCurrentLocation } = useLocation();
+  const { coordinates, address, loading: locationLoading, getCurrentLocation } = useLocation();
+
+  // Update location input when address is obtained
+  useEffect(() => {
+    if (address && useCurrentLocation) {
+      setLocation(address);
+    }
+  }, [address, useCurrentLocation]);
   
   // Convert coordinates to user location format
   const userLocation = coordinates ? { latitude: coordinates.latitude, longitude: coordinates.longitude } : null;
@@ -64,13 +71,6 @@ const Browse = () => {
   const handleGetCurrentLocation = () => {
     setUseCurrentLocation(true);
     getCurrentLocation();
-    
-    // Show success/error feedback based on location state
-    setTimeout(() => {
-      if (coordinates) {
-        console.log('Location obtained successfully');
-      }
-    }, 1000);
   };
 
   const filteredGear = listings.filter(listing => {
