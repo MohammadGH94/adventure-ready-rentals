@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { reverseGeocode } from '@/lib/geocoding';
 
 interface Coordinates {
   latitude: number;
@@ -7,6 +8,7 @@ interface Coordinates {
 
 interface LocationState {
   coordinates: Coordinates | null;
+  address: string | null;
   loading: boolean;
   error: string | null;
 }
@@ -14,6 +16,7 @@ interface LocationState {
 export const useLocation = () => {
   const [state, setState] = useState<LocationState>({
     coordinates: null,
+    address: null,
     loading: false,
     error: null,
   });
@@ -49,13 +52,19 @@ export const useLocation = () => {
       setState(prev => ({ ...prev, loading: true, error: null }));
 
       navigator.geolocation.getCurrentPosition(
-        (position) => {
+        async (position) => {
           try {
+            const coordinates = {
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+            };
+
+            // Get the address from coordinates
+            const address = await reverseGeocode(coordinates.latitude, coordinates.longitude);
+
             setState({
-              coordinates: {
-                latitude: position.coords.latitude,
-                longitude: position.coords.longitude,
-              },
+              coordinates,
+              address,
               loading: false,
               error: null,
             });
