@@ -23,31 +23,24 @@ export const useListings = () => {
   return useQuery({
     queryKey: ["listings"],
     queryFn: async () => {
+      // Use the new secure function that only returns safe public data
       const { data, error } = await supabase
-        .from("listings")
-        .select(`
-          id,
-          title,
-          description,
-          photos,
-          price_per_day,
-          pickup_addresses,
-          categories,
-          is_available,
-          owner_id,
-          add_ons,
-          location_lat,
-          location_lng,
-          owner:users(user_type)
-        `)
-        .eq("is_available", true);
+        .rpc("get_public_listings");
 
       if (error) {
         console.error("Error fetching listings:", error);
         throw error;
       }
 
-      return data as Listing[];
+      // Transform to match the expected Listing interface
+      return data?.map((listing: any) => ({
+        ...listing,
+        photos: listing.photos || [],
+        pickup_addresses: [], // Not exposed in public view for security
+        add_ons: [], // Not exposed in public view for security
+        owner_id: null, // Not exposed in public view for security
+        owner: { user_type: 'unknown' }, // Not exposed in public view for security
+      })) as Listing[];
     },
   });
 };
