@@ -22,7 +22,7 @@ const FeaturedGear = () => {
               id={gear.id}
               title={gear.title}
               description={gear.description}
-              image={gear.image}
+              images={[gear.image]}
               price={gear.price}
               rating={gear.rating}
               reviewCount={gear.reviewCount}

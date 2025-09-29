@@ -133,7 +133,7 @@ const Favorites = () => {
                   id={listing.id}
                   title={listing.title}
                   description={listing.description || ""}
-                  image={getStorageImageUrl(listing.photos?.[0])}
+                  images={listing.photos?.map(photo => getStorageImageUrl(photo)) || ["/placeholder.svg"]}
                   price={Number(listing.price_per_day)}
                   rating={4.5}
                   reviewCount={0}

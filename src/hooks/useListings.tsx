@@ -12,6 +12,9 @@ export interface Listing {
   is_available: boolean;
   owner_id: string;
   add_ons: any[];
+  owner: {
+    user_type: string;
+  };
 }
 
 export const useListings = () => {
@@ -30,7 +33,8 @@ export const useListings = () => {
           categories,
           is_available,
           owner_id,
-          add_ons
+          add_ons,
+          owner:users(user_type)
         `)
         .eq("is_available", true);
 
