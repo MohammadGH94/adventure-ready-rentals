@@ -32,37 +32,9 @@ export const useListing = (id: string) => {
   return useQuery({
     queryKey: ["listing", id],
     queryFn: async () => {
+      // Use the new secure function for detailed listing data (for authenticated users)
       const { data, error } = await supabase
-        .from("listings")
-        .select(`
-          id,
-          title,
-          description,
-          photos,
-          price_per_day,
-          pickup_addresses,
-          categories,
-          is_available,
-          owner_id,
-          deposit_amount,
-          insurance_required,
-          pickup_instructions,
-          rules_and_requirements,
-          min_rental_days,
-          max_rental_days,
-          delivery_available,
-          delivery_fee,
-          add_ons,
-          owner:users!owner_id (
-            id,
-            first_name,
-            profile_image_url,
-            created_at
-          )
-        `)
-        .eq("id", id)
-        .eq("is_available", true)
-        .maybeSingle();
+        .rpc("get_listing_for_booking", { listing_id: id });
 
       if (error) {
         console.error("Error fetching listing:", error);
@@ -72,7 +44,20 @@ export const useListing = (id: string) => {
       console.log(`Querying listing with ID: ${id}`);
       console.log(`Found listing data:`, data);
 
-      return data as DatabaseListing | null;
+      // Transform the array result to a single object
+      const listing = data?.[0] || null;
+      
+      if (!listing) return null;
+
+      // Transform to match the expected DatabaseListing interface
+      return {
+        ...listing,
+        photos: listing.photos || [],
+        pickup_addresses: [], // Will be available when user initiates booking
+        is_available: true, // Function only returns available listings
+        owner_id: "hidden", // Not exposed for security reasons  
+        owner: undefined, // Will fetch owner details separately when needed
+      } as DatabaseListing;
     },
     enabled: !!id,
   });

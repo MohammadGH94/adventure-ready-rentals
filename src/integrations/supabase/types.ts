@@ -573,7 +573,52 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_listing_for_booking: {
+        Args: { listing_id: string }
+        Returns: {
+          add_ons: Json
+          bulk_pricing: Json
+          categories: string[]
+          delivery_available: boolean
+          delivery_fee: number
+          delivery_radius: number
+          deposit_amount: number
+          description: string
+          id: string
+          insurance_required: boolean
+          inventory_count: number
+          location_lat: number
+          location_lng: number
+          max_rental_days: number
+          min_rental_days: number
+          photos: string[]
+          pickup_instructions: string
+          price_per_day: number
+          rented_as_kit: boolean
+          rules_and_requirements: string
+          title: string
+        }[]
+      }
+      get_public_listings: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          categories: string[]
+          created_at: string
+          delivery_available: boolean
+          description: string
+          featured: boolean
+          id: string
+          inventory_count: number
+          location_lat: number
+          location_lng: number
+          max_rental_days: number
+          min_rental_days: number
+          photos: string[]
+          price_per_day: number
+          title: string
+          view_count: number
+        }[]
+      }
     }
     Enums: {
       booking_status:
