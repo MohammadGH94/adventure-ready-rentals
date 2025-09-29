@@ -12,6 +12,8 @@ export interface Listing {
   is_available: boolean;
   owner_id: string;
   add_ons: any[];
+  location_lat: number | null;
+  location_lng: number | null;
   owner: {
     user_type: string;
   };
@@ -34,6 +36,8 @@ export const useListings = () => {
           is_available,
           owner_id,
           add_ons,
+          location_lat,
+          location_lng,
           owner:users(user_type)
         `)
         .eq("is_available", true);

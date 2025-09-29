@@ -14,10 +14,11 @@ interface GearCardProps {
   rating: number;
   reviewCount: number;
   location: string;
+  distance?: string;
   hasAddOns?: boolean;
 }
 
-const GearCard = ({ id, title, description, images, price, rating, reviewCount, location, hasAddOns }: GearCardProps) => {
+const GearCard = ({ id, title, description, images, price, rating, reviewCount, location, distance, hasAddOns }: GearCardProps) => {
   const [imageError, setImageError] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const { toast } = useToast();
@@ -148,7 +149,12 @@ const GearCard = ({ id, title, description, images, price, rating, reviewCount, 
         </p>
         
         <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
-          <span>📍 {location}</span>
+          <div className="flex items-center">
+            <span>📍 {location}</span>
+            {distance && (
+              <span className="text-primary font-medium ml-2">• {distance} away</span>
+            )}
+          </div>
           {hasAddOns && (
             <span className="bg-accent text-accent-foreground px-2 py-1 rounded-full text-xs font-medium">
               Extras Available
