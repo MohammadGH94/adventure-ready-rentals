@@ -24,6 +24,7 @@ const Browse = () => {
   const [priceRange, setPriceRange] = useState([0, 500]);
   const [distanceRange, setDistanceRange] = useState([0, 50]);
   const [useCurrentLocation, setUseCurrentLocation] = useState(false);
+  const [userType, setUserType] = useState("all");
   
   // Applied filters (for "Apply Filters" button functionality)
   const [appliedFilters, setAppliedFilters] = useState({
@@ -35,6 +36,7 @@ const Browse = () => {
     priceRange: [0, 500],
     distanceRange: [0, 50],
     useCurrentLocation: false,
+    userType: "all",
   });
 
   const { data: listings = [], isLoading, error } = useListings();
@@ -50,6 +52,7 @@ const Browse = () => {
       priceRange,
       distanceRange,
       useCurrentLocation,
+      userType,
     });
   };
 
@@ -80,7 +83,11 @@ const Browse = () => {
         addr.toLowerCase().includes(filters.location.toLowerCase())
       ));
     
-    return matchesSearch && matchesCategory && matchesPrice && matchesLocation;
+    // User type filter
+    const matchesUserType = filters.userType === "all" || 
+      listing.owner?.user_type === filters.userType;
+    
+    return matchesSearch && matchesCategory && matchesPrice && matchesLocation && matchesUserType;
   });
 
   const categories = [
@@ -179,7 +186,7 @@ const Browse = () => {
             </div>
 
             {/* Additional Filters */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 pt-4 border-t border-border">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 pt-4 border-t border-border">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-3">
                   Price Range: ${priceRange[0]} - ${priceRange[1]} per day
@@ -206,6 +213,29 @@ const Browse = () => {
                   step={5}
                   className="w-full"
                 />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-3">
+                  Owner Type
+                </label>
+                <div className="flex gap-2">
+                  {[
+                    { id: "all", name: "All" },
+                    { id: "individual", name: "Individual" },
+                    { id: "business", name: "Business" }
+                  ].map((type) => (
+                    <Button
+                      key={type.id}
+                      variant={userType === type.id ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setUserType(type.id)}
+                      className="flex-1"
+                    >
+                      {type.name}
+                    </Button>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -297,7 +327,7 @@ const Browse = () => {
                   id={listing.id}
                   title={listing.title}
                   description={listing.description || ""}
-                  image={getStorageImageUrl(listing.photos?.[0])}
+                  images={listing.photos?.map(photo => getStorageImageUrl(photo)) || ["/placeholder.svg"]}
                   price={Number(listing.price_per_day)}
                   rating={4.5}
                   reviewCount={0}
