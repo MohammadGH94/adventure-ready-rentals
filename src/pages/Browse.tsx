@@ -87,8 +87,8 @@ const Browse = () => {
     { id: "all", name: "All Categories" },
     { id: "climbing", name: "Climbing" },
     { id: "camping", name: "Camping" },
-    { id: "water-sports", name: "Water Sports" },
-    { id: "winter-sports", name: "Winter Sports" }
+    { id: "water_sports", name: "Water Sports" },
+    { id: "winter_sports", name: "Winter Sports" }
   ];
 
   return (
