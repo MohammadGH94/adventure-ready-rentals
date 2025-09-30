@@ -29,7 +29,7 @@ const EditListing = () => {
   const { toast } = useToast();
   const { files, uploading, addFiles, removeFile, uploadFiles, clearFiles, setFiles } = useFileUpload();
   const { form, updateListing } = useListingForm();
-  const { data: listing, isLoading, error } = useListing(id || '');
+  const { data: listing, isLoading, error } = useListing(id || '', true); // true for owner mode
   const [availability, setAvailability] = useState<DateRange | undefined>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -201,8 +201,13 @@ const EditListing = () => {
           {/* Listing Form */}
           <Card>
             <CardHeader>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 flex-wrap">
                 <CardTitle className="text-2xl">Edit: {listing.title}</CardTitle>
+                {listing.listing_status === 'pending_review' && (
+                  <Badge variant="outline" className="border-yellow-500 text-yellow-700 bg-yellow-50">
+                    Pending Approval
+                  </Badge>
+                )}
                 {isBusinessUser && (
                   <Badge variant="secondary" className="flex items-center gap-1">
                     <Building2 className="h-3 w-3" />
