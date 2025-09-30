@@ -17,7 +17,7 @@ export function LocationInput({ value, onChange, placeholder = "Enter address", 
   const { toast } = useToast();
 
   const handleGeocode = async () => {
-    if (!value.trim()) {
+    if (!value || !value.trim()) {
       toast({
         variant: "destructive",
         title: "No address provided",
@@ -57,7 +57,7 @@ export function LocationInput({ value, onChange, placeholder = "Enter address", 
   return (
     <div className={`flex gap-2 ${className}`}>
       <Input
-        value={value}
+        value={value || ''}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         className="flex-1"
@@ -66,7 +66,7 @@ export function LocationInput({ value, onChange, placeholder = "Enter address", 
         type="button"
         variant="outline"
         onClick={handleGeocode}
-        disabled={isGeocoding || !value.trim()}
+        disabled={isGeocoding || !value || !value.trim()}
         className="px-3"
       >
         {isGeocoding ? (

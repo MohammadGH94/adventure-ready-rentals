@@ -22,6 +22,7 @@ interface Listing {
   categories: string[];
   photos: string[];
   created_at: string;
+  listing_status?: string;
   bookings_count?: number;
   monthly_revenue?: number;
 }
@@ -64,7 +65,8 @@ const MyListings = () => {
           is_available,
           categories,
           photos,
-          created_at
+          created_at,
+          listing_status
         `)
         .eq('owner_id', userData.id)
         .order('created_at', { ascending: false });
@@ -262,7 +264,12 @@ const MyListings = () => {
                         <Package className="h-12 w-12 text-muted-foreground" />
                       </div>
                     )}
-                    <div className="absolute top-2 right-2">
+                    <div className="absolute top-2 right-2 flex flex-col gap-2">
+                      {listing.listing_status === 'pending_review' && (
+                        <Badge variant="outline" className="border-yellow-500 text-yellow-700 bg-yellow-50">
+                          Pending Approval
+                        </Badge>
+                      )}
                       <Badge variant={listing.is_available ? "default" : "secondary"}>
                         {listing.is_available ? "Active" : "Inactive"}
                       </Badge>

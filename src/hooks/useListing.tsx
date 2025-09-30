@@ -20,6 +20,9 @@ export interface DatabaseListing {
   delivery_available: boolean;
   delivery_fee: number | null;
   add_ons: any[] | null;
+  listing_status?: string;
+  created_at?: string;
+  updated_at?: string;
   owner?: {
     id: string;
     first_name: string;
@@ -28,36 +31,65 @@ export interface DatabaseListing {
   };
 }
 
-export const useListing = (id: string) => {
+export const useListing = (id: string, ownerMode: boolean = false) => {
   return useQuery({
-    queryKey: ["listing", id],
+    queryKey: ["listing", id, ownerMode],
     queryFn: async () => {
-      // Use the new secure function for detailed listing data (for authenticated users)
-      const { data, error } = await supabase
-        .rpc("get_listing_for_booking", { listing_id: id });
+      if (ownerMode) {
+        // Use owner function for editing/managing listings
+        const { data, error } = await supabase
+          .rpc("get_listing_for_owner", { listing_id: id });
 
-      if (error) {
-        console.error("Error fetching listing:", error);
-        throw error;
+        if (error) {
+          console.error("Error fetching listing for owner:", error);
+          throw error;
+        }
+
+        console.log(`Querying owner listing with ID: ${id}`);
+        console.log(`Found owner listing data:`, data);
+
+        // Transform the array result to a single object
+        const listing = data?.[0] || null;
+        
+        if (!listing) return null;
+
+        // Return full data for owner
+        return {
+          ...listing,
+          photos: listing.photos || [],
+          pickup_addresses: listing.pickup_addresses || [],
+          is_available: listing.is_available,
+          owner_id: listing.owner_id,
+          owner: undefined, // Will fetch owner details separately when needed
+        } as DatabaseListing;
+      } else {
+        // Use the secure function for public/booking access
+        const { data, error } = await supabase
+          .rpc("get_listing_for_booking", { listing_id: id });
+
+        if (error) {
+          console.error("Error fetching listing:", error);
+          throw error;
+        }
+
+        console.log(`Querying listing with ID: ${id}`);
+        console.log(`Found listing data:`, data);
+
+        // Transform the array result to a single object
+        const listing = data?.[0] || null;
+        
+        if (!listing) return null;
+
+        // Transform to match the expected DatabaseListing interface
+        return {
+          ...listing,
+          photos: listing.photos || [],
+          pickup_addresses: [], // Will be available when user initiates booking
+          is_available: true, // Function only returns available listings
+          owner_id: "hidden", // Not exposed for security reasons  
+          owner: undefined, // Will fetch owner details separately when needed
+        } as DatabaseListing;
       }
-
-      console.log(`Querying listing with ID: ${id}`);
-      console.log(`Found listing data:`, data);
-
-      // Transform the array result to a single object
-      const listing = data?.[0] || null;
-      
-      if (!listing) return null;
-
-      // Transform to match the expected DatabaseListing interface
-      return {
-        ...listing,
-        photos: listing.photos || [],
-        pickup_addresses: [], // Will be available when user initiates booking
-        is_available: true, // Function only returns available listings
-        owner_id: "hidden", // Not exposed for security reasons  
-        owner: undefined, // Will fetch owner details separately when needed
-      } as DatabaseListing;
     },
     enabled: !!id,
   });
