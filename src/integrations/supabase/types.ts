@@ -573,6 +573,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      approve_listing: {
+        Args: { listing_id: string }
+        Returns: boolean
+      }
       get_listing_for_booking: {
         Args: { listing_id: string }
         Returns: {
@@ -597,6 +601,32 @@ export type Database = {
           rented_as_kit: boolean
           rules_and_requirements: string
           title: string
+        }[]
+      }
+      get_listing_for_owner: {
+        Args: { listing_id: string }
+        Returns: {
+          add_ons: Json
+          categories: string[]
+          created_at: string
+          delivery_available: boolean
+          delivery_fee: number
+          deposit_amount: number
+          description: string
+          id: string
+          insurance_required: boolean
+          is_available: boolean
+          listing_status: string
+          max_rental_days: number
+          min_rental_days: number
+          owner_id: string
+          photos: string[]
+          pickup_addresses: string[]
+          pickup_instructions: string
+          price_per_day: number
+          rules_and_requirements: string
+          title: string
+          updated_at: string
         }[]
       }
       get_public_listings: {
