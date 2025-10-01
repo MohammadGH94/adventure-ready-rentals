@@ -4,10 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
 import { DatePicker } from "@/components/DatePicker";
+import { LocationInput } from "@/components/LocationInput";
 import heroImage from "@/assets/nature-illustration-1.png";
 const Hero = () => {
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
+  const [location, setLocation] = useState("");
   return <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden">
       {/* Background Image */}
       <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{
@@ -46,10 +48,12 @@ const Hero = () => {
               <label className="block text-sm font-medium text-foreground mb-2">
                 Location
               </label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input placeholder="San Francisco, CA" className="pl-10 h-12" />
-              </div>
+              <LocationInput
+                value={location}
+                onChange={(address) => setLocation(address)}
+                placeholder="San Francisco, CA"
+                className="h-12"
+              />
             </div>
             
             <div className="md:col-span-2 grid grid-cols-2 gap-4">
