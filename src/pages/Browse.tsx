@@ -14,6 +14,7 @@ import { useLocation } from "@/hooks/useLocation";
 import { getStorageImageUrl } from "@/lib/utils";
 import { MapView } from "@/components/MapView";
 import { calculateDistance, formatDistance } from "@/lib/distance";
+import { LocationInput } from "@/components/LocationInput";
 
 const Browse = () => {
   // Search and filter states
@@ -167,29 +168,12 @@ const Browse = () => {
                 <label className="block text-sm font-medium text-foreground mb-2">
                   Location
                 </label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                  <Input
-                    placeholder="San Francisco, CA"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    className="pl-10 h-12"
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleGetCurrentLocation}
-                    disabled={locationLoading}
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0"
-                  >
-                    {locationLoading ? (
-                      <RefreshCw className="h-3 w-3 animate-spin" />
-                    ) : (
-                      <Target className="h-3 w-3" />
-                    )}
-                  </Button>
-                </div>
+                <LocationInput
+                  value={location}
+                  onChange={(address) => setLocation(address)}
+                  placeholder="San Francisco, CA"
+                  className="h-12"
+                />
               </div>
               
               <div className="md:col-span-2 grid grid-cols-2 gap-4">
