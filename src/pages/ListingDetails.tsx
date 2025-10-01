@@ -1,6 +1,7 @@
 import { useEffect, useReducer, useState, useMemo, useCallback, useRef } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { MapPin, Star, Clock, ShieldCheck, Wallet, FileText, RefreshCcw, CheckCircle2, AlertTriangle, MessageSquare, ArrowLeft } from "lucide-react";
+import { getApproximateLocation } from "@/lib/locationPrivacy";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Badge } from "@/components/ui/badge";
@@ -477,7 +478,7 @@ const mapDatabaseToGearListing = (dbListing: DatabaseListing): GearListing => {
     // Default rating - in future could be calculated from reviews
     reviewCount: 0,
     // Default - in future could be calculated from reviews
-    location: dbListing.pickup_addresses?.[0] || "Location TBD",
+    location: dbListing.pickup_addresses?.[0] ? getApproximateLocation(dbListing.pickup_addresses[0]) : "Location TBD",
     category: dbListing.categories?.[0] || "general",
     addOns: addOns,
     protection: {
