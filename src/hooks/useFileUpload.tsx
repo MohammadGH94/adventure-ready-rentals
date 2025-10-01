@@ -115,11 +115,21 @@ export const useFileUpload = () => {
     setFiles([]);
   }, [files]);
 
+  const reorderFiles = useCallback((fromIndex: number, toIndex: number) => {
+    setFiles(prev => {
+      const newFiles = [...prev];
+      const [movedFile] = newFiles.splice(fromIndex, 1);
+      newFiles.splice(toIndex, 0, movedFile);
+      return newFiles;
+    });
+  }, []);
+
   return {
     files,
     uploading,
     addFiles,
     removeFile,
+    reorderFiles,
     uploadFiles,
     clearFiles,
     setFiles,
