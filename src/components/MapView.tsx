@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import ErrorBoundary from './ErrorBoundary';
+import { fuzzCoordinates } from '@/lib/locationPrivacy';
 
 interface MapViewProps {
   listings: Array<{
@@ -103,13 +104,17 @@ export function MapView({ listings, onListingClick, userLocation, className }: M
         markers.current.push(userMarker);
       }
 
-      // Add listing markers
+      // Add listing markers with fuzzy coordinates for privacy
       listings.forEach((listing) => {
         if (listing.location_lat && listing.location_lng && map.current) {
+          // Use fuzzy coordinates for privacy - shows approximate neighborhood location
+          const fuzzyCoords = fuzzCoordinates(listing.location_lat, listing.location_lng);
+          
           const popup = new mapboxgl.Popup().setHTML(`
             <div class="p-2">
               <h3 class="font-semibold">${listing.title}</h3>
               <p class="text-sm text-gray-600">$${listing.price_per_day}/day</p>
+              <p class="text-xs text-gray-500 mt-1">Approximate location</p>
               <button onclick="window.dispatchEvent(new CustomEvent('mapListingClick', {detail: '${listing.id}'}))" 
                       class="mt-2 px-3 py-1 bg-primary text-primary-foreground rounded text-sm">
                 View Details
@@ -118,7 +123,7 @@ export function MapView({ listings, onListingClick, userLocation, className }: M
           `);
 
           const listingMarker = new mapboxgl.Marker({ color: '#059669' })
-            .setLngLat([listing.location_lng, listing.location_lat])
+            .setLngLat([fuzzyCoords.longitude, fuzzyCoords.latitude])
             .setPopup(popup);
           
           listingMarker.addTo(map.current);
