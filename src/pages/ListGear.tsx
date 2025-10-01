@@ -284,9 +284,9 @@ const ListGear = () => {
                                 value={field.value || ""}
                                 onChange={(address, coordinates) => {
                                   field.onChange(address);
-                                  // TODO: Store coordinates when form schema is updated
                                   if (coordinates) {
-                                    console.log('Coordinates:', coordinates);
+                                    form.setValue('location_lat', coordinates.latitude);
+                                    form.setValue('location_lng', coordinates.longitude);
                                   }
                                 }}
                                 placeholder="Enter full address for accurate location"
