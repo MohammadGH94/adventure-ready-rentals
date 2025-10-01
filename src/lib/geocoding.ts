@@ -66,3 +66,38 @@ export async function reverseGeocode(latitude: number, longitude: number): Promi
     return null;
   }
 }
+
+export interface AutocompleteSuggestion {
+  displayName: string;
+  latitude: number;
+  longitude: number;
+  type: string;
+}
+
+export async function autocompleteAddress(query: string): Promise<AutocompleteSuggestion[]> {
+  if (!query || query.trim().length < 3) {
+    return [];
+  }
+
+  try {
+    const response = await fetch(
+      `${NOMINATIM_BASE_URL}/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1`
+    );
+    
+    if (!response.ok) {
+      throw new Error('Autocomplete request failed');
+    }
+    
+    const data = await response.json();
+    
+    return data.map((result: any) => ({
+      displayName: result.display_name,
+      latitude: parseFloat(result.lat),
+      longitude: parseFloat(result.lon),
+      type: result.type
+    }));
+  } catch (error) {
+    console.error('Autocomplete error:', error);
+    return [];
+  }
+}
