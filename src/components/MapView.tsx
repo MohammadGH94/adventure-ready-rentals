@@ -108,7 +108,8 @@ export function MapView({ listings, onListingClick, userLocation, className }: M
       listings.forEach((listing) => {
         if (listing.location_lat && listing.location_lng && map.current) {
           // Use fuzzy coordinates for privacy - shows approximate neighborhood location
-          const fuzzyCoords = fuzzCoordinates(listing.location_lat, listing.location_lng);
+          // Use listing ID as seed to ensure consistent fuzzing across re-renders
+          const fuzzyCoords = fuzzCoordinates(listing.location_lat, listing.location_lng, listing.id);
           
           const popup = new mapboxgl.Popup().setHTML(`
             <div class="p-2">

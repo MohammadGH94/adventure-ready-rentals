@@ -1,10 +1,25 @@
-// Fuzzes coordinates for privacy by adding a random offset
+// Simple hash function to generate deterministic pseudo-random numbers from a string
+function hashString(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  return Math.abs(hash);
+}
+
+// Fuzzes coordinates for privacy by adding a deterministic offset based on listing ID
 // This makes the location approximate (neighborhood level) rather than exact
-export function fuzzCoordinates(lat: number, lng: number): { latitude: number; longitude: number } {
-  // Add random offset of ~0.01-0.015 degrees (roughly 1-1.5km)
-  // This is enough to hide exact location but keep neighborhood accuracy
-  const latOffset = (Math.random() - 0.5) * 0.025;
-  const lngOffset = (Math.random() - 0.5) * 0.025;
+export function fuzzCoordinates(lat: number, lng: number, seed: string): { latitude: number; longitude: number } {
+  // Use seed to generate deterministic offsets
+  const hash = hashString(seed);
+  const latSeed = (hash % 1000) / 1000; // Normalize to 0-1
+  const lngSeed = ((hash * 7) % 1000) / 1000; // Different seed for longitude
+  
+  // Add offset of ~0.01-0.015 degrees (roughly 1-1.5km)
+  const latOffset = (latSeed - 0.5) * 0.025;
+  const lngOffset = (lngSeed - 0.5) * 0.025;
   
   return {
     latitude: lat + latOffset,
