@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { MapPin, Loader2 } from "lucide-react";
+import { MapPin, Loader2, Locate } from "lucide-react";
 import { geocodeAddress, autocompleteAddress, AutocompleteSuggestion } from "@/lib/geocoding";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { useLocation } from "@/hooks/useLocation";
 
 interface LocationInputProps {
   value: string;
@@ -21,6 +22,7 @@ export function LocationInput({ value, onChange, placeholder = "Enter address", 
   const { toast } = useToast();
   const debounceTimerRef = useRef<NodeJS.Timeout>();
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const { getCurrentLocation, loading: locationLoading, error: locationError, coordinates, address } = useLocation();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -69,43 +71,32 @@ export function LocationInput({ value, onChange, placeholder = "Enter address", 
     setSuggestions([]);
   };
 
-  const handleGeocode = async () => {
-    if (!value || !value.trim()) {
-      toast({
-        variant: "destructive",
-        title: "No address provided",
-        description: "Please enter an address to geocode"
-      });
-      return;
-    }
-
-    setIsGeocoding(true);
-    try {
-      const result = await geocodeAddress(value);
-      
-      if (result) {
-        onChange(result.formattedAddress, result.coordinates);
-        toast({
-          title: "Address verified",
-          description: "Location coordinates have been saved"
-        });
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Address not found",
-          description: "Please check the address and try again"
-        });
-      }
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Geocoding failed",
-        description: "Unable to verify address location"
-      });
-    } finally {
-      setIsGeocoding(false);
-    }
+  const handleUseCurrentLocation = () => {
+    getCurrentLocation();
   };
+
+  useEffect(() => {
+    if (coordinates && address) {
+      onChange(address, {
+        latitude: coordinates.latitude,
+        longitude: coordinates.longitude
+      });
+      toast({
+        title: "Location found",
+        description: "Your current location has been set"
+      });
+    }
+  }, [coordinates, address]);
+
+  useEffect(() => {
+    if (locationError) {
+      toast({
+        variant: "destructive",
+        title: "Location error",
+        description: locationError
+      });
+    }
+  }, [locationError]);
 
   return (
     <div ref={wrapperRef} className={cn("relative", className)}>
@@ -130,14 +121,15 @@ export function LocationInput({ value, onChange, placeholder = "Enter address", 
         <Button
           type="button"
           variant="outline"
-          onClick={handleGeocode}
-          disabled={isGeocoding || !value || !value.trim()}
+          onClick={handleUseCurrentLocation}
+          disabled={locationLoading}
           className="px-3"
+          title="Use my current location"
         >
-          {isGeocoding ? (
+          {locationLoading ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
-            <MapPin className="h-4 w-4" />
+            <Locate className="h-4 w-4" />
           )}
         </Button>
       </div>
