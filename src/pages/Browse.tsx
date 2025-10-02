@@ -13,7 +13,11 @@ import { useListings } from "@/hooks/useListings";
 import { useLocation } from "@/hooks/useLocation";
 import { getStorageImageUrl } from "@/lib/utils";
 import { MapView } from "@/components/MapView";
-import { calculateDistance, formatDistance } from "@/lib/distance";
+import { formatDistance } from "@/lib/distance";
+import {
+  computeListingDistance,
+  filterListings,
+} from "@/lib/listing-filters";
 import { LocationInput } from "@/components/LocationInput";
 
 const Browse = () => {
@@ -75,53 +79,16 @@ const Browse = () => {
     getCurrentLocation();
   };
 
-  const filteredGear = listings.filter(listing => {
-    const filters = appliedFilters;
-    
-    // Search filter
-    const matchesSearch = !filters.searchTerm || 
-      listing.title.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
-      (listing.description || "").toLowerCase().includes(filters.searchTerm.toLowerCase());
-    
-    // Category filter
-    const matchesCategory = filters.selectedCategory === "all" || 
-      listing.categories.some(cat => cat.toLowerCase() === filters.selectedCategory.toLowerCase());
-    
-    // Price filter
-    const matchesPrice = Number(listing.price_per_day) >= filters.priceRange[0] && 
-      Number(listing.price_per_day) <= filters.priceRange[1];
-    
-    // Location/distance filter
-    const matchesLocation = !filters.location || 
-      (listing.pickup_addresses && listing.pickup_addresses.some(addr => 
-        addr.toLowerCase().includes(filters.location.toLowerCase())
-      ));
-    
-    // Distance filter (if user location and listing coordinates are available)
-    const matchesDistance = !userLocation || !listing.location_lat || !listing.location_lng ||
-      calculateDistance(
-        userLocation,
-        { latitude: listing.location_lat, longitude: listing.location_lng }
-      ) <= filters.distanceRange[1];
-    
-    // User type filter
-    const matchesUserType = filters.userType === "all" || 
-      listing.owner?.user_type === filters.userType;
-    
-    return matchesSearch && matchesCategory && matchesPrice && matchesLocation && matchesUserType && matchesDistance;
-  });
+  const listingsWithDistance = listings.map((listing) => ({
+    ...listing,
+    distance: computeListingDistance(listing, userLocation),
+  }));
 
-  // Add distance to filtered gear for display
-  const gearWithDistance = filteredGear.map((listing) => {
-    let distance = null;
-    if (userLocation && listing.location_lat && listing.location_lng) {
-      distance = calculateDistance(
-        userLocation,
-        { latitude: listing.location_lat, longitude: listing.location_lng }
-      );
-    }
-    return { ...listing, distance };
-  });
+  const filteredGear = filterListings(
+    listingsWithDistance,
+    appliedFilters,
+    userLocation
+  );
 
   const categories = [
     { id: "all", name: "All Categories" },
@@ -309,8 +276,8 @@ const Browse = () => {
           <div className="mb-6">
             <p className="text-muted-foreground">
               {showMap
-                ? `Viewing ${gearWithDistance.length} matching gear on the map`
-                : `${gearWithDistance.length} gear items available`}
+                ? `Viewing ${filteredGear.length} matching gear on the map`
+                : `${filteredGear.length} gear items available`}
             </p>
           </div>
 
@@ -346,7 +313,7 @@ const Browse = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {gearWithDistance.map((listing) => (
+              {filteredGear.map((listing) => (
                 <GearCard
                   key={listing.id}
                   id={listing.id}
@@ -357,11 +324,13 @@ const Browse = () => {
                   rating={4.5}
                   reviewCount={0}
                   location={listing.pickup_addresses?.[0] || "Location not specified"}
-                  distance={listing.distance ? formatDistance(listing.distance) : undefined}
+                  distance={
+                    listing.distance ? formatDistance(listing.distance) : undefined
+                  }
                   hasAddOns={Array.isArray(listing.add_ons) && listing.add_ons.length > 0}
                 />
               ))}
-              {gearWithDistance.length === 0 && !isLoading && (
+              {filteredGear.length === 0 && !isLoading && (
                 <div className="col-span-full flex h-48 flex-col items-center justify-center rounded-xl border border-border bg-muted/40 text-center">
                   <h3 className="text-lg font-semibold text-foreground mb-2">No gear found</h3>
                   <p className="text-sm text-muted-foreground">Try adjusting your search or filters</p>
