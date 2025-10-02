@@ -24,6 +24,7 @@ const Browse = () => {
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [location, setLocation] = useState("");
+  const [locationCoordinates, setLocationCoordinates] = useState<{ latitude: number; longitude: number } | null>(null);
   const [priceRange, setPriceRange] = useState([0, 500]);
   const [distanceRange, setDistanceRange] = useState([0, 50]);
   const [useCurrentLocation, setUseCurrentLocation] = useState(false);
@@ -52,8 +53,8 @@ const Browse = () => {
     }
   }, [address, useCurrentLocation]);
   
-  // Convert coordinates to user location format
-  const userLocation = coordinates ? { latitude: coordinates.latitude, longitude: coordinates.longitude } : null;
+  // Convert coordinates to user location format - prioritize manually entered location
+  const userLocation = locationCoordinates || (coordinates ? { latitude: coordinates.latitude, longitude: coordinates.longitude } : null);
 
   const handleApplyFilters = () => {
     setAppliedFilters({
@@ -170,7 +171,12 @@ const Browse = () => {
                 </label>
                 <LocationInput
                   value={location}
-                  onChange={(address) => setLocation(address)}
+                  onChange={(address, coords) => {
+                    setLocation(address);
+                    if (coords) {
+                      setLocationCoordinates(coords);
+                    }
+                  }}
                   placeholder="San Francisco, CA"
                   className="h-12"
                 />
