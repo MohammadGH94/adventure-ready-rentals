@@ -1062,14 +1062,14 @@ const ListingDetails = () => {
                         </DialogTrigger>
                         <DialogContent className="max-w-4xl max-h-[90vh] p-0">
                           <div className="relative">
-                            <div className="flex items-center justify-between p-4 border-b">
+                            <div className="flex items-center justify-between px-4 pt-10 pb-4 border-b">
                               <h2 className="text-lg font-semibold">{listing.title} Photos</h2>
                               {listing.photos && <span className="text-sm text-muted-foreground">
                                   {selectedPhotoIndex + 1} of {listing.photos.length}
                                 </span>}
                             </div>
                             <div className="relative">
-                              <img src={listing.photos?.[selectedPhotoIndex] || listing.image} alt={`${listing.title} - Photo ${selectedPhotoIndex + 1}`} className="w-full h-[60vh] object-cover" />
+                              <img src={listing.photos?.[selectedPhotoIndex] || listing.image} alt={`${listing.title} - Photo ${selectedPhotoIndex + 1}`} className="w-full h-[60vh] object-contain" />
                               {listing.photos && listing.photos.length > 1 && <>
                                   <button onClick={() => setSelectedPhotoIndex(prev => prev > 0 ? prev - 1 : listing.photos!.length - 1)} className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors">
                                     <ArrowLeft className="h-5 w-5" />
