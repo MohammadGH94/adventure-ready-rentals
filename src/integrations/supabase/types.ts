@@ -595,6 +595,10 @@ export type Database = {
           location_lng: number
           max_rental_days: number
           min_rental_days: number
+          owner_created_at: string
+          owner_first_name: string
+          owner_id: string
+          owner_profile_image_url: string
           photos: string[]
           pickup_instructions: string
           price_per_day: number
