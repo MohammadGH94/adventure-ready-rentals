@@ -22,7 +22,7 @@ const Hero = () => {
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 tracking-tight">
           Discover Your Next
-          <span className="block bg-gradient-sunset bg-clip-text text-transparent">
+          <span className="block bg-gradient-sunset max-w-fit mx-auto mt-2 px-4 py-2 rounded-md">
             Adventure
           </span>
         </h1>
@@ -34,7 +34,7 @@ const Hero = () => {
         {/* Search Interface */}
         <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 md:p-8 shadow-adventure max-w-4xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="md:col-span-1">
+            <div className="md:col-span-2">
               <label className="block text-sm font-medium text-foreground mb-2">
                 What gear?
               </label>
@@ -44,7 +44,7 @@ const Hero = () => {
               </div>
             </div>
             
-            <div className="md:col-span-1">
+            <div className="md:col-span-2">
               <label className="block text-sm font-medium text-foreground mb-2">
                 Location
               </label>
@@ -52,11 +52,11 @@ const Hero = () => {
                 value={location}
                 onChange={(address) => setLocation(address)}
                 placeholder="San Francisco, CA"
-                className="h-12"
+                className="h-auto"
               />
             </div>
             
-            <div className="md:col-span-2 grid grid-cols-2 gap-4">
+            <div className="md:col-span-4 grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">Pick-up</label>
                 <DatePicker date={startDate} onSelect={setStartDate} placeholder="Pick-up date" className="h-12" disabled={date => date < new Date()} />
@@ -67,7 +67,7 @@ const Hero = () => {
               </div>
             </div>
             
-            <div className="md:col-span-1 flex items-end">  
+            <div className="md:col-span-4 flex items-end">  
               <Button asChild variant="action" size="lg" className="w-full h-12">
                 <Link to="/browse">Find Your Adventure</Link>
               </Button>
