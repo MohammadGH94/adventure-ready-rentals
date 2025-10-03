@@ -41,8 +41,8 @@ const Browse = () => {
     startDate: undefined as Date | undefined,
     endDate: undefined as Date | undefined,
     location: "",
-    priceRange: [0, 500],
-    distanceRange: [0, 50],
+    priceRange: [0, 500] as [number, number],
+    distanceRange: [0, 50] as [number, number],
     useCurrentLocation: false,
     userType: "all",
   });
@@ -67,8 +67,8 @@ const Browse = () => {
       startDate,
       endDate,
       location,
-      priceRange,
-      distanceRange,
+      priceRange: priceRange as [number, number],
+      distanceRange: distanceRange as [number, number],
       useCurrentLocation,
       userType,
     });
@@ -284,7 +284,18 @@ const Browse = () => {
           {/* Gear Grid / Map View */}
           {showMap ? (
             <MapView
-              listings={filteredGear}
+              listings={filteredGear.map(listing => ({
+                id: String(listing.id),
+                title: listing.title,
+                description: listing.description || undefined,
+                location_lat: listing.location_lat || 0,
+                location_lng: listing.location_lng || 0,
+                price_per_day: Number(listing.price_per_day),
+                photos: Array.isArray(listing.photos) ? listing.photos : [],
+                categories: listing.categories,
+                min_rental_days: undefined,
+                delivery_available: undefined,
+              }))}
               userLocation={userLocation}
               onListingClick={(id) => window.open(`/gear/${id}`, '_blank')}
               className="h-96"
@@ -315,15 +326,15 @@ const Browse = () => {
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               {filteredGear.map((listing) => (
                 <GearCard
-                  key={listing.id}
-                  id={listing.id}
+                  key={String(listing.id)}
+                  id={String(listing.id)}
                   title={listing.title}
                   description={listing.description || ""}
-                  images={listing.photos?.map(photo => getStorageImageUrl(photo)) || ["/placeholder.svg"]}
+                  images={Array.isArray(listing.photos) ? listing.photos.map(photo => getStorageImageUrl(photo)) : ["/placeholder.svg"]}
                   price={Number(listing.price_per_day)}
                   rating={4.5}
                   reviewCount={0}
-                  location={listing.pickup_addresses?.[0] || "Location not specified"}
+                  location={Array.isArray(listing.pickup_addresses) && listing.pickup_addresses.length > 0 ? listing.pickup_addresses[0] : "Location not specified"}
                   distance={
                     listing.distance ? formatDistance(listing.distance) : undefined
                   }
