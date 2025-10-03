@@ -86,8 +86,12 @@ export const useListing = (id: string, ownerMode: boolean = false) => {
           photos: listing.photos || [],
           pickup_addresses: [], // Will be available when user initiates booking
           is_available: true, // Function only returns available listings
-          owner_id: "hidden", // Not exposed for security reasons  
-          owner: undefined, // Will fetch owner details separately when needed
+          owner: listing.owner_id ? {
+            id: listing.owner_id,
+            first_name: listing.owner_first_name || "Owner",
+            profile_image_url: listing.owner_profile_image_url,
+            created_at: listing.owner_created_at,
+          } : undefined,
         } as DatabaseListing;
       }
     },
