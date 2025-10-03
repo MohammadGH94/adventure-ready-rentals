@@ -653,6 +653,16 @@ export type Database = {
           view_count: number
         }[]
       }
+      get_public_user_profile: {
+        Args: { user_profile_id: string }
+        Returns: {
+          created_at: string
+          first_name: string
+          id: string
+          profile_bio: string
+          profile_image_url: string
+        }[]
+      }
     }
     Enums: {
       booking_status:

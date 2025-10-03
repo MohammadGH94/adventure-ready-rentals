@@ -32,16 +32,18 @@ export const useOwnerProfile = (ownerId: string) => {
   return useQuery({
     queryKey: ["owner-profile", ownerId],
     queryFn: async () => {
-      // Fetch owner basic info
-      const { data: owner, error: ownerError } = await supabase
-        .from("users")
-        .select("id, first_name, profile_image_url, profile_bio, created_at")
-        .eq("id", ownerId)
-        .single();
+      // Fetch owner basic info using secure public profile function
+      const { data: ownerData, error: ownerError } = await supabase
+        .rpc("get_public_user_profile", { user_profile_id: ownerId });
 
       if (ownerError) {
         console.error("Error fetching owner:", ownerError);
         throw ownerError;
+      }
+
+      const owner = ownerData?.[0];
+      if (!owner) {
+        throw new Error("Owner not found");
       }
 
       // Fetch owner's listings with booking/view counts
@@ -143,12 +145,11 @@ export const useOwnerProfile = (ownerId: string) => {
             .single();
 
           if (booking?.owner_id === ownerId && review.owner_rating) {
-            // Get renter name
-            const { data: renter } = await supabase
-              .from("users")
-              .select("first_name")
-              .eq("id", booking.renter_id)
-              .single();
+            // Get renter name using secure public profile function
+            const { data: renterData } = await supabase
+              .rpc("get_public_user_profile", { user_profile_id: booking.renter_id });
+
+            const renter = renterData?.[0];
 
             ownerReviews.push({
               ...review,
