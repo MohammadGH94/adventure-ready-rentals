@@ -20,6 +20,8 @@ export interface ListingForFilters {
   location_lng?: number | null;
   owner?: ListingOwner | null;
   distance?: number | null;
+  photos?: string[] | null;
+  add_ons?: unknown;
   [key: string]: unknown;
 }
 

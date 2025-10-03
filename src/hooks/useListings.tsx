@@ -17,6 +17,7 @@ export interface Listing {
   owner: {
     user_type: string;
   };
+  [key: string]: unknown;
 }
 
 export const useListings = () => {
